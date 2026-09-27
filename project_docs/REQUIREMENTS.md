@@ -16,30 +16,31 @@ Legend:
 - [ ] Local-first; no account or cloud required.
 - [ ] Full local test suite.
 - [ ] Clear, human-readable code and extensive useful comments.
-- [ ] Every delivered version contains this file and PROGRESS.md.
-- [ ] Every delivered version contains all source files, tests, set data and project metadata.
+- [x] Every delivered version contains this file and PROGRESS.md.
+- [x] Every delivered version contains all source files, tests, set data and project metadata.
 
 ## Engineering conventions
-- [ ] All source code is written in English.
-- [ ] All identifiers, module names, package names, internal schema keys, configuration keys, code comments and technical log messages are English.
-- [ ] Project-authored filenames and directory names use simple ASCII characters only.
-- [ ] Project-authored source code, technical documentation, default English UI strings and developer tooling avoid decorative or typographic Unicode characters.
-- [ ] Use plain alternatives such as `-`, `->`, `...`, straight quotes and normal ASCII punctuation instead of smart quotes, long dashes, Unicode arrows, decorative bullets, emoji or similar characters.
-- [ ] Localized external/user-facing data may contain characters required by the language, but the project does not introduce unnecessary special symbols.
-- [ ] Paths are never assembled with string concatenation or hardcoded path separators.
-- [ ] Python path handling uses `pathlib` and a small centralized path/configuration module.
-- [ ] Runtime writable paths do not depend on the current working directory.
-- [ ] Runtime user-data locations use `platformdirs` or an equivalent actively maintained platform-aware library.
-- [ ] No developer-machine absolute paths are committed to source, configuration, tests or generated manifests.
+- [x] All source code is written in English.
+- [x] All project-authored README, requirements, planning, progress, handoff, decision and testing documentation is written in English.
+- [x] All identifiers, module names, package names, internal schema keys, configuration keys, code comments and technical log messages are English.
+- [x] Project-authored filenames and directory names use simple ASCII characters only.
+- [x] Project-authored source code, technical documentation, default English UI strings and developer tooling avoid decorative or typographic Unicode characters.
+- [x] Use plain alternatives such as `-`, `->`, `...`, straight quotes and normal ASCII punctuation instead of smart quotes, long dashes, Unicode arrows, decorative bullets, emoji or similar characters.
+- [x] Localized external/user-facing data may contain characters required by the language, but the project does not introduce unnecessary special symbols.
+- [x] Paths are never assembled with string concatenation or hardcoded path separators.
+- [x] Python path handling uses `pathlib` and a small centralized path/configuration module.
+- [x] Runtime writable paths do not depend on the current working directory.
+- [x] Runtime user-data locations use `platformdirs` or an equivalent actively maintained platform-aware library.
+- [x] No developer-machine absolute paths are committed to source, configuration, tests or generated manifests.
 - [ ] Source and runtime path behavior is explicitly tested on Windows-compatible path semantics where practical.
-- [ ] Dependencies are declared centrally in `pyproject.toml` and use maintained stable versions compatible with the selected Python/Flet toolchain.
-- [ ] Prefer modern, actively maintained libraries when they materially improve correctness, portability or maintainability.
-- [ ] Prefer the Python standard library when it already provides a clear, robust solution; do not add dependencies only to appear modern.
-- [ ] Avoid obsolete/deprecated libraries and legacy API styles when current maintained alternatives exist.
-- [ ] Dependency choices are kept pragmatic; do not introduce generic frameworks, interfaces or abstractions without a concrete need.
-- [ ] Formatting/linting uses Ruff or an equivalent current tool configured in `pyproject.toml`.
-- [ ] Tests use pytest and remain easy to run locally with one documented command.
-- [ ] A project-level automated check prevents accidental non-ASCII characters in project-authored technical files, with explicit allowlists only for localization/external data directories that legitimately require them.
+- [x] Dependencies are declared centrally in `pyproject.toml` and use maintained stable versions compatible with the selected Python/Flet toolchain.
+- [x] Prefer modern, actively maintained libraries when they materially improve correctness, portability or maintainability.
+- [x] Prefer the Python standard library when it already provides a clear, robust solution; do not add dependencies only to appear modern.
+- [x] Avoid obsolete/deprecated libraries and legacy API styles when current maintained alternatives exist.
+- [x] Dependency choices are kept pragmatic; do not introduce generic frameworks, interfaces or abstractions without a concrete need.
+- [x] Formatting/linting uses Ruff or an equivalent current tool configured in `pyproject.toml`.
+- [x] Tests use pytest and remain easy to run locally with one documented command.
+- [x] A project-level automated check prevents accidental non-ASCII characters in project-authored technical files, with explicit allowlists only for localization/external data directories that legitimately require them.
 
 ## Riot compliance
 - [ ] Unofficial third-party product presentation.
@@ -51,16 +52,17 @@ Legend:
 - [ ] Re-check current Riot rules before any public release.
 
 ## Sets
-- [ ] Dedicated sets/ folder.
-- [ ] One folder per TFT set.
-- [ ] Each set has a manifest and data files.
-- [ ] Application validates each installed set before use.
-- [ ] Validation checks required files, schema version, unique IDs, references, traits, champion assets and configuration completeness.
-- [ ] Invalid/incomplete sets fail with understandable validation errors instead of partially loading.
-- [ ] Set data contains no executable Python code.
+- [x] Dedicated sets/ folder.
+- [x] One folder per TFT set.
+- [x] Each set has a manifest and data files.
+- [x] Application validates each installed set before use.
+- [x] Validation checks required files, schema version, unique IDs, references, traits, champion assets and configuration completeness.
+- [x] Invalid/incomplete sets fail with understandable validation errors instead of partially loading.
+- [x] Runtime Set validation rejects empty Champion or Trait catalogs.
+- [x] Set data contains no executable Python code.
 
 ## Set data acquisition and generation
-- [ ] Runtime Set packages are generated local data; the normal app has no network dependency on Riot Data Dragon or CommunityDragon.
+- [x] Runtime Set packages are generated local data; the normal app has no network dependency on Riot Data Dragon or CommunityDragon.
 - [ ] Riot Data Dragon is the preferred official source for supported localized TFT data and shipped visible assets.
 - [ ] CommunityDragon may be used only as a pinned build-time supplemental/cross-check source for TFT metadata not exposed adequately by Data Dragon.
 - [ ] Public-release compliance is rechecked for any CommunityDragon-derived fields/assets that are shipped.
@@ -69,19 +71,23 @@ Legend:
 - [ ] Source ownership is defined per field; source disagreements fail with a readable conflict instead of silently overwriting values.
 - [ ] Manual Set overrides are small, explicit, version-controlled and require a human-readable reason.
 - [ ] Raw downloaded source payloads are cached outside Git and are not required at runtime.
-- [ ] Generated Set packages contain local champion/Trait assets; runtime UI does not hotlink these assets.
+- [x] Generated Set packages contain local champion/Trait assets; runtime UI does not hotlink these assets.
 - [ ] Set generation produces a source inventory/completeness report.
 - [ ] Every source candidate is either included, explicitly excluded with a reason, or causes validation to fail.
 - [ ] Completeness checks account for debug/summoned/alternate/legacy source records rather than assuming every raw record is a player-selectable champion.
-- [ ] Normal unit tests for the importer/validator run offline against committed fixtures.
-- [ ] Generated output from identical pinned inputs and overrides is deterministic.
+- [x] Normal unit tests for the importer/validator run offline against committed fixtures.
+- [x] Generated output from identical pinned inputs and overrides is deterministic.
+- [x] Block 1 local source specs record a SHA-256 source hash plus hashes for every generated runtime JSON/locale file and every required runtime asset.
+- [x] Runtime Set validation verifies required generated-file and asset hashes before accepting a Set.
+- [x] Local Set generation uses a validated staging directory so a failed build does not leave partial output or destroy a previous valid output.
+- [x] Set-source asset paths cannot escape the source-spec directory through path traversal or symlinks.
 
 ## Teams and lists
-- [ ] A Team is the top-level saved build.
-- [ ] A Team belongs to exactly one TFT set.
-- [ ] A Team always has at least one List.
-- [ ] Exactly one List is the primary/starred list.
-- [ ] Teams and Lists use stable internal IDs; names do not need to be unique.
+- [x] A Team is the top-level saved build.
+- [x] A Team belongs to exactly one TFT set.
+- [x] A Team always has at least one List.
+- [x] Exactly one List is the primary/starred list.
+- [x] Teams and Lists use stable internal IDs; names do not need to be unique.
 - [ ] Team names and List names are editable.
 - [ ] Lists can be created, duplicated, reordered, cleared and deleted.
 - [ ] The last remaining List cannot be deleted.
@@ -89,10 +95,11 @@ Legend:
 - [ ] The currently active List is separate from the primary List.
 
 ## Champion instances and slots
-- [ ] Lists have ordered slots and may contain gaps.
-- [ ] Lists have no fixed maximum number of champions.
-- [ ] Champion instances have their own IDs.
-- [ ] Duplicate champions are allowed.
+- [x] Lists have ordered slots and may contain gaps.
+- [x] Lists have no fixed maximum number of champions.
+- [x] Champion instances have their own IDs.
+- [x] Champion instance IDs are unique inside a Team.
+- [x] Duplicate champions are allowed.
 - [ ] Duplicate champion IDs do not normally count twice for traits.
 - [ ] Moving inside a List to an empty slot moves the champion.
 - [ ] Moving inside a List to an occupied slot swaps both champions.
@@ -115,7 +122,7 @@ Legend:
 ## Search
 - [ ] Search champions by champion name.
 - [ ] Search champions by trait name.
-- [ ] Search normalization ignores case, spaces and punctuation and handles Unicode sensibly.
+- [x] Search normalization ignores case, spaces and punctuation and handles Unicode sensibly.
 - [ ] Start page can search Teams by Team name.
 - [ ] Start page can select champions to rank Teams by best matching List.
 - [ ] Ranking prioritizes number of selected champion matches, then fewer extra champions.
@@ -130,8 +137,8 @@ Legend:
 - [ ] Optional toggle hides Traits below the first breakpoint.
 - [ ] Optional toggle shows next-breakpoint progress such as 3/4.
 - [ ] Trait calculation is independent from Flet widgets.
-- [ ] Dynamic trait selection is data-driven, not hardcoded per champion.
-- [ ] Supported dynamic selection rules include NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N.
+- [x] Dynamic trait selection is data-driven, not hardcoded per champion.
+- [x] Supported dynamic selection rules include NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N.
 - [ ] Required but missing dynamic choices are visibly marked and do not silently count.
 
 ## Start page
@@ -204,8 +211,8 @@ Legend:
 - [ ] Critical writes use transactions.
 
 ## Testing
-- [ ] Unit tests for models.
-- [ ] Detailed set-package validation tests.
+- [x] Unit tests for models.
+- [x] Detailed set-package validation tests.
 - [ ] Detailed trait-engine tests, including duplicate champions and dynamic choices.
 - [ ] Detailed slot move/swap/copy tests.
 - [ ] Detailed similarity ranking tests.
@@ -238,15 +245,15 @@ Legend:
 
 # 38. Project documentation and handoff
 
-- [ ] `PROJECT_CONTEXT.md` remains in the project root as the first handoff document.
-- [ ] `REQUIREMENTS.md` remains part of every delivered source version.
-- [ ] `PROGRESS.md` remains part of every delivered source version.
-- [ ] `IMPLEMENTATION_BLOCKS.md` remains part of every delivered source version.
-- [ ] `DEVELOPMENT_PLAN.md` remains part of every delivered source version.
+- [x] `PROJECT_CONTEXT.md` remains in the project root as the first handoff document.
+- [x] `REQUIREMENTS.md` remains part of every delivered source version.
+- [x] `PROGRESS.md` remains part of every delivered source version.
+- [x] `IMPLEMENTATION_BLOCKS.md` remains part of every delivered source version.
+- [x] `DEVELOPMENT_PLAN.md` remains part of every delivered source version.
 - [ ] The Windows release package includes these planning/handoff files in a readable `project_docs/` directory.
-- [ ] `PROGRESS.md` is updated only with work that is actually implemented and locally verified.
-- [ ] Requirements discovered during development are added to `REQUIREMENTS.md` before or together with their implementation.
+- [x] `PROGRESS.md` is updated only with work that is actually implemented and locally verified.
+- [x] Requirements discovered during development are added to `REQUIREMENTS.md` before or together with their implementation.
 - [ ] Every delivered ZIP is complete and accompanied by a SHA-256 checksum calculated from that final ZIP.
-- [ ] The current implementation blocks are documented and their completion status is maintained.
+- [x] The current implementation blocks are documented and their completion status is maintained.
 - [ ] Future implementation blocks may be adjusted after completed blocks when justified by the actual code; planning changes are documented rather than silently changed.
-- [ ] Every delivered version includes a ready-to-copy Git add/commit/push command block.
+- [x] Every delivered version includes a ready-to-copy Git add/commit/push command block.

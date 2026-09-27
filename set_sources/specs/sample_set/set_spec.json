@@ -1,0 +1,146 @@
+{
+  "assets": {
+    "assets/champions/sample_flex.png": "assets/champions/sample_flex.png",
+    "assets/champions/sample_guardian.png": "assets/champions/sample_guardian.png",
+    "assets/champions/sample_mage.png": "assets/champions/sample_mage.png",
+    "assets/traits/sample_arcane.png": "assets/traits/sample_arcane.png",
+    "assets/traits/sample_guard.png": "assets/traits/sample_guard.png",
+    "assets/traits/sample_wildcard.png": "assets/traits/sample_wildcard.png"
+  },
+  "champions": [
+    {
+      "cost": 1,
+      "display_order": 10,
+      "id": "sample_guardian",
+      "image": "assets/champions/sample_guardian.png",
+      "name_key": "champion.sample_guardian.name",
+      "search_aliases": [
+        "guardian"
+      ],
+      "traits": [
+        "sample_guard"
+      ]
+    },
+    {
+      "cost": 3,
+      "display_order": 20,
+      "id": "sample_mage",
+      "image": "assets/champions/sample_mage.png",
+      "name_key": "champion.sample_mage.name",
+      "search_aliases": [
+        "mage"
+      ],
+      "traits": [
+        "sample_arcane"
+      ]
+    },
+    {
+      "cost": 7,
+      "display_order": 30,
+      "id": "sample_flex",
+      "image": "assets/champions/sample_flex.png",
+      "name_key": "champion.sample_flex.name",
+      "search_aliases": [
+        "flex"
+      ],
+      "traits": [
+        "sample_guard"
+      ]
+    }
+  ],
+  "dynamic_traits": [
+    {
+      "champion_id": "sample_flex",
+      "choices": [
+        "sample_arcane",
+        "sample_wildcard"
+      ],
+      "exact_count": null,
+      "selection_rule": "EXACTLY_ONE",
+      "selection_scope": "PER_INSTANCE"
+    }
+  ],
+  "locales": {
+    "en": {
+      "champion.sample_flex.name": "Sample Flex",
+      "champion.sample_guardian.name": "Sample Guardian",
+      "champion.sample_mage.name": "Sample Mage",
+      "set.sample_set.name": "Development Sample Set",
+      "trait.sample_arcane.name": "Sample Arcane",
+      "trait.sample_guard.name": "Sample Guard",
+      "trait.sample_wildcard.name": "Sample Wildcard"
+    }
+  },
+  "manifest": {
+    "assets_dir": "assets",
+    "champions_file": "data/champions.json",
+    "default_locale": "en",
+    "display_name_key": "set.sample_set.name",
+    "dynamic_traits_file": "data/dynamic_traits.json",
+    "locales_dir": "locales",
+    "revision": "0.1.0",
+    "schema_version": 1,
+    "set_id": "sample_set",
+    "source_manifest_file": "source_manifest.json",
+    "supported_locales": [
+      "en"
+    ],
+    "team_planner_file": "data/team_planner.json",
+    "team_planner_supported": false,
+    "traits_file": "data/traits.json"
+  },
+  "schema_version": 1,
+  "team_planner": {
+    "champion_ids": {},
+    "codec": null
+  },
+  "traits": [
+    {
+      "breakpoints": [
+        {
+          "count": 2,
+          "style": "bronze"
+        },
+        {
+          "count": 4,
+          "style": "silver"
+        }
+      ],
+      "counting_mode": "UNIQUE_CHAMPION",
+      "display_order": 10,
+      "icon": "assets/traits/sample_guard.png",
+      "id": "sample_guard",
+      "name_key": "trait.sample_guard.name"
+    },
+    {
+      "breakpoints": [
+        {
+          "count": 2,
+          "style": "bronze"
+        },
+        {
+          "count": 3,
+          "style": "gold"
+        }
+      ],
+      "counting_mode": "UNIQUE_CHAMPION",
+      "display_order": 20,
+      "icon": "assets/traits/sample_arcane.png",
+      "id": "sample_arcane",
+      "name_key": "trait.sample_arcane.name"
+    },
+    {
+      "breakpoints": [
+        {
+          "count": 1,
+          "style": "unique"
+        }
+      ],
+      "counting_mode": "UNIQUE_CHAMPION",
+      "display_order": 30,
+      "icon": "assets/traits/sample_wildcard.png",
+      "id": "sample_wildcard",
+      "name_key": "trait.sample_wildcard.name"
+    }
+  ]
+}

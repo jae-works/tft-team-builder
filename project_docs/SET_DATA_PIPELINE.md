@@ -1,7 +1,8 @@
 # TFT Team Builder - Set Data Pipeline
 
 This document defines how TFT Set data and assets are collected, normalized, validated and shipped.
-It is a planning/architecture document until the importer is implemented.
+
+Current implementation status: Block 1 implements the local runtime schema, deterministic local-spec builder, strict Set loader/validator, local asset copying, and source/asset hashing. Network acquisition from pinned Riot Data Dragon and CommunityDragon inputs, source-candidate inventory generation, conflict reconciliation, and production Set generation remain Block 7 work.
 
 ## Decision
 
@@ -111,7 +112,8 @@ The completeness report must verify at minimum:
 - Assets are copied into the generated Set package so the runtime works offline.
 - Generated asset paths must be local relative paths; the GUI must not hotlink remote images.
 - Missing required assets fail Set generation/validation. Runtime fallback behavior still exists for corruption after installation, but a Set should not be released in that state.
-- Asset file hashes may be stored in `source_manifest.json` to detect accidental corruption or drift.
+- Required asset hashes are stored in `source_manifest.json` and verified at runtime to detect accidental corruption or drift.
+- Generated manifest/data/locale file hashes are also stored and verified, so hand-edited or corrupted runtime data is rejected instead of silently diverging from its generated source.
 
 ## Localization
 
@@ -121,7 +123,7 @@ The pipeline must keep localization separate from stable IDs so additional local
 
 ## Importer and validator tools
 
-Planned developer tools:
+Block 1 provides these developer entry points:
 
 ```text
 tools/
@@ -130,21 +132,33 @@ tools/
         validate_set.py
 ```
 
-The exact split may change if a smaller implementation is clearer. We will not create extra interfaces/classes solely to match this sketch.
+The current `build_set.py` command builds a deterministic runtime package from a committed local source specification, and `validate_set.py` validates an existing runtime package. The same functionality is also available through the `tft-builder-dev` command.
 
-The tools must support:
+Implemented in Block 1:
 
-- pinned source configuration;
-- download/cache with hashes;
-- source parsing;
-- Set candidate filtering;
-- explicit exclusion reporting;
-- manual overrides;
+- local source-spec parsing;
 - normalization into the runtime schema;
-- local asset extraction/copy;
-- schema validation;
-- source/completeness validation;
-- readable errors suitable for both humans and tests.
+- local asset copy;
+- source-spec SHA-256 recording;
+- required generated-file and asset SHA-256 recording and runtime verification;
+- staging-based generation and non-destructive overwrite behavior;
+- source/output overlap and source-asset symlink escape protection;
+- schema and semantic validation;
+- readable stable validation errors;
+- deterministic generation tests.
+
+Block 7 extends this boundary with:
+
+- pinned remote source configuration;
+- download/cache with hashes;
+- Riot Data Dragon and CommunityDragon source parsing;
+- Set candidate filtering;
+- explicit exclusion inventory/reporting;
+- manual override application with reasons;
+- cross-source conflict detection and review;
+- source/completeness validation for real TFT Sets.
+
+We will not create extra interfaces or generic classes solely to match this document. The source adapters should remain as small and explicit as practical.
 
 ## Tests
 

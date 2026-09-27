@@ -70,15 +70,15 @@ The code should remain practical, modern and human-readable.
 
 ### Planned library policy
 
-Exact compatible versions are selected and pinned in Block 1 after verifying the current Flet/Windows build toolchain. The intended baseline is:
+Block 1 selected and pinned the current baseline after compatibility research:
 
-- Flet for the desktop GUI.
-- Pydantic v2 for strict external Set/manifest/schema validation where it reduces handwritten validation errors.
-- `platformdirs` for writable platform-specific application paths.
+- Flet 1.0.1 for the desktop GUI.
+- Pydantic 2.13.5 for strict external Set/manifest/schema validation.
+- `platformdirs` 4.11.14 for writable platform-specific application paths.
 - SQLAlchemy 2.x for SQLite persistence and Alembic for explicit database migrations, unless Block 1/2 tests show a materially simpler robust approach.
 - `httpx` for developer-side Set source downloads in Block 7.
-- pytest for tests.
-- Ruff for formatting/linting/import checks.
+- pytest 9.1.1 for tests.
+- Ruff 0.16.9 for formatting/linting/import checks.
 
 These are implementation tools, not goals by themselves. If a dependency does not provide a concrete benefit, the standard library is preferred.
 
@@ -103,6 +103,12 @@ Every source delivery includes at least:
 - `PROGRESS.md`
 - `IMPLEMENTATION_BLOCKS.md`
 - `DEVELOPMENT_PLAN.md`
+- `DECISIONS.md`
 - `SET_DATA_PIPELINE.md`
+- the current block implementation report, currently `BLOCK_01_REPORT.md`
 
 The final Windows package also ships readable copies of the relevant project documentation in `project_docs/` so another developer or AI instance can understand what was built and why.
+
+## Current implementation position
+
+Block 1 is complete in version 0.1.0. Block 2 is the next planned implementation block, subject to user verification of version 0.1.0.

@@ -1,0 +1,11 @@
+[
+  {
+    "champion_id": "sample_flex",
+    "choices": [
+      "missing_trait"
+    ],
+    "exact_count": null,
+    "selection_rule": "EXACTLY_ONE",
+    "selection_scope": "PER_INSTANCE"
+  }
+]

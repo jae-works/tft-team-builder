@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tft-team-builder"
+version = "0.1.0"
+description = "Local desktop team planning and library tool for Teamfight Tactics."
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "flet==1.0.1",
+    "platformdirs==4.11.14",
+    "pydantic==2.13.5",
+]
+
+[dependency-groups]
+dev = [
+    "flet-cli==1.0.1",
+    "flet-desktop==1.0.1",
+    "pytest==9.1.1",
+    "ruff==0.16.9",
+]
+
+[project.scripts]
+tft-builder-dev = "tft_builder.devtools:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tft_builder"]
+
+[tool.flet]
+product = "TFT Team Builder"
+company = "TFT Team Builder"
+desktop_flavor = "full"
+
+[tool.flet.app]
+path = "src"
+module = "main.py"
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["src", "tests", "tools"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["B011"]

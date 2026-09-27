@@ -1,0 +1,18 @@
+{
+  "assets_dir": "assets",
+  "champions_file": "data/champions.json",
+  "default_locale": "en",
+  "display_name_key": "set.sample_set.name",
+  "dynamic_traits_file": "data/dynamic_traits.json",
+  "locales_dir": "locales",
+  "revision": "0.1.0",
+  "schema_version": 1,
+  "set_id": "sample_set",
+  "source_manifest_file": "source_manifest.json",
+  "supported_locales": [
+    "en"
+  ],
+  "team_planner_file": "data/team_planner.json",
+  "team_planner_supported": true,
+  "traits_file": "data/traits.json"
+}

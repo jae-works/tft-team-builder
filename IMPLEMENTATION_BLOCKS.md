@@ -12,25 +12,35 @@ A block is only considered completed after:
 - a SHA-256 checksum is generated from that final ZIP,
 - `REQUIREMENTS.md` and `PROGRESS.md` are updated.
 
-## Block 1 - Foundation, Set system and core models - planned v0.1
+## Block 1 - Foundation, Set system and core models - complete v0.1.0
 
-- Create the runnable Python/Flet project foundation and central `pyproject.toml`.
-- Select and pin a current supported Python/Flet/dependency toolchain after compatibility verification.
-- Add configuration, centralized `pathlib`/`platformdirs` paths and logging.
-- Add Ruff configuration and a one-command pytest workflow.
-- Add an automated check that project-authored technical files remain within the agreed ASCII-safe character policy.
-- Implement the core models: Set, ChampionDefinition, TraitDefinition, Team, TeamList, Slot, ChampionInstance and TraitSelection.
-- Implement the Set package schema, loader and strict validator.
-- Add the developer-side Set import/build skeleton described in `SET_DATA_PIPELINE.md`.
-- Add small valid and deliberately invalid offline Set fixtures.
-- Add search-text normalization.
-- Add extensive tests for model invariants, Set validation and deterministic Set generation behavior that exists at this stage.
-- Provide a small developer command/entry point for building or validating Set packages without the GUI.
+- [x] Create the runnable Python/Flet project foundation and central `pyproject.toml`.
+- [x] Select and pin a current supported Python/Flet/dependency toolchain after compatibility verification.
+- [x] Add configuration, centralized `pathlib`/`platformdirs` paths and logging.
+- [x] Add Ruff configuration and a one-command pytest workflow.
+- [x] Add an automated check that project-authored technical files remain within the agreed ASCII-safe character policy.
+- [x] Implement the core models: Set, ChampionDefinition, TraitDefinition, Team, TeamList, Slot, ChampionInstance and TraitSelection.
+- [x] Implement the Set package schema, loader and strict validator.
+- [x] Add the developer-side Set import/build skeleton described in `SET_DATA_PIPELINE.md`.
+- [x] Add small valid and deliberately invalid offline Set fixtures.
+- [x] Add search-text normalization.
+- [x] Add extensive tests for model invariants, Set validation and deterministic Set generation behavior that exists at this stage.
+- [x] Provide a small developer command/entry point for building or validating Set packages without the GUI.
 
 User-test goal:
-- The project runs locally.
+- The project has a runnable Flet entry point and locally verified core/tooling code.
 - A bundled development/sample Set validates successfully.
 - Broken fixture Sets produce understandable errors.
+
+
+Verification summary:
+- 204 pytest tests passed in the implementation environment.
+- ASCII policy check passed.
+- Python compileall passed for source, tools and tests.
+- Bundled `sample_set` was regenerated deterministically and validated successfully.
+- Set generation uses isolated staging and non-destructive overwrite behavior.
+- Source manifests verify both generated data files and required assets.
+- Exact Flet/Ruff executable checks remain for the user environment because the implementation sandbox cannot download missing packages. See `BLOCK_01_REPORT.md`.
 
 ## Block 2 - SQLite persistence, migrations, autosave primitives and backups - planned v0.2
 
@@ -168,7 +178,7 @@ User-test goal:
 
 ## Current block status
 
-- [ ] Block 1 - Foundation, Set system and core models
+- [x] Block 1 - Foundation, Set system and core models
 - [ ] Block 2 - SQLite persistence, migrations, autosave primitives and backups
 - [ ] Block 3 - Core builder logic, Trait engine and undo/redo
 - [ ] Block 4 - First complete functional Builder GUI

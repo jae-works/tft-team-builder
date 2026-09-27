@@ -1,85 +1,55 @@
 # TFT Team Builder - Progress
 
-This is the implementation log. REQUIREMENTS.md describes what the project must do; this file records what has actually been implemented and verified.
+Current version: 0.1.0
+Current status: Block 1 implementation complete and ready for user verification.
+Next planned block: Block 2 - SQLite persistence, migrations, autosave primitives, and backups.
 
-Legend:
-- [ ] pending
-- [~] in progress
-- [x] implemented/planning artifact created and locally verified
-- [!] blocked / needs correction
+This file records only functionality that exists in the delivered project. Detailed Block 1 verification is in `BLOCK_01_REPORT.md`.
 
-## Current version
-v0.0.4-planning
+## Completed in Block 1
 
-## Completed planning/handoff work
-- [x] Requirements checklist established.
-- [x] Development workflow established.
-- [x] Project divided into larger implementation steps.
-- [x] `PROJECT_CONTEXT.md` established as the first handoff document.
-- [x] Dedicated `sets/`, `set_sources/`, `tools/set_import/`, `src/` and `tests/` paths are represented in the planning package.
-- [x] Requirement established that each delivered build contains complete source, tests, set data, project documents and metadata.
-- [x] Requirement established that each delivered ZIP receives a SHA-256 checksum after final packaging.
-- [x] Pragmatic coding style documented: detailed tests/comments without unnecessary interface/generic-class proliferation.
-- [x] Set-data source strategy reviewed against current Riot TFT/Data Dragon documentation and current CommunityDragon TFT listings.
-- [x] Added `SET_DATA_PIPELINE.md` defining build-time source roles, pinned provenance, source conflict handling, local assets, manual overrides and offline runtime behavior.
-- [x] Corrected completeness design so debug/summoned/alternate/legacy source records require explicit classification rather than naive source-record counting.
-- [x] Added the rule that every source candidate must be INCLUDED, EXCLUDED with a reason, or ERROR.
-- [x] Added reproducibility requirement: exact source revisions and hashes are recorded; unrecorded `latest` is not a release input.
-- [x] Added `.gitignore` rules for Python/build output and local source-download caches.
+- [x] Converted the repository from planning-only structure to a runnable Python project.
+- [x] Added `pyproject.toml` with a Python 3.13 baseline and pinned runtime/development dependencies.
+- [x] Added current Flet 1.0 desktop entry point under `src/main.py`.
+- [x] Added importable `src/tft_builder/` package.
+- [x] Added centralized project/runtime path handling with `pathlib` and `platformdirs`.
+- [x] Added explicit writable runtime-directory creation.
+- [x] Added rotating local logging configuration with safe reconfiguration when the log directory changes.
+- [x] Wired non-visual application startup to path resolution, runtime-directory creation, logging, and bundled Set validation.
+- [x] Added Team, TeamList, Slot, ChampionInstance, and TraitSelection domain models with tested invariants, including Team-wide Champion instance ID uniqueness.
+- [x] Added strict Set manifest, Champion, Trait, dynamic Trait, Team Planner, source-spec, and source-manifest Pydantic schemas.
+- [x] Added strict local Set loader and validator.
+- [x] Added Set discovery and multi-Set validation helpers.
+- [x] Added understandable stable validation issue codes.
+- [x] Added checks for missing files, invalid JSON/UTF-8, schema errors, duplicate IDs, broken references, invalid dynamic rules, missing translations, missing assets, invalid PNG signatures, path escapes, and Team Planner inconsistencies.
+- [x] Added source-manifest SHA-256 verification for generated runtime JSON/locale files and all required Champion/Trait assets.
+- [x] Added deterministic offline Set generation from a committed local source spec.
+- [x] Added staging-based Set generation so failed builds leave no partial output and failed overwrites preserve previous valid output.
+- [x] Added source-spec/output overlap protection and source-asset symlink escape protection.
+- [x] Added the generated, valid `sets/sample_set` runtime package.
+- [x] Added one valid and eight deliberately invalid committed Set fixtures.
+- [x] Added developer CLI commands for Set build, validation, and inspection.
+- [x] Added forgiving search-text normalization.
+- [x] Added repository ASCII-policy enforcement tool and tests.
+- [x] Added technical decision documentation in `DECISIONS.md`.
+- [x] Converted/verified project-authored technical documentation as English-only and ASCII-safe.
+- [x] Updated Requirements, Development Plan, Implementation Blocks, Project Context, and Set Data Pipeline to reflect real Block 1 code.
 
-- [x] Added `IMPLEMENTATION_BLOCKS.md` as the persistent nine-block high-level roadmap.
-- [x] Documented that future blocks may be adjusted after completed blocks when implementation findings justify it.
-- [x] Split the planned Builder work into a functional GUI block and a separate full desktop-interaction/polish block.
-- [x] Moved completion of the real production TFT Set pipeline into its own planned Block 7, while Block 1 establishes the schemas, validator, fixtures and tooling foundation.
-- [x] Documented the standard Git delivery command-block requirement.
+## Verified locally in the implementation environment
 
-## Not yet implemented
-- [ ] Application source code.
-- [ ] Set importer/downloader.
-- [ ] Generated real Set package.
-- [ ] Set loader and validator code.
-- [ ] Database.
-- [ ] Trait engine.
-- [ ] Undo/redo.
-- [ ] GUI.
-- [ ] Import/export.
-- [ ] Windows packaging.
+- [x] `204 passed` with pytest.
+- [x] Python `compileall` passed for source, tools, and tests.
+- [x] Repository ASCII-policy check passed.
+- [x] `sample_set` regenerated successfully from the committed local source spec.
+- [x] Regenerated `sample_set` passed strict validation.
+- [x] Generated Set content is deterministic across independent output directories.
+- [x] Project-authored path names are ASCII-only.
+- [x] Project manifest required-document checks pass.
+- [x] `project_docs/` copies are byte-for-byte mirrors of the authoritative root documents.
 
-## Verification for v0.0.3-planning
-- [x] Required root planning documents exist.
-- [x] `IMPLEMENTATION_BLOCKS.md` exists and documents all nine current implementation blocks.
-- [x] `DEVELOPMENT_PLAN.md` points to the block roadmap and documents how the roadmap may evolve.
-- [x] `SET_DATA_PIPELINE.md` exists.
-- [x] `sets/README.md` exists.
-- [x] `set_sources/README.md` exists.
-- [x] `tools/set_import/README.md` exists.
-- [x] `src/`, `tests/`, `sets/`, `set_sources/overrides/` and `tools/set_import/` are represented in the ZIP via tracked placeholder/readme files.
-- [x] Project documentation copies are generated into `project_docs/` before packaging.
-- [x] Planning archive integrity and required-file verification performed after packaging.
+## Environment limitation that was not marked as passed
 
-No application tests are claimed in this planning-only version because application code does not exist yet.
+- [!] The implementation sandbox could not download packages that were not already installed. Therefore the exact pinned Flet 1.0.1 desktop process and Ruff 0.16.9 executable were not run in that sandbox.
+- [!] The user should run `uv sync`, `uv run pytest`, `uv run ruff check .`, `uv run ruff format --check .`, and `uv run flet run` in the normal connected Windows development environment before accepting Block 1 and starting Block 2.
 
-
-## Planning update v0.0.4
-
-- Added binding engineering requirements for English-only code/internal identifiers/comments/logs.
-- Added ASCII-safe project-authored technical text/file rules and an automated enforcement requirement.
-- Added centralized `pathlib`/`platformdirs` path requirements and no-current-working-directory assumptions.
-- Added pragmatic modern dependency policy with central `pyproject.toml`, pytest and Ruff.
-- Updated implementation blocks so these rules are established in Block 1 before application code grows.
-- No application functionality is implemented yet.
-
-
-## Verification for v0.0.4-planning
-- [x] Requirements include English-only source/internal naming/comment/logging rules.
-- [x] Requirements include ASCII-safe project-authored technical text and path naming rules.
-- [x] Requirements include centralized `pathlib`/platform-aware runtime path handling.
-- [x] Requirements include current maintained dependency policy, `pyproject.toml`, pytest and Ruff expectations.
-- [x] Block 1 now establishes path, dependency and character-policy enforcement before application code expands.
-- [x] Block 2 records the planned modern SQLite persistence/migration stack.
-- [x] Block 7 records maintained HTTP tooling for source acquisition.
-- [x] Existing project-authored files were scanned and contain no non-ASCII characters.
-- [x] Mirrored `project_docs/` copies match their root source documents.
-- [x] `PROJECT_MANIFEST.json` parses successfully and records the new engineering rules.
-
-No application tests are claimed in this planning-only version because application code does not exist yet.
+No Block 2 persistence functionality is implemented in this version.

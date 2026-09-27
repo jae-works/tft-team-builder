@@ -1,7 +1,9 @@
 {
   "project": "TFT Team Builder",
-  "planning_version": "0.0.4",
-  "current_state": "planning baseline",
+  "version": "0.1.0",
+  "current_state": "block_1_complete",
+  "current_block": 1,
+  "next_block": 2,
   "handoff_document": "PROJECT_CONTEXT.md",
   "required_project_documents": [
     "PROJECT_CONTEXT.md",
@@ -9,16 +11,40 @@
     "PROGRESS.md",
     "IMPLEMENTATION_BLOCKS.md",
     "DEVELOPMENT_PLAN.md",
+    "DECISIONS.md",
     "SET_DATA_PIPELINE.md",
+    "BLOCK_01_REPORT.md",
     "sets/README.md",
     "set_sources/README.md"
   ],
+  "toolchain": {
+    "python": ">=3.13,<3.14",
+    "flet": "1.0.1",
+    "pydantic": "2.13.5",
+    "platformdirs": "4.11.14",
+    "pytest": "9.1.1",
+    "ruff": "0.16.9",
+    "hatchling": "1.32.4"
+  },
+  "verification": {
+    "pytest_passed": 204,
+    "compileall_passed": true,
+    "ascii_policy_passed": true,
+    "sample_set_regenerated": true,
+    "sample_set_validated": true,
+    "exact_flet_runtime_tested_in_implementation_sandbox": false,
+    "exact_ruff_binary_tested_in_implementation_sandbox": false,
+    "required_generated_file_hashes_verified": true,
+    "transactional_set_builds_verified": true,
+    "application_startup_integration_verified_without_flet_ui": true
+  },
   "set_data_policy": {
     "runtime_remote_dependency": false,
     "preferred_official_source": "Riot Data Dragon",
     "supplemental_build_source": "CommunityDragon",
     "pinned_source_versions_required": true,
     "source_hashes_required": true,
+    "required_runtime_asset_hashes_verified": true,
     "explicit_exclusion_reasons_required": true,
     "silent_source_conflict_resolution": false
   },
@@ -28,16 +54,12 @@
     "update_progress_after_verified_work": true,
     "sha256_after_packaging": true,
     "ship_docs_with_windows_release": true,
-    "provide_git_command_block": true
-  },
-  "implementation_roadmap": {
-    "document": "IMPLEMENTATION_BLOCKS.md",
-    "current_blocks": 9,
-    "future_blocks_may_change_after_completed_block": true,
-    "planning_changes_must_be_documented": true
+    "provide_git_command_block": true,
+    "wait_for_user_verification_before_next_block": true
   },
   "engineering_rules": {
     "code_language": "English",
+    "documentation_language": "English",
     "project_authored_technical_text_ascii_safe": true,
     "project_owned_paths_ascii_only": true,
     "centralized_path_module_required": true,
@@ -47,7 +69,7 @@
     "prefer_maintained_current_libraries": true,
     "avoid_unnecessary_dependencies_and_abstractions": true,
     "pytest_required": true,
-    "ruff_or_equivalent_required": true,
+    "ruff_required": true,
     "automated_character_policy_check_required": true
   }
 }

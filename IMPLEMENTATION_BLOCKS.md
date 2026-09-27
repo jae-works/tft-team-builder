@@ -42,7 +42,7 @@ Verification summary:
 - Symbolic links and Windows junctions are treated as link-like filesystem redirects where containment matters.
 - The user already verified 348 tests, Ruff lint, Set validation and Flet startup on Windows for v0.1.3. Version 0.1.4 applies the exact remaining Ruff formatter corrections and needs one final clean Windows recheck. See `BLOCK_01_REPORT.md`.
 
-## Block 2 - SQLite persistence, migrations, autosave primitives and backups - hardened correction candidate v0.2.2
+## Block 2 - SQLite persistence, migrations, autosave primitives and backups - implemented and Windows-verified v0.2.2
 
 - [x] Select direct Python 3.13 `sqlite3` after comparing it with an ORM for this local aggregate-oriented store.
 - [x] Store Teams, Lists, Slots, ChampionInstances and TraitSelections.
@@ -57,11 +57,10 @@ Verification summary:
 - [x] Keep browser/mobile persistence as a deferred target-specific evaluation rather than constraining the Windows store prematurely.
 
 Verification summary:
-- 425 pytest tests pass in the implementation environment with no skipped tests.
-- Statement and branch coverage are both 100 percent and the project coverage gate is now 100 percent.
+- The v0.2.2 implementation audit and the user's Windows run both reached 438 pytest tests with no skips and 100 percent statement/branch coverage.
 - The Team repository uses bounded aggregate queries and batched writes rather than per-Champion Trait queries.
 - Backups are namespaced, path-safe, application-integrity checked and retained without touching unrelated database files.
-- The user's Windows v0.2.1 run verified 425 tests at 100 percent coverage, Ruff lint, ASCII policy, document mirrors, Set validation/inspection, database smoke, compileall and Flet startup. Ruff format reported three formatting-only files. Version 0.2.2 applies those formatter corrections and adds schema-structure/migration-history integrity checks discovered during the final audit.
+- The Windows v0.2.2 run also passed formatter-check, ASCII policy, document mirrors, compileall, Set validation/inspection, database smoke and Flet startup. Ruff lint found one SIM300 equivalent-expression style issue; v0.3.0 applies Ruff's recommended form before the Block 3 implementation.
 
 User-test goal:
 - Data survives process restart exactly.
@@ -69,24 +68,33 @@ User-test goal:
 - Deleted Teams can be restored at data level.
 - Ruff lint and format checks are completely clean.
 
-## Block 3 - Core builder logic: slots, move/copy/swap, Trait engine and undo/redo - planned v0.3
+## Block 3 - Core builder logic: slots, move/copy/swap, Trait engine and undo/redo - implemented v0.3.0
 
-The concrete behavior contract is documented in `BLOCK_03_PLAN.md` and must be read before implementation.
+The concrete behavior contract remains documented in `BLOCK_03_PLAN.md`; implementation evidence is in `BLOCK_03_REPORT.md`.
 
-- Implement direct UI-independent editing operations for Lists, Slots, Champion instances, names and primary List changes.
-- Implement clear/insert/remove/compact semantics without losing instance identity.
-- Implement same-List and cross-List Move semantics: empty targets move, occupied targets swap, and instance IDs are preserved.
-- Implement Copy semantics with a new instance ID; occupied targets insert and shift instead of overwriting data.
-- Implement List create/duplicate/reorder/clear/delete behavior, including deterministic primary-List replacement and last-List protection.
-- Implement Trait calculation from validated Set data for UNIQUE_CHAMPION and UNIQUE_INSTANCE counting.
-- Implement Trait breakpoints, next-breakpoint progress and deterministic Trait ordering.
-- Validate every dynamic Trait selection rule and both PER_INSTANCE/PER_CHAMPION scopes; invalid required choices are reported and do not silently count.
-- Implement small Team-scoped undo/redo history using exact reversible state, not a generic command framework.
-- Ensure successful edits update `Team.updated_at`; undo/redo restores historical timestamps exactly.
-- Add extensive edge-case tests while keeping the 100 percent statement/branch coverage gate.
+- [x] Implement direct UI-independent editing operations for Lists, Slots, Champion instances, names and primary List changes.
+- [x] Implement clear/insert/remove/compact semantics without losing surviving instance identity.
+- [x] Implement same-List and cross-List Move semantics: empty targets move, occupied targets swap, and instance IDs are preserved.
+- [x] Implement Copy semantics with a new instance ID; occupied targets insert and shift instead of overwriting data.
+- [x] Implement List create/duplicate/reorder/clear/delete behavior, including deterministic primary-List replacement and last-List protection.
+- [x] Implement Trait calculation from validated Set data for UNIQUE_CHAMPION and UNIQUE_INSTANCE counting.
+- [x] Implement Trait breakpoints, next-breakpoint progress and deterministic Trait ordering.
+- [x] Validate every dynamic Trait selection rule and both PER_INSTANCE/PER_CHAMPION scopes; invalid required choices are reported and do not silently count.
+- [x] Treat PER_CHAMPION choices as semantic sets so selection ordering cannot create a false conflict.
+- [x] Implement small Team-scoped undo/redo history using exact reversible snapshots, not a generic command framework.
+- [x] Ensure successful edits update `Team.updated_at`; undo/redo restores historical timestamps exactly.
+- [x] Make failed edits atomic and keep failed/no-op edits out of history.
+- [x] Add a `builder-smoke` developer command that exercises editing, Trait calculation and undo/redo against the bundled sample Set.
+- [x] Add extensive edge-case and large-realistic-input tests while keeping the 100 percent statement/branch coverage gate.
+
+Verification summary:
+- 529 pytest tests pass in the Block 3 implementation environment with no skips.
+- Statement and branch coverage are both 100 percent across 1,799 production statements and 564 branches.
+- `compileall`, ASCII policy, project-document mirror, sample Set validation/inspection, persistence smoke and the new Builder smoke are part of the required final Windows verification sequence.
+- The exact pinned Ruff 0.16.9 binary is unavailable in the offline implementation environment, so the delivered v0.3.0 candidate still requires the normal Windows Ruff lint/format gate before Block 4 begins.
 
 User-test goal:
-- Included tests/demos show exact slot behavior, duplicate counting, dynamic Trait validation, moves, swaps, copies, List operations and full-state undo/redo restoration.
+- The Windows verification run demonstrates exact slot behavior, duplicate counting, dynamic Trait validation, moves, swaps, copies, List operations, Trait results and full-state undo/redo restoration.
 
 ## Block 4 - First complete functional Builder GUI - planned v0.4
 
@@ -198,7 +206,7 @@ User-test goal:
 
 - [x] Block 1 - Foundation, Set system and core models
 - [x] Block 2 - SQLite persistence, migrations, autosave primitives and backups
-- [ ] Block 3 - Core builder logic, Trait engine and undo/redo
+- [x] Block 3 - Core builder logic, Trait engine and undo/redo
 - [ ] Block 4 - First complete functional Builder GUI
 - [ ] Block 5 - Full desktop interaction, search and Builder polish
 - [ ] Block 6 - Start page and Team library

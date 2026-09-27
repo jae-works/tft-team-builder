@@ -390,7 +390,7 @@ Connection policy: application-controlled explicit transactions in SQLite autoco
 
 ## D024 - Block 3 uses concrete edit semantics and snapshot undo/redo
 
-Status: accepted during the version 0.2.2 pre-Block-3 audit.
+Status: accepted during the version 0.2.2 pre-Block-3 audit and implemented in version 0.3.0.
 
 Decision:
 - Define slot, move, copy, List, Trait and undo/redo behavior in `BLOCK_03_PLAN.md` before implementation.

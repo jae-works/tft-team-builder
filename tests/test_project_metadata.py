@@ -11,9 +11,9 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
     with (project_root / "pyproject.toml").open("rb") as handle:
         project_version = tomllib.load(handle)["project"]["version"]
     assert payload["version"] == project_version
-    assert payload["current_state"] == "block_2_hardened_pending_final_windows_recheck"
-    assert payload["current_block"] == 2
-    assert payload["next_block"] == 3
+    assert payload["current_state"] == "block_3_implemented_pending_windows_recheck"
+    assert payload["current_block"] == 3
+    assert payload["next_block"] == 4
 
 
 def test_release_documents_match_package_version(project_root: Path) -> None:
@@ -25,17 +25,18 @@ def test_release_documents_match_package_version(project_root: Path) -> None:
         "PROGRESS.md": f"Current version: {version}",
         "PROJECT_CONTEXT.md": f"Current version: {version}",
         "LICENSE_REVIEW.md": f"Project version: {version}",
-        "BLOCK_02_REPORT.md": f"Version: {version}",
+        "BLOCK_03_REPORT.md": f"Version: {version}",
     }
     for relative, expected in expected_fragments.items():
         text = (project_root / relative).read_text(encoding="ascii")
         assert expected in text, relative
 
 
-def test_manifest_includes_prepared_block_3_plan(project_root: Path) -> None:
+def test_manifest_includes_block_3_plan_and_report(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="ascii"))
-    assert "BLOCK_03_PLAN.md" in payload["required_project_documents"]
-    assert "BLOCK_03_PLAN.md" in payload["mirrored_project_documents"]
+    for filename in ("BLOCK_03_PLAN.md", "BLOCK_03_REPORT.md"):
+        assert filename in payload["required_project_documents"]
+        assert filename in payload["mirrored_project_documents"]
 
 
 def test_every_manifest_required_document_exists(project_root: Path) -> None:
@@ -69,7 +70,7 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] >= 400
+    assert verification["pytest_passed"] == 529
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
@@ -77,6 +78,11 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_2_persistence_roundtrip_verified"] is True
     assert verification["block_2_migration_verified"] is True
     assert verification["block_2_backup_restore_verified"] is True
+    assert verification["block_3_editor_verified"] is True
+    assert verification["block_3_trait_engine_verified"] is True
+    assert verification["block_3_undo_redo_verified"] is True
+    assert verification["block_3_builder_smoke_passed"] is True
+    assert verification["windows_0_2_2_ruff_sim300_errors"] == 1
 
 
 def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:

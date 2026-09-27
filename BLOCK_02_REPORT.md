@@ -1,7 +1,7 @@
 # Block 2 Report - Persistence, migrations, autosave primitives and backups
 
 Version: 0.2.2
-Status: implemented and hardened; version 0.2.2 is the final correction candidate pending one clean Windows recheck before Block 3.
+Status: implemented and hardened. The Windows v0.2.2 verification completed; it found one lint-only SIM300 finding, which is corrected in v0.3.0 before the Block 3 implementation.
 
 ## Scope delivered
 
@@ -70,7 +70,7 @@ Implementation-environment result:
 - Bundled sample Set validation remained green.
 - Database migration, rollback, integrity, backup, restore, soft-delete, and restart round-trip behavior are covered by tests.
 
-Exact Ruff 0.16.9 and Flet desktop runtime checks still require the user's Windows environment before Block 3 begins.
+The user subsequently ran the exact Windows toolchain: all 438 tests passed at 100 percent statement/branch coverage, ASCII/document/compile/Set/database/Flet checks passed, and Ruff format-check passed. Ruff lint reported one SIM300 expression-style finding in `database.py`; v0.3.0 applies the recommended equivalent expression before adding Block 3 code.
 
 ## v0.2.1 hardening after Windows verification
 
@@ -99,4 +99,4 @@ The user's Windows v0.2.1 run verified 425 tests at 100 percent coverage, Ruff l
 - Added targeted regression tests for corrupted schema structure, incomplete migration history, v1 compatibility, post-migration validation and naive backup timestamps.
 - Added `BLOCK_03_PLAN.md` so slot/copy/move/List/Trait/undo semantics are concrete before Block 3 code is written.
 
-The implementation-environment suite now has 438 passing tests, zero skips, and 100.00 percent statement and branch coverage. The final Windows recheck remains required because this sandbox does not provide the project's required uv/Ruff/Flet toolchain versions.
+The implementation-environment suite had 438 passing tests, zero skips, and 100.00 percent statement and branch coverage. The following Windows v0.2.2 recheck confirmed the same 438/100-percent test result plus successful ASCII/document/compile/Set/database/Flet checks; its sole remaining quality finding was the Ruff SIM300 expression now corrected in v0.3.0.

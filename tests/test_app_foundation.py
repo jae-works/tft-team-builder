@@ -129,7 +129,7 @@ def test_main_renders_smoke_shell_without_real_flet_runtime(monkeypatch) -> None
     texts = [control.value for control in page.controls[0].content.controls]
     assert texts == [
         "TFT Team Builder",
-        "Block 2 persistence foundation is active.",
+        "Block 3 core builder logic is active.",
         "Database schema: 2",
         "Bundled Set validation:",
         "sample_set: valid - 3 champions, 3 traits",

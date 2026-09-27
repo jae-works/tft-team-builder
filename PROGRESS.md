@@ -1,8 +1,8 @@
 # TFT Team Builder - Progress
 
-Current version: 0.2.2
-Current status: Block 2 hardened; version 0.2.2 is the final correction candidate pending one Windows recheck.
-Next planned block: Block 3 - core builder logic, Trait engine, and undo/redo.
+Current version: 0.3.0
+Current status: Block 3 implemented; version 0.3.0 is the Windows verification candidate.
+Next planned block: Block 4 - first complete functional Builder GUI.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
 
@@ -140,19 +140,52 @@ No Block 2 persistence implementation is included in version 0.1.4.
 - [x] Add corruption and timestamp regression tests; implementation-audit total is 438 tests at 100 percent statement/branch coverage.
 - [x] Add `BLOCK_03_PLAN.md` with concrete edit, Trait and undo/redo semantics for the next block.
 
-## Final Windows verification required before Block 3
+## Version 0.2.2 Windows verification
 
+- [x] 438 pytest tests passed with no skips.
+- [x] Statement and branch coverage both reached 100.00 percent.
+- [x] `uv run ruff format .` reformatted one file; the following `ruff format --check` reported all 74 files formatted.
+- [ ] Ruff lint reported one remaining `SIM300` Yoda-condition warning in `persistence/database.py`; version 0.3.0 applies the exact recommended rewrite.
+- [x] ASCII policy passed.
+- [x] Project document mirror check passed.
+- [x] `compileall` passed.
+- [x] Bundled Set validation and inspection passed.
+- [x] Database smoke round-trip and backup passed.
+- [x] Flet 1.0.1/Flutter 3.44.8 started the application successfully.
+
+## Implemented in Block 3 - version 0.3.0
+
+- [x] Added concrete `TeamEditor` operations for Team/List rename, primary List changes, List creation/duplication/deletion/reorder/clear/compact, slot insertion/removal/clear, Champion add/move/swap/copy, and Trait selection updates.
+- [x] Core edits are atomic: invalid edits leave the Team and history unchanged; no-op edits create no history entry.
+- [x] Successful edits update `Team.updated_at` once using timezone-aware UTC; undo/redo restores exact historical timestamps.
+- [x] In-memory Team-scoped undo/redo uses exact snapshots and preserves the top-level Team object identity.
+- [x] New edits after undo clear the redo branch; failed/no-op edits after undo preserve it.
+- [x] Added Flet-independent Trait calculation for UNIQUE_CHAMPION and UNIQUE_INSTANCE.
+- [x] Added breakpoint, next-breakpoint progress, deterministic ordering and zero-contribution hiding.
+- [x] Added validation for NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N dynamic selections.
+- [x] Added PER_INSTANCE and PER_CHAMPION handling; PER_CHAMPION compares semantic sets, not tuple order.
+- [x] Invalid dynamic selections are reported explicitly and do not silently contribute.
+- [x] Added `builder-smoke` developer command against the bundled sample Set.
+- [x] Added large realistic List/Trait tests to catch accidental poor scaling in core loops.
+- [x] Fixed the remaining Windows-reported Ruff `SIM300` condition in the Block 2 database hardening code.
+- [x] 529 pytest tests pass with 0 skips in the Block 3 implementation environment.
+- [x] Statement and branch coverage both remain 100.00 percent.
+
+## Final Windows verification required before Block 4
+
+- [ ] Run `uv --version` and confirm the configured 0.12.x range is active.
 - [ ] Run `uv lock --check`.
 - [ ] Run `uv sync --frozen`.
-- [ ] Run `uv run ruff format .` once; a second run should report no changes.
+- [ ] Run `uv run ruff format .` once; a second/check run must report no changes.
 - [ ] Run `uv run ruff check .`.
 - [ ] Run `uv run ruff format --check .`.
-- [ ] Run `uv run pytest` on Windows and confirm 438 passed with no skips and 100 percent coverage.
+- [ ] Run `uv run pytest` on Windows and confirm the complete suite passes with no skips and 100 percent statement/branch coverage.
 - [ ] Run `uv run python tools/check_ascii.py`.
 - [ ] Run `uv run python tools/sync_project_docs.py --check`.
 - [ ] Run `uv run python -m compileall -q src tests tools`.
 - [ ] Run `uv run tft-builder-dev validate-set src/assets/sets/sample_set`.
 - [ ] Run `uv run tft-builder-dev inspect-set src/assets/sets/sample_set`.
 - [ ] Run `uv run tft-builder-dev database-smoke .runtime-smoke`.
+- [ ] Run `uv run tft-builder-dev builder-smoke src/assets/sets/sample_set`.
 - [ ] Run `uv run flet --version`.
 - [ ] Run `uv run flet run`.

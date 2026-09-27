@@ -106,14 +106,14 @@ Every source delivery includes at least:
 - `DECISIONS.md`
 - `LICENSE_REVIEW.md`
 - `SET_DATA_PIPELINE.md`
-- the current completed block report, currently `BLOCK_02_REPORT.md`
-- the prepared next-block specification, currently `BLOCK_03_PLAN.md`
+- the current completed block report, currently `BLOCK_03_REPORT.md`
+- the implemented Block 3 behavior contract, `BLOCK_03_PLAN.md`
 
 The final Windows package also ships readable copies of the relevant project documentation in `project_docs/` so another developer or AI instance can understand what was built and why.
 
 ## Current implementation position
 
-Blocks 1 and 2 are implemented. Version 0.2.2 is the Block 2 correction candidate after the user verified 425 tests, 100 percent coverage, Set validation, database smoke and Flet startup on Windows for version 0.2.1. The only reported quality failure was Ruff formatter drift in three files; version 0.2.2 applies those corrections, adds database-schema integrity hardening, and prepares the concrete Block 3 behavior contract.
+Blocks 1, 2 and 3 are implemented. The user Windows run for version 0.2.2 verified 438 tests at 100 percent coverage, Set validation/inspection, database smoke, compileall, documentation/ASCII checks and Flet startup. That run found one Ruff SIM300 lint warning after formatting; version 0.3.0 fixes it and adds the complete UI-independent Builder editor, Trait engine and snapshot undo/redo core. Block 4 is the next implementation block after one clean Windows quality recheck of 0.3.0.
 
 
 ## Block 2 persistence decision

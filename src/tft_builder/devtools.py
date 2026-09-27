@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 from pathlib import Path
 
+from .builder import TeamEditor
 from .models import ChampionInstance, Slot, Team, TraitSelection
 from .persistence import BackupManager, Database, TeamRepository
 from .set_builder import build_set_from_local_spec
 from .set_loader import load_set_directory, validate_set_directory
+from .trait_engine import calculate_traits
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -32,10 +35,15 @@ def _build_parser() -> argparse.ArgumentParser:
     build_parser.add_argument("output_dir", type=Path)
     build_parser.add_argument("--overwrite", action="store_true")
 
-    smoke_parser = subcommands.add_parser(
+    database_smoke_parser = subcommands.add_parser(
         "database-smoke", help="exercise SQLite persistence in an explicit directory"
     )
-    smoke_parser.add_argument("directory", type=Path)
+    database_smoke_parser.add_argument("directory", type=Path)
+
+    builder_smoke_parser = subcommands.add_parser(
+        "builder-smoke", help="exercise Block 3 editing, Trait calculation and history"
+    )
+    builder_smoke_parser.add_argument("set_path", type=Path)
     return parser
 
 
@@ -51,6 +59,40 @@ def main(argv: list[str] | None = None) -> int:
         print("INVALID")
         print(report.formatted_issues())
         return 1
+
+    if args.command == "builder-smoke":
+        loaded = load_set_directory(args.set_path)
+        team = Team.create(set_id=loaded.manifest.set_id, name="Builder smoke")
+        editor = TeamEditor(team)
+        list_id = team.primary_list_id
+        editor.add_champion(list_id, 0, "sample_guardian")
+        editor.add_champion(
+            list_id,
+            1,
+            "sample_flex",
+            trait_selection=TraitSelection(("sample_arcane",)),
+        )
+        editor.add_champion(list_id, 2, "sample_mage")
+
+        calculated = calculate_traits(loaded, team.primary_list)
+        counts = {item.trait_id: item.count for item in calculated.traits}
+        expected = {"sample_guard": 2, "sample_arcane": 2}
+        if counts != expected:
+            raise RuntimeError(f"builder smoke Trait mismatch: {counts}")
+        if calculated.dynamic_issues:
+            raise RuntimeError("builder smoke produced unexpected dynamic Trait issues")
+
+        before_history_check = deepcopy(team)
+        editor.rename_team("Builder smoke renamed")
+        if not editor.undo() or team != before_history_check:
+            raise RuntimeError("builder smoke undo mismatch")
+        if not editor.redo() or team.name != "Builder smoke renamed":
+            raise RuntimeError("builder smoke redo mismatch")
+
+        print(f"Builder slots: {len(team.primary_list.slots)}")
+        print("Traits: sample_guard=2, sample_arcane=2")
+        print("Undo/redo: OK")
+        return 0
 
     if args.command == "database-smoke":
         directory = args.directory.expanduser().resolve()

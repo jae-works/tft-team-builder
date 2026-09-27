@@ -1,7 +1,7 @@
 # Dependency and Release License Review
 
 Review date: 2026-09-27
-Project version: 0.2.2
+Project version: 0.3.0
 
 This document is an engineering release checklist, not legal advice. License obligations must be reviewed again against the exact dependency lockfile and final packaged artifact before public distribution.
 

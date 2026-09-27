@@ -159,7 +159,7 @@ class Database:
         team_columns = {
             row["name"] for row in connection.execute("PRAGMA table_info(teams)").fetchall()
         }
-        if version >= 2 and not _V2_TEAM_COLUMNS <= team_columns:
+        if version >= 2 and not team_columns >= _V2_TEAM_COLUMNS:
             return False
 
         migration_versions = tuple(

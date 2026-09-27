@@ -137,6 +137,7 @@ def test_quality_workflow_runs_on_windows_and_linux_with_python_313(project_root
     assert "tools/sync_project_docs.py --check" in workflow
     assert "uv run tft-builder-dev validate-set src/assets/sets/sample_set" in workflow
     assert "uv run tft-builder-dev database-smoke .runtime-smoke" in workflow
+    assert "uv run tft-builder-dev builder-smoke src/assets/sets/sample_set" in workflow
     assert "uv run flet --version" in workflow
 
 

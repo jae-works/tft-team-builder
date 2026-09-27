@@ -94,7 +94,7 @@ def main(page: ft.Page) -> None:
             content=ft.Column(
                 controls=[
                     ft.Text(APP_NAME, size=28, weight=ft.FontWeight.BOLD),
-                    ft.Text("Block 2 persistence foundation is active."),
+                    ft.Text("Block 3 core builder logic is active."),
                     ft.Text(f"Database schema: {state.database_schema_version}"),
                     ft.Text("Bundled Set validation:"),
                     *[ft.Text(line) for line in state.set_summary],

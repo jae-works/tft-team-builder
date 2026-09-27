@@ -118,3 +118,62 @@ def test_database_smoke_detects_round_trip_mismatch(tmp_path: Path, monkeypatch)
     monkeypatch.setattr(devtools.TeamRepository, "load", wrong_load)
     with pytest.raises(RuntimeError, match="round-trip mismatch"):
         main(["database-smoke", str(tmp_path / "smoke")])
+
+
+def test_builder_smoke_command_exercises_editing_traits_and_history(
+    valid_set_dir: Path, capsys
+) -> None:
+    result = main(["builder-smoke", str(valid_set_dir)])
+    output = capsys.readouterr().out
+    assert result == 0
+    assert "Builder slots: 3" in output
+    assert "Traits: sample_guard=2, sample_arcane=2" in output
+    assert "Undo/redo: OK" in output
+
+
+def test_builder_smoke_detects_trait_count_mismatch(valid_set_dir: Path, monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from tft_builder import devtools
+
+    monkeypatch.setattr(
+        devtools,
+        "calculate_traits",
+        lambda loaded, team_list: SimpleNamespace(traits=(), dynamic_issues=()),
+    )
+    with pytest.raises(RuntimeError, match="Trait mismatch"):
+        main(["builder-smoke", str(valid_set_dir)])
+
+
+def test_builder_smoke_detects_dynamic_trait_issue(valid_set_dir: Path, monkeypatch) -> None:
+    from types import SimpleNamespace
+
+    from tft_builder import devtools
+
+    traits = (
+        SimpleNamespace(trait_id="sample_guard", count=2),
+        SimpleNamespace(trait_id="sample_arcane", count=2),
+    )
+    monkeypatch.setattr(
+        devtools,
+        "calculate_traits",
+        lambda loaded, team_list: SimpleNamespace(traits=traits, dynamic_issues=(object(),)),
+    )
+    with pytest.raises(RuntimeError, match="unexpected dynamic Trait issues"):
+        main(["builder-smoke", str(valid_set_dir)])
+
+
+def test_builder_smoke_detects_undo_mismatch(valid_set_dir: Path, monkeypatch) -> None:
+    from tft_builder import devtools
+
+    monkeypatch.setattr(devtools.TeamEditor, "undo", lambda self: False)
+    with pytest.raises(RuntimeError, match="undo mismatch"):
+        main(["builder-smoke", str(valid_set_dir)])
+
+
+def test_builder_smoke_detects_redo_mismatch(valid_set_dir: Path, monkeypatch) -> None:
+    from tft_builder import devtools
+
+    monkeypatch.setattr(devtools.TeamEditor, "redo", lambda self: False)
+    with pytest.raises(RuntimeError, match="redo mismatch"):
+        main(["builder-smoke", str(valid_set_dir)])

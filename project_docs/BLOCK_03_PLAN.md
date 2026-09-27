@@ -1,7 +1,7 @@
 # Block 3 Plan - Core builder logic, Trait engine and undo/redo
 
-Target version: 0.3.x
-Status: prepared after the Block 2 hardening pass. Implementation starts only after version 0.2.2 passes the final Windows recheck.
+Target version: 0.3.0
+Status: implemented. See `BLOCK_03_REPORT.md` for the delivered code and verification evidence.
 
 ## Purpose
 
@@ -60,7 +60,7 @@ Trait calculation uses validated Set data only and is independent from Flet.
 - EXACTLY_N requires exactly exact_count allowed choices.
 - Invalid or incomplete required selections are reported in the calculation result and contribute no dynamic Traits until corrected.
 - PER_INSTANCE selections are evaluated independently for each Champion instance.
-- PER_CHAMPION selections are shared within one List: duplicate instances of the same Champion must resolve to the same selected Trait set. Conflicting stored selections are reported as invalid rather than guessed.
+- PER_CHAMPION selections are shared within one List: duplicate instances of the same Champion must resolve to the same selected Trait set. Tuple ordering is not semantically significant; conflicting sets are reported as invalid rather than guessed.
 - Dynamic Trait contributions use the selected Trait's own counting_mode when totals are aggregated.
 
 ## Trait result state

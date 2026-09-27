@@ -1,7 +1,7 @@
 # TFT Team Builder
 
-Current version: 0.2.2
-Current milestone: Block 2 hardened correction candidate pending one clean Windows recheck before Block 3.
+Current version: 0.3.0
+Current milestone: Block 3 core builder logic implemented; Windows verification candidate before Block 4 GUI work.
 
 TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
 
@@ -73,6 +73,7 @@ uv run python -m compileall -q src tests tools
 uv run tft-builder-dev validate-set src/assets/sets/sample_set
 uv run tft-builder-dev inspect-set src/assets/sets/sample_set
 uv run tft-builder-dev database-smoke .runtime-smoke
+uv run tft-builder-dev builder-smoke src/assets/sets/sample_set
 uv run flet --version
 uv run flet run
 ```
@@ -86,6 +87,16 @@ uv run tft-builder-dev database-smoke .runtime-smoke
 ```
 
 The command creates `.runtime-smoke/builder.db` and a validated SQLite backup. Remove the disposable directory after the check. Normal application data uses the centralized platform-aware writable data path instead.
+
+## Block 3 core smoke command
+
+Exercise the non-visual Builder editor, dynamic Trait calculation and undo/redo against the bundled sample Set:
+
+```text
+uv run tft-builder-dev builder-smoke src/assets/sets/sample_set
+```
+
+The command is intentionally small and deterministic. It complements, rather than replaces, the exhaustive pytest suite.
 
 ## Set development commands
 

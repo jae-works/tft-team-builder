@@ -15,10 +15,10 @@ Legend:
 - [x] Windows desktop is the required first release target.
 - [x] Browser and mobile/tablet support are deferred future targets, not removed from the long-term project direction.
 - [x] Core game/build logic, Set logic and persistence boundaries must remain independent from Flet widgets so future platform/UI changes do not require a core rewrite.
-- [ ] Core logic kept independent from GUI code where useful, without unnecessary abstraction layers.
+- [x] Core builder and Trait logic are independent from GUI code without unnecessary abstraction layers.
 - [ ] Local-first; no account or cloud required.
-- [ ] Full local test suite.
-- [ ] Clear, human-readable code and extensive useful comments.
+- [x] Full local test suite for all implemented Blocks.
+- [x] Clear, human-readable code and useful comments around non-obvious behavior.
 - [x] Every delivered version contains this file and PROGRESS.md.
 - [x] Every delivered version contains all source files, tests, set data and project metadata.
 
@@ -140,12 +140,12 @@ Legend:
 - [x] A Team always has at least one List.
 - [x] Exactly one List is the primary/starred list.
 - [x] Teams and Lists use stable internal IDs; names do not need to be unique.
-- [ ] Team names and List names are editable.
-- [ ] Lists can be created, duplicated, reordered, cleared and deleted.
-- [ ] Duplicating a List creates a new List ID and new Champion instance IDs while preserving slot/gap layout and Trait selections.
-- [ ] Clearing a List removes Champions but preserves its current slot count and gaps until an explicit compact operation.
-- [ ] The last remaining List cannot be deleted.
-- [ ] Deleting the primary List automatically selects a deterministic adjacent replacement.
+- [x] Team names and List names have tested core edit operations.
+- [x] Lists can be created, duplicated, reordered, cleared and deleted in the core editor.
+- [x] Duplicating a List creates a new List ID and new Champion instance IDs while preserving slot/gap layout and Trait selections.
+- [x] Clearing a List removes Champions but preserves its current slot count and gaps until an explicit compact operation.
+- [x] The last remaining List cannot be deleted.
+- [x] Deleting the primary List automatically selects a deterministic adjacent replacement.
 - [ ] The currently active List is separate from the primary List.
 
 ## Champion instances and slots
@@ -154,17 +154,17 @@ Legend:
 - [x] Champion instances have their own IDs.
 - [x] Champion instance IDs are unique inside a Team.
 - [x] Duplicate champions are allowed.
-- [ ] Duplicate champion IDs do not normally count twice for traits.
-- [ ] Clearing a Champion from a slot preserves the empty slot.
-- [ ] Inserting/removing a slot reindexes later slots contiguously without changing surviving Champion instance IDs.
-- [ ] Moving inside a List to an empty slot moves the Champion and leaves the source slot empty.
-- [ ] Moving inside a List to an occupied slot swaps both Champion instances.
-- [ ] Lists can be compacted to remove gaps while preserving Champion order and instance IDs.
-- [ ] Champions can be copied or moved between Lists.
-- [ ] Cross-List move to an occupied slot swaps both Champion instances and preserves both instance IDs.
-- [ ] Copy creates a new Champion instance ID and preserves Champion definition plus Trait selection.
-- [ ] Copy to an occupied slot inserts at the target position and shifts existing slots right; it never overwrites or discards the previous target.
-- [ ] A target index equal to the slot count appends; larger indexes are rejected instead of silently creating unspecified gaps.
+- [x] Duplicate Champion definitions follow Set-defined Trait counting modes; UNIQUE_CHAMPION does not count them twice.
+- [x] Clearing a Champion from a slot preserves the empty slot.
+- [x] Inserting/removing a slot reindexes later slots contiguously without changing surviving Champion instance IDs.
+- [x] Moving inside a List to an empty slot moves the Champion and leaves the source slot empty.
+- [x] Moving inside a List to an occupied slot swaps both Champion instances.
+- [x] Lists can be compacted to remove gaps while preserving Champion order and instance IDs.
+- [x] Champions can be copied or moved between Lists in the core editor.
+- [x] Cross-List move to an occupied slot swaps both Champion instances and preserves both instance IDs.
+- [x] Copy creates a new Champion instance ID and preserves Champion definition plus Trait selection.
+- [x] Copy to an occupied slot inserts at the target position and shifts existing slots right; it never overwrites or discards the previous target.
+- [x] A target index equal to the slot count appends; larger indexes are rejected instead of silently creating unspecified gaps.
 
 ## Champion library
 - [ ] Right-side champion library.
@@ -188,21 +188,21 @@ Legend:
 
 ## Traits
 - [ ] Left-side Trait panel reflects the active List only.
-- [ ] Zero-contribution Traits are hidden.
-- [ ] Trait order comes from set data.
-- [ ] Breakpoints come from set data.
-- [ ] Active tier color/style comes from set data.
+- [x] Zero-contribution Traits are absent from the normal core Trait result list.
+- [x] Trait result order comes from Set data with Trait ID as a deterministic tie-breaker.
+- [x] Trait breakpoints come from Set data.
+- [x] Active breakpoint style data comes from Set data.
 - [ ] Optional toggle hides Traits below the first breakpoint.
 - [ ] Optional toggle shows next-breakpoint progress such as 3/4.
-- [ ] Trait calculation is independent from Flet widgets.
+- [x] Trait calculation is independent from Flet widgets.
 - [x] Dynamic trait selection is data-driven, not hardcoded per champion.
 - [x] Supported dynamic selection rules include NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N.
 - [ ] Required but missing dynamic choices are visibly marked and do not silently count.
-- [ ] Dynamic Trait selections are validated for NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N before they contribute.
-- [ ] PER_INSTANCE dynamic selections are evaluated independently.
-- [ ] PER_CHAMPION selections must agree across duplicate instances of that Champion within one List; conflicts are reported instead of guessed.
-- [ ] Trait counting supports the concrete declarative modes UNIQUE_CHAMPION and UNIQUE_INSTANCE; undefined custom counting placeholders are not accepted.
-- [ ] Trait results expose current count, active breakpoint, next breakpoint/progress and invalid-dynamic-selection state in UI-independent data.
+- [x] Dynamic Trait selections are validated for NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N before they contribute.
+- [x] PER_INSTANCE dynamic selections are evaluated independently.
+- [x] PER_CHAMPION selections must agree as sets across duplicate instances of that Champion within one List; conflicts are reported instead of guessed.
+- [x] Trait counting supports the concrete declarative modes UNIQUE_CHAMPION and UNIQUE_INSTANCE; undefined custom counting placeholders are not accepted.
+- [x] Trait results expose current count, active breakpoint, next breakpoint/progress and invalid-dynamic-selection state in UI-independent data.
 
 ## Start page
 - [ ] Set selector.
@@ -249,16 +249,18 @@ Legend:
 - [x] Team deletion uses recoverable soft delete before permanent deletion at the data layer.
 
 ## Undo / Redo
-- [ ] Command-based undo/redo without excessive framework abstraction.
-- [ ] Undo history starts empty when a Team is opened and is not persisted across application restarts.
-- [ ] Add/remove/move/swap/copy champions are undoable.
-- [ ] List create/delete/reorder/duplicate/clear/compact are undoable.
-- [ ] Rename Team/List is undoable.
-- [ ] Primary List changes are undoable.
-- [ ] Dynamic Trait changes are undoable.
-- [ ] One successful user-visible edit creates one history entry; failed/no-op edits create none.
-- [ ] Undo/redo restores the exact complete Team state, including IDs, gaps, ordering, timestamps and Trait selections.
-- [ ] A new edit after undo clears the redo branch.
+- [x] Team-scoped snapshot undo/redo is implemented without a generic command framework.
+- [x] Undo history starts empty when a TeamEditor is created and is not persisted across application restarts.
+- [x] Add/remove/move/swap/copy Champion core edits are undoable.
+- [x] List create/delete/reorder/duplicate/clear/compact core edits are undoable.
+- [x] Rename Team/List is undoable.
+- [x] Primary List changes are undoable.
+- [x] Dynamic Trait selection changes are undoable.
+- [x] One successful user-visible core edit creates one history entry; failed/no-op edits create none.
+- [x] Undo/redo restores the exact complete Team state, including IDs, gaps, ordering, timestamps and Trait selections.
+- [x] A new edit after undo clears the redo branch.
+- [x] Failed core edits are atomic and leave Team state plus undo/redo history unchanged.
+- [x] Successful core edits update `Team.updated_at` once with a timezone-aware UTC timestamp; undo/redo restores historical timestamps exactly.
 - [ ] Import is a single undoable action.
 - [ ] Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z supported.
 
@@ -284,7 +286,7 @@ Legend:
 - [ ] Detailed trait-engine tests, including duplicate champions and dynamic choices.
 - [ ] Detailed slot move/swap/copy tests.
 - [ ] Detailed similarity ranking tests.
-- [ ] Detailed undo/redo tests.
+- [x] Detailed core undo/redo tests.
 - [ ] Import/export round-trip tests.
 - [x] Persistence and migration tests.
 - [ ] App-level smoke tests where practical.

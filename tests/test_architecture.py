@@ -57,3 +57,13 @@ def test_application_source_does_not_depend_on_assert_statements(project_root: P
             if isinstance(node, ast.Assert)
         )
     assert offenders == []
+
+
+def test_block_3_core_stays_independent_from_persistence(project_root: Path) -> None:
+    package_root = project_root / "src" / "tft_builder"
+    offenders = []
+    for filename in ("builder.py", "trait_engine.py"):
+        path = package_root / filename
+        if "persistence" in imported_top_level_modules(path):
+            offenders.append(path.relative_to(project_root))
+    assert offenders == []

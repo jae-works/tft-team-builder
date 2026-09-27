@@ -1,12 +1,13 @@
 {
   "project": "TFT Team Builder",
-  "planning_version": "0.0.2",
+  "planning_version": "0.0.3",
   "current_state": "planning baseline",
   "handoff_document": "PROJECT_CONTEXT.md",
   "required_project_documents": [
     "PROJECT_CONTEXT.md",
     "REQUIREMENTS.md",
     "PROGRESS.md",
+    "IMPLEMENTATION_BLOCKS.md",
     "DEVELOPMENT_PLAN.md",
     "SET_DATA_PIPELINE.md",
     "sets/README.md",
@@ -26,6 +27,13 @@
     "run_full_local_test_suite_when_code_exists": true,
     "update_progress_after_verified_work": true,
     "sha256_after_packaging": true,
-    "ship_docs_with_windows_release": true
+    "ship_docs_with_windows_release": true,
+    "provide_git_command_block": true
+  },
+  "implementation_roadmap": {
+    "document": "IMPLEMENTATION_BLOCKS.md",
+    "current_blocks": 9,
+    "future_blocks_may_change_after_completed_block": true,
+    "planning_changes_must_be_documented": true
   }
 }

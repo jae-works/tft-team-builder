@@ -219,8 +219,12 @@ Legend:
 - [ ] `PROJECT_CONTEXT.md` remains in the project root as the first handoff document.
 - [ ] `REQUIREMENTS.md` remains part of every delivered source version.
 - [ ] `PROGRESS.md` remains part of every delivered source version.
+- [ ] `IMPLEMENTATION_BLOCKS.md` remains part of every delivered source version.
 - [ ] `DEVELOPMENT_PLAN.md` remains part of every delivered source version.
-- [ ] The Windows release package includes these files in a readable `project_docs/` directory.
+- [ ] The Windows release package includes these planning/handoff files in a readable `project_docs/` directory.
 - [ ] `PROGRESS.md` is updated only with work that is actually implemented and locally verified.
 - [ ] Requirements discovered during development are added to `REQUIREMENTS.md` before or together with their implementation.
 - [ ] Every delivered ZIP is complete and accompanied by a SHA-256 checksum calculated from that final ZIP.
+- [ ] The current implementation blocks are documented and their completion status is maintained.
+- [ ] Future implementation blocks may be adjusted after completed blocks when justified by the actual code; planning changes are documented rather than silently changed.
+- [ ] Every delivered version includes a ready-to-copy Git add/commit/push command block.

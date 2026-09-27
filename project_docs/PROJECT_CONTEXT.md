@@ -10,16 +10,17 @@ This is the first document another developer or AI instance should read before c
 4. `IMPLEMENTATION_BLOCKS.md`
 5. `DEVELOPMENT_PLAN.md`
 6. `DECISIONS.md`
-7. `SET_DATA_PIPELINE.md`
-8. The latest block report, currently `BLOCK_01_REPORT.md`
-9. `sets/README.md`
-10. `set_sources/README.md`
+7. `LICENSE_REVIEW.md`
+8. `SET_DATA_PIPELINE.md`
+9. The latest block report, currently `BLOCK_01_REPORT.md`
+10. `src/assets/sets/README.md`
+11. `set_sources/README.md`
 
 ## Current state
 
-- Current version: 0.1.0.
-- Block 1 is implemented.
-- Block 2 is next, but should not begin until the user has tested version 0.1.0 locally and either approved it or reported corrections.
+- Current version: 0.1.4.
+- Block 1 is hardened and pending final user verification.
+- Block 2 is next, but should not begin until the user has run the final 0.1.4 Windows quality commands successfully.
 - The current application shell is intentionally minimal. The complete Builder GUI begins in Block 4.
 
 ## Source of truth
@@ -29,6 +30,7 @@ This is the first document another developer or AI instance should read before c
 - `IMPLEMENTATION_BLOCKS.md` contains the high-level roadmap and block status.
 - `DEVELOPMENT_PLAN.md` contains delivery rules and development order.
 - `DECISIONS.md` records consequential technical choices and rationale.
+- `LICENSE_REVIEW.md` records dependency-license findings and public-release license gates.
 - `SET_DATA_PIPELINE.md` defines source/provenance/completeness rules for TFT Set generation.
 - `BLOCK_01_REPORT.md` records detailed implementation and test evidence for Block 1.
 
@@ -67,7 +69,7 @@ For every coding block:
 - CPython 3.13 (`>=3.13,<3.14`).
 - Flet 1.0.1.
 - Pydantic 2.13.5.
-- platformdirs 4.11.14.
+- platformdirs 4.11.15.
 - pytest 9.1.1.
 - Ruff 0.16.9.
 - Hatchling 1.32.4.
@@ -80,9 +82,12 @@ See `DECISIONS.md` before changing this baseline.
 
 The target is a Windows desktop TFT Team Builder and local Team library.
 
-Explicitly out of scope unless Requirements are changed later:
+Deferred platform targets, not current implementation scope:
 
-- mobile/tablet application;
+- browser deployment;
+- mobile/tablet deployment;
+
+Explicitly out of scope unless Requirements are changed later:
 - hex board view;
 - items and Trait items;
 - notes;
@@ -94,6 +99,14 @@ Explicitly out of scope unless Requirements are changed later:
 - cloud synchronization;
 - user accounts;
 - social/online Team library features.
+
+## Platform direction
+
+Windows desktop is the mandatory first release target. Browser and mobile/tablet builds remain possible future targets. They are not current deliverables. Keep core logic, persistence services and Set handling independent from Flet controls so platform work can be revisited without rewriting the domain layer.
+
+Flet remains the selected UI framework after Block 1 review because it supports Windows today and has official web, Android and iOS build paths. Future browser work should evaluate dynamic web before static Pyodide deployment when persistence or native Python packages are involved. Pydantic uses the native `pydantic-core` package, so exact Flet mobile wheel compatibility must be rechecked before Android/iOS support is declared.
+
+Before public distribution, read `LICENSE_REVIEW.md` and perform the target-specific dependency/artifact audit described there.
 
 ## Important model rules
 

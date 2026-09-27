@@ -63,7 +63,7 @@ set_sources/
 Generated runtime Set packages live in:
 
 ```text
-sets/
+src/assets/sets/
     <set_id>/
         manifest.json
         source_manifest.json
@@ -79,7 +79,7 @@ sets/
             traits/
 ```
 
-The exact filenames may evolve when implementation starts, but the separation between raw sources, overrides and generated runtime data must remain.
+The current runtime package filenames are implemented in Block 1. Later schema versions may evolve them deliberately, but the separation between raw sources, overrides, and generated runtime data must remain.
 
 ## Completeness model
 
@@ -142,7 +142,7 @@ Implemented in Block 1:
 - source-spec SHA-256 recording;
 - required generated-file and asset SHA-256 recording and runtime verification;
 - staging-based generation and non-destructive overwrite behavior;
-- source/output overlap and source-asset symlink escape protection;
+- source/output overlap and source-asset symbolic-link/junction escape protection;
 - schema and semantic validation;
 - readable stable validation errors;
 - deterministic generation tests.
@@ -184,4 +184,4 @@ Optional/manual network integration checks may be provided later, but they must 
 
 ## Runtime rule
 
-The normal application reads only generated Set packages from `sets/`. It does not download source data or attempt to repair a Set from the internet. If an installed Set fails validation, the application reports the errors and refuses to partially load it.
+The normal application reads only generated Set packages from `src/assets/sets/`. It does not download source data or attempt to repair a Set from the internet. If an installed Set fails validation, the application reports the errors and refuses to partially load it.

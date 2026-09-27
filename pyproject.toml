@@ -4,22 +4,30 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tft-team-builder"
-version = "0.1.0"
-description = "Local desktop team planning and library tool for Teamfight Tactics."
+version = "0.1.4"
+description = "Local-first team planning and library tool for Teamfight Tactics."
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 dependencies = [
     "flet==1.0.1",
-    "platformdirs==4.11.14",
+    "platformdirs==4.11.15",
     "pydantic==2.13.5",
 ]
+
+[tool.uv]
+required-version = ">=0.12.18,<0.13"
 
 [dependency-groups]
 dev = [
     "flet-cli==1.0.1",
     "flet-desktop==1.0.1",
+    "flet[test]==1.0.1",
     "pytest==9.1.1",
+    "pytest-cov==7.1.0",
     "ruff==0.16.9",
+]
+web = [
+    "flet-web==1.0.1",
 ]
 
 [project.scripts]
@@ -30,17 +38,23 @@ packages = ["src/tft_builder"]
 
 [tool.flet]
 product = "TFT Team Builder"
-company = "TFT Team Builder"
-desktop_flavor = "full"
 
 [tool.flet.app]
 path = "src"
 module = "main.py"
 
 [tool.pytest.ini_options]
-addopts = "-ra --strict-config --strict-markers"
+addopts = "-ra --strict-config --strict-markers --import-mode=importlib --cov=tft_builder --cov-branch --cov-report=term-missing --cov-fail-under=95"
 testpaths = ["tests"]
-pythonpath = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["tft_builder"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 95
 
 [tool.ruff]
 target-version = "py313"
@@ -53,7 +67,7 @@ indent-style = "space"
 line-ending = "lf"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "RUF"]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "RUF", "PTH"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]

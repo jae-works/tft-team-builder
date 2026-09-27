@@ -1,9 +1,22 @@
 # TFT Team Builder
 
-Current version: 0.1.0
-Current milestone: Block 1 complete - foundation, Set system, core models, deterministic sample Set generation, and strict Set validation.
+Current version: 0.1.4
+Current milestone: Block 1 final candidate pending one clean Windows recheck.
 
-This repository is a Windows-first desktop Team builder and personal Team library for Teamfight Tactics. The current version intentionally focuses on the foundation. The full Builder UI is scheduled for later implementation blocks.
+TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
+
+## Platform strategy
+
+Immediate target:
+- Windows desktop: required.
+
+Deferred targets:
+- Browser: possible later, with Flet dynamic web as the most practical first web option if this becomes a real requirement.
+- Android/iOS: possible later if the desktop product proves useful enough to justify mobile UI and packaging work.
+
+The core models, Set validation, search, persistence boundaries, and future game logic must not depend on Flet widgets. This keeps the project portable and leaves an escape route if the UI framework ever needs to change.
+
+Flet 1.0.1 remains the selected UI framework after a Block 1 re-evaluation. It supports Windows, web, Android, and iOS from one Python-oriented UI stack, uses a permissive Apache-2.0 license, and is a better strategic fit here than a desktop-only choice. Desktop remains the only committed release target today.
 
 ## Project language and character policy
 
@@ -11,96 +24,84 @@ All project-authored source code, technical documentation, filenames, paths, com
 
 ## Supported development runtime
 
-The project currently targets CPython 3.13. Flet 1.0.1 supports Python 3.13, and the explicit Python range keeps the desktop packaging runtime stable instead of silently moving to a newer bundled Python release.
+The current development line is CPython 3.13.
+
+`requires-python` is intentionally `>=3.13,<3.14`. Flet can select a Python runtime from that range during builds, so this prevents a silent move to another Python minor version before we explicitly test and approve it.
 
 Pinned direct runtime dependencies:
-
 - Flet 1.0.1
 - Pydantic 2.13.5
-- platformdirs 4.11.14
+- platformdirs 4.11.15
 
 Pinned development dependencies:
-
 - Flet CLI 1.0.1
 - Flet Desktop 1.0.1
+- Flet Web 1.0.1 in the optional `web` dependency group
+- Flet test extras 1.0.1
 - pytest 9.1.1
+- pytest-cov 7.1.0
 - Ruff 0.16.9
+- Hatchling 1.32.4 as the build backend
 
-## Recommended setup with uv
+## Setup with uv
 
-From the repository root on Windows:
+From the repository root in Git CMD or another normal terminal:
 
-```powershell
+```text
 uv python install 3.13
 uv sync
 ```
 
-The first successful `uv sync` also creates or updates `uv.lock`. Keep that lockfile in Git once it has been generated in a connected environment so future environments resolve the same transitive dependency graph.
+The default sync installs the Windows desktop development/test toolchain. A future web experiment can add the deferred web group with `uv sync --group web`.
 
-Run the desktop shell:
+`uv sync` creates or updates `uv.lock`. Keep `uv.lock` in Git. The committed lockfile is part of the reproducible development environment.
 
-```powershell
+Project handoffs are clean replacements rather than ZIP overlays. When replacing a local checkout, keep the hidden `.git` directory, remove the other project files, and copy in the complete delivered project. Do not delete `.git` unless you intentionally want to destroy the local Git repository.
+
+Run all Block 1 quality checks:
+
+```text
+uv lock --check
+uv sync
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+uv run python tools/check_ascii.py
+uv run python tools/sync_project_docs.py --check
+uv run tft-builder-dev validate-set src/assets/sets/sample_set
 uv run flet run
 ```
 
-Run the complete test suite:
+## Set development commands
 
-```powershell
-uv run pytest
-```
+Validate the bundled sample Set:
 
-Run lint and formatting checks:
-
-```powershell
-uv run ruff check .
-uv run ruff format --check .
-```
-
-Run the repository character-policy check:
-
-```powershell
-uv run python tools/check_ascii.py
-```
-
-Validate the bundled development Set:
-
-```powershell
-uv run tft-builder-dev validate-set sets/sample_set
+```text
+uv run tft-builder-dev validate-set src/assets/sets/sample_set
 ```
 
 Inspect it:
 
-```powershell
-uv run tft-builder-dev inspect-set sets/sample_set
+```text
+uv run tft-builder-dev inspect-set src/assets/sets/sample_set
 ```
 
-Regenerate it deterministically from the committed local source spec:
+Regenerate it from the committed local source specification:
 
-```powershell
-uv run tft-builder-dev build-set set_sources/specs/sample_set sets/sample_set --overwrite
+```text
+uv run tft-builder-dev build-set set_sources/specs/sample_set src/assets/sets/sample_set --overwrite
 ```
 
-## Alternative setup with pip
-
-`uv` is the preferred project workflow because it understands the standardized development dependency group and creates the project lockfile. If `uv` cannot be used, install the same pinned packages explicitly:
-
-```powershell
-py -3.13 -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install -e .
-python -m pip install flet-cli==1.0.1 flet-desktop==1.0.1 pytest==9.1.1 ruff==0.16.9
-pytest
-```
+The normal application reads only local validated Set packages. Real Riot Data Dragon and CommunityDragon acquisition is deferred until Block 7.
 
 ## Important directories
 
 ```text
 src/
     main.py
+    assets/
+        sets/
     tft_builder/
-
-sets/
-    sample_set/
 
 set_sources/
     specs/
@@ -108,8 +109,6 @@ set_sources/
     overrides/
 
 tests/
-    fixtures/
-    ...
 
 tools/
     check_ascii.py
@@ -118,7 +117,13 @@ tools/
 project_docs/
 ```
 
-The normal application reads only local validated Set packages. Upstream Riot and CommunityDragon acquisition is intentionally deferred until Block 7. Block 1 already defines the stable local normalization boundary and deterministic builder that those future source adapters will feed.
+The bundled `sample_set` is fictional. It exists only to exercise validation, generation, assets, localization, dynamic Trait schemas, and Team Planner metadata.
+
+## Licensing and public release
+
+The application itself does not yet have a selected public source-code license. That choice must be made deliberately before a public source release.
+
+Third-party software and Riot/TFT asset/data obligations are separate concerns. `LICENSE_REVIEW.md` records the current dependency-license review and the release gates that must be completed before distributing a public build.
 
 ## Project documents
 
@@ -130,7 +135,8 @@ Read these in order before changing the project:
 4. `IMPLEMENTATION_BLOCKS.md`
 5. `DEVELOPMENT_PLAN.md`
 6. `DECISIONS.md`
-7. `SET_DATA_PIPELINE.md`
-8. `BLOCK_01_REPORT.md`
+7. `LICENSE_REVIEW.md`
+8. `SET_DATA_PIPELINE.md`
+9. `BLOCK_01_REPORT.md`
 
 Every delivered project ZIP must contain the complete current project and a SHA-256 checksum calculated after the final ZIP is created.

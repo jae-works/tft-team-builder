@@ -13,13 +13,19 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="tft-builder-dev")
     subcommands = parser.add_subparsers(dest="command", required=True)
 
-    validate_parser = subcommands.add_parser("validate-set", help="validate one runtime Set package")
+    validate_parser = subcommands.add_parser(
+        "validate-set", help="validate one runtime Set package"
+    )
     validate_parser.add_argument("path", type=Path)
 
-    inspect_parser = subcommands.add_parser("inspect-set", help="print a compact validated Set summary")
+    inspect_parser = subcommands.add_parser(
+        "inspect-set", help="print a compact validated Set summary"
+    )
     inspect_parser.add_argument("path", type=Path)
 
-    build_parser = subcommands.add_parser("build-set", help="build a Set from an offline local source spec")
+    build_parser = subcommands.add_parser(
+        "build-set", help="build a Set from an offline local source spec"
+    )
     build_parser.add_argument("spec_dir", type=Path)
     build_parser.add_argument("output_dir", type=Path)
     build_parser.add_argument("--overwrite", action="store_true")
@@ -32,8 +38,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "validate-set":
         report = validate_set_directory(args.path)
-        if report.is_valid:
-            assert report.loaded_set is not None
+        if report.is_valid and report.loaded_set is not None:
             print(f"VALID: {report.loaded_set.manifest.set_id}")
             return 0
         print("INVALID")
@@ -49,14 +54,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Dynamic rules: {len(loaded.dynamic_traits)}")
         return 0
 
-    if args.command == "build-set":
-        output = build_set_from_local_spec(args.spec_dir, args.output_dir, overwrite=args.overwrite)
-        print(f"Built: {output}")
-        return 0
-
-    parser.error(f"unknown command: {args.command}")
-    return 2
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+    # The subparser is required and only defines the three commands above. Reaching this
+    # point therefore means the validated command is ``build-set``; keeping that guarantee
+    # in argparse avoids a redundant defensive branch that can never occur in normal use.
+    output = build_set_from_local_spec(args.spec_dir, args.output_dir, overwrite=args.overwrite)
+    print(f"Built: {output}")
+    return 0

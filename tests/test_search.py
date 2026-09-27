@@ -22,6 +22,8 @@ from tft_builder.search import normalize_search_text
         ("Cafe", "cafe"),
         ("CAF\u00c9", "cafe"),
         ("Stra\u00dfe", "strasse"),
+        ("Alpha \u03b2eta", "alpha\u03b2eta"),
+        ("\u6771\u4eac 2026", "\u6771\u4eac2026"),
     ],
 )
 def test_normalize_search_text(raw: str, expected: str) -> None:
@@ -35,9 +37,10 @@ def test_search_normalization_is_idempotent() -> None:
 
 
 def test_search_normalization_removes_combining_marks() -> None:
-    value = "Cafe\u0301"
-    assert normalize_search_text(value) == "cafe"
+    assert normalize_search_text("Cafe\u0301") == "cafe"
 
 
-def test_search_normalization_drops_non_ascii_characters_without_transliteration() -> None:
-    assert normalize_search_text("Alpha \u03b2eta") == "alphaeta"
+def test_search_normalization_preserves_non_latin_alphanumeric_characters() -> None:
+    assert normalize_search_text("\u0391\u03b8\u03ae\u03bd\u03b1!") == (
+        "\u03b1\u03b8\u03b7\u03bd\u03b1"
+    )

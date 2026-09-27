@@ -244,4 +244,176 @@ def test_team_accepts_duplicate_champion_definitions_with_unique_instance_ids() 
     )
     assert team.lists[0].slots[0].champion is not None
     assert team.lists[0].slots[1].champion is not None
-    assert team.lists[0].slots[0].champion.instance_id != team.lists[0].slots[1].champion.instance_id
+    assert (
+        team.lists[0].slots[0].champion.instance_id != team.lists[0].slots[1].champion.instance_id
+    )
+
+
+def test_team_list_rejects_duplicate_instance_ids_inside_same_list() -> None:
+    shared_id = uuid4()
+    with pytest.raises(ValueError, match="Champion instance IDs must be unique"):
+        TeamList(
+            name="Main",
+            slots=[
+                Slot(0, ChampionInstance("champion_a", instance_id=shared_id)),
+                Slot(1, ChampionInstance("champion_b", instance_id=shared_id)),
+            ],
+        )
+
+
+def test_team_list_validate_invariants_detects_invalid_mutation() -> None:
+    team_list = TeamList(name="Main", slots=[Slot(0)])
+    team_list.slots.append(Slot(3))
+    with pytest.raises(ValueError, match="contiguously"):
+        team_list.validate_invariants()
+
+
+def test_team_validate_invariants_detects_primary_list_removed_after_mutation() -> None:
+    team = Team.create(set_id="sample_set", name="Team")
+    team.lists.clear()
+    with pytest.raises(ValueError, match="at least one"):
+        team.validate_invariants()
+
+
+def test_team_rejects_updated_timestamp_earlier_than_created_timestamp() -> None:
+    team_list = TeamList.empty("Main")
+    created = datetime(2026, 1, 2, tzinfo=UTC)
+    updated = datetime(2026, 1, 1, tzinfo=UTC)
+    with pytest.raises(ValueError, match="earlier"):
+        Team(
+            set_id="sample_set",
+            name="Team",
+            lists=[team_list],
+            primary_list_id=team_list.list_id,
+            created_at=created,
+            updated_at=updated,
+        )
+
+
+def test_trait_selection_requires_tuple_storage() -> None:
+    with pytest.raises(TypeError, match="tuple"):
+        TraitSelection(["trait_a"])  # type: ignore[arg-type]
+
+
+def test_trait_selection_requires_string_values() -> None:
+    with pytest.raises(TypeError, match="strings"):
+        TraitSelection(("trait_a", 42))  # type: ignore[arg-type]
+
+
+def test_champion_instance_rejects_non_string_champion_id() -> None:
+    with pytest.raises(TypeError, match="champion_id"):
+        ChampionInstance(42)  # type: ignore[arg-type]
+
+
+def test_champion_instance_requires_uuid_instance_id() -> None:
+    with pytest.raises(TypeError, match="instance_id"):
+        ChampionInstance("champion_a", instance_id="not-a-uuid")  # type: ignore[arg-type]
+
+
+def test_champion_instance_requires_trait_selection_model() -> None:
+    with pytest.raises(TypeError, match="TraitSelection"):
+        ChampionInstance("champion_a", trait_selection=("trait_a",))  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize("index", [True, 1.5, "1"])
+def test_slot_rejects_non_integer_index(index: object) -> None:
+    with pytest.raises(TypeError, match="integer"):
+        Slot(index=index)  # type: ignore[arg-type]
+
+
+def test_slot_rejects_non_champion_payload() -> None:
+    with pytest.raises(TypeError, match="ChampionInstance"):
+        Slot(index=0, champion="champion_a")  # type: ignore[arg-type]
+
+
+def test_team_list_requires_uuid_list_id() -> None:
+    with pytest.raises(TypeError, match="list_id"):
+        TeamList(name="Main", list_id="not-a-uuid")  # type: ignore[arg-type]
+
+
+def test_team_list_requires_mutable_slot_list() -> None:
+    with pytest.raises(TypeError, match="slots must be a list"):
+        TeamList(name="Main", slots=())  # type: ignore[arg-type]
+
+
+def test_team_list_requires_slot_values() -> None:
+    with pytest.raises(TypeError, match="only Slot"):
+        TeamList(name="Main", slots=["not-a-slot"])  # type: ignore[list-item]
+
+
+def test_team_requires_uuid_primary_list_id() -> None:
+    team_list = TeamList.empty("Main")
+    with pytest.raises(TypeError, match="primary_list_id"):
+        Team(
+            set_id="sample_set",
+            name="Team",
+            lists=[team_list],
+            primary_list_id="not-a-uuid",  # type: ignore[arg-type]
+        )
+
+
+def test_team_requires_uuid_team_id() -> None:
+    team_list = TeamList.empty("Main")
+    with pytest.raises(TypeError, match="team_id"):
+        Team(
+            set_id="sample_set",
+            name="Team",
+            lists=[team_list],
+            primary_list_id=team_list.list_id,
+            team_id="not-a-uuid",  # type: ignore[arg-type]
+        )
+
+
+def test_team_requires_mutable_list_collection() -> None:
+    team_list = TeamList.empty("Main")
+    with pytest.raises(TypeError, match="lists must be a list"):
+        Team(
+            set_id="sample_set",
+            name="Team",
+            lists=(team_list,),  # type: ignore[arg-type]
+            primary_list_id=team_list.list_id,
+        )
+
+
+def test_team_requires_team_list_values() -> None:
+    with pytest.raises(TypeError, match="only TeamList"):
+        Team(
+            set_id="sample_set",
+            name="Team",
+            lists=["not-a-list"],  # type: ignore[list-item]
+            primary_list_id=uuid4(),
+        )
+
+
+def test_team_rejects_non_datetime_created_timestamp() -> None:
+    team_list = TeamList.empty("Main")
+    with pytest.raises(TypeError, match="created_at"):
+        Team(
+            set_id="sample_set",
+            name="Team",
+            lists=[team_list],
+            primary_list_id=team_list.list_id,
+            created_at="2026-01-01",  # type: ignore[arg-type]
+        )
+
+
+def test_team_rejects_non_datetime_updated_timestamp() -> None:
+    team_list = TeamList.empty("Main")
+    with pytest.raises(TypeError, match="updated_at"):
+        Team(
+            set_id="sample_set",
+            name="Team",
+            lists=[team_list],
+            primary_list_id=team_list.list_id,
+            updated_at="2026-01-01",  # type: ignore[arg-type]
+        )
+
+
+def test_primary_list_property_detects_invariant_break_after_external_mutation() -> None:
+    from uuid import uuid4
+
+    team = Team.create(set_id="sample_set", name="Example")
+    team.primary_list_id = uuid4()
+
+    with pytest.raises(RuntimeError, match="primary List is missing"):
+        _ = team.primary_list

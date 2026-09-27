@@ -14,13 +14,10 @@ def project_root() -> Path:
 
 
 @pytest.fixture(scope="session")
-def fixture_sets_dir(project_root: Path) -> Path:
-    return project_root / "tests" / "fixtures" / "sets"
+def valid_set_dir(project_root: Path) -> Path:
+    """Use the bundled sample Set as the single canonical valid integration fixture."""
 
-
-@pytest.fixture(scope="session")
-def valid_set_dir(fixture_sets_dir: Path) -> Path:
-    return fixture_sets_dir / "valid_minimal"
+    return project_root / "src" / "assets" / "sets" / "sample_set"
 
 
 @pytest.fixture

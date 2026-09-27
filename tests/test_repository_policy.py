@@ -27,11 +27,31 @@ def test_ascii_policy_detects_non_ascii_in_python_file(project_root: Path, tmp_p
     assert failures[0][1] == 1
 
 
-def test_ascii_policy_allows_unicode_in_locales_directory(project_root: Path, tmp_path: Path) -> None:
+def test_ascii_policy_allows_unicode_in_locales_directory(
+    project_root: Path, tmp_path: Path
+) -> None:
     module = load_ascii_tool(project_root)
     locale = tmp_path / "sets/example/locales/de.json"
     locale.parent.mkdir(parents=True)
     locale.write_text('{"name": "K\u00e4mpfer"}\n', encoding="utf-8")
+    assert module.find_non_ascii_files(tmp_path) == []
+
+
+def test_ascii_policy_does_not_descend_into_link_like_directories(
+    project_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    module = load_ascii_tool(project_root)
+    linked = tmp_path / "linked"
+    linked.mkdir()
+    (linked / "bad.py").write_text("message = 'bad \u2192 arrow'\n", encoding="utf-8")
+
+    original_is_junction = Path.is_junction
+    monkeypatch.setattr(
+        Path,
+        "is_junction",
+        lambda self: self == linked or original_is_junction(self),
+    )
+
     assert module.find_non_ascii_files(tmp_path) == []
 
 
@@ -43,10 +63,21 @@ def test_ascii_policy_ignores_binary_assets(project_root: Path, tmp_path: Path) 
 
 
 def test_project_owned_path_names_are_ascii(project_root: Path) -> None:
+    ignored_parts = {
+        ".cache",
+        ".flet",
+        ".git",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".venv",
+        "build",
+        "dist",
+        "htmlcov",
+    }
     bad_paths = []
     for path in project_root.rglob("*"):
         relative = path.relative_to(project_root)
-        if any(part in {".git", ".cache", ".venv", ".pytest_cache", ".ruff_cache"} for part in relative.parts):
+        if any(part in ignored_parts for part in relative.parts):
             continue
         if not relative.as_posix().isascii():
             bad_paths.append(relative)

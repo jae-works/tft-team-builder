@@ -1,39 +1,82 @@
-"""Strict schemas for external/generated TFT Set package data."""
+"""Strict schemas for external and generated TFT Set package data."""
 
 from __future__ import annotations
 
+import re
 from enum import StrEnum
 from pathlib import PurePosixPath
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from .constants import SET_SCHEMA_VERSION, SOURCE_MANIFEST_SCHEMA_VERSION, SOURCE_SPEC_SCHEMA_VERSION
+from .constants import (
+    SET_SCHEMA_VERSION,
+    SOURCE_MANIFEST_SCHEMA_VERSION,
+    SOURCE_SPEC_SCHEMA_VERSION,
+)
 
 ID_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9_.:-]*$"
 LOCALE_PATTERN = r"^[a-z]{2}(?:_[A-Z]{2})?$"
 VERSION_PATTERN = r"^[A-Za-z0-9][A-Za-z0-9_.+-]*$"
+_PORTABLE_PATH_COMPONENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+_WINDOWS_RESERVED_NAMES = {
+    "CON",
+    "PRN",
+    "AUX",
+    "NUL",
+    *(f"COM{number}" for number in range(1, 10)),
+    *(f"LPT{number}" for number in range(1, 10)),
+}
 
 Identifier = Annotated[str, Field(min_length=1, pattern=ID_PATTERN)]
 LocaleCode = Annotated[str, Field(min_length=2, pattern=LOCALE_PATTERN)]
+NonEmptyText = Annotated[str, Field(min_length=1)]
+Sha256 = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 
 
 def validate_relative_path(value: str) -> str:
-    """Reject absolute paths, traversal and platform separators in package metadata."""
+    """Require portable canonical POSIX-style paths inside a Set package.
+
+    Runtime Set packages are generated once and consumed on multiple operating systems, so
+    metadata paths intentionally use a smaller portable filename alphabet than arbitrary host
+    filesystem paths. This avoids path traversal, platform separators, Windows reserved names
+    and filenames that work on one development machine but cannot be created on Windows.
+    """
 
     if not value or "\\" in value:
         raise ValueError("path must be a non-empty POSIX-style relative path")
+
     raw_parts = value.split("/")
     path = PurePosixPath(value)
     if path.is_absolute() or any(part in {"", ".", ".."} for part in raw_parts):
         raise ValueError("path must stay inside the Set package and use canonical components")
-    if path.as_posix() != value:
-        raise ValueError("path must use canonical POSIX spelling")
+    for part in raw_parts:
+        if _PORTABLE_PATH_COMPONENT.fullmatch(part) is None:
+            raise ValueError("path components must use portable ASCII filename characters")
+        stem = part.split(".", 1)[0].upper()
+        if stem in _WINDOWS_RESERVED_NAMES:
+            raise ValueError("path must not use a Windows reserved filename")
+
     return value
 
 
+def _paths_overlap(first: str, second: str) -> bool:
+    first_path = PurePosixPath(first)
+    second_path = PurePosixPath(second)
+    return (
+        first_path == second_path
+        or first_path in second_path.parents
+        or second_path in first_path.parents
+    )
+
+
 class StrictModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        str_strip_whitespace=True,
+        validate_default=True,
+    )
 
 
 class TraitCountingMode(StrEnum):
@@ -69,7 +112,7 @@ class SetManifest(StrictModel):
     source_manifest_file: str = "source_manifest.json"
     locales_dir: str = "locales"
     assets_dir: str = "assets"
-    team_planner_supported: bool = False
+    team_planner_supported: Annotated[bool, Field(strict=True)] = False
 
     _validate_champions_file = field_validator("champions_file")(validate_relative_path)
     _validate_traits_file = field_validator("traits_file")(validate_relative_path)
@@ -80,16 +123,37 @@ class SetManifest(StrictModel):
     _validate_assets_dir = field_validator("assets_dir")(validate_relative_path)
 
     @model_validator(mode="after")
-    def validate_locales(self) -> SetManifest:
+    def validate_layout(self) -> SetManifest:
         if len(self.supported_locales) != len(set(self.supported_locales)):
             raise ValueError("supported_locales must not contain duplicates")
         if self.default_locale not in self.supported_locales:
             raise ValueError("default_locale must be present in supported_locales")
+
+        metadata_files = (
+            "manifest.json",
+            self.champions_file,
+            self.traits_file,
+            self.dynamic_traits_file,
+            self.team_planner_file,
+            self.source_manifest_file,
+        )
+        for index, first in enumerate(metadata_files):
+            for second in metadata_files[index + 1 :]:
+                if _paths_overlap(first, second):
+                    raise ValueError("Set metadata file paths must not overlap")
+
+        if _paths_overlap(self.assets_dir, self.locales_dir):
+            raise ValueError("assets_dir and locales_dir must not overlap")
+        for metadata_file in metadata_files:
+            if _paths_overlap(metadata_file, self.assets_dir):
+                raise ValueError("Set metadata files must not overlap assets_dir")
+            if _paths_overlap(metadata_file, self.locales_dir):
+                raise ValueError("Set metadata files must not overlap locales_dir")
         return self
 
 
 class TraitBreakpoint(StrictModel):
-    count: Annotated[int, Field(ge=1)]
+    count: Annotated[int, Field(ge=1, strict=True)]
     style: Identifier
 
 
@@ -97,7 +161,7 @@ class TraitDefinition(StrictModel):
     id: Identifier
     name_key: Identifier
     icon: str
-    display_order: int
+    display_order: Annotated[int, Field(ge=0, strict=True)]
     breakpoints: Annotated[list[TraitBreakpoint], Field(min_length=1)]
     counting_mode: TraitCountingMode = TraitCountingMode.UNIQUE_CHAMPION
 
@@ -114,10 +178,10 @@ class TraitDefinition(StrictModel):
 class ChampionDefinition(StrictModel):
     id: Identifier
     name_key: Identifier
-    cost: Annotated[int, Field(ge=0)]
+    cost: Annotated[int, Field(ge=0, strict=True)]
     traits: list[Identifier]
     image: str
-    display_order: int
+    display_order: Annotated[int, Field(ge=0, strict=True)]
     search_aliases: list[str] = Field(default_factory=list)
 
     _validate_image = field_validator("image")(validate_relative_path)
@@ -138,7 +202,7 @@ class DynamicTraitDefinition(StrictModel):
     selection_rule: DynamicSelectionRule
     choices: list[Identifier] = Field(default_factory=list)
     selection_scope: DynamicSelectionScope = DynamicSelectionScope.PER_INSTANCE
-    exact_count: int | None = None
+    exact_count: Annotated[int, Field(strict=True)] | None = None
 
     @model_validator(mode="after")
     def validate_rule(self) -> DynamicTraitDefinition:
@@ -166,23 +230,24 @@ class DynamicTraitDefinition(StrictModel):
 
 class TeamPlannerData(StrictModel):
     codec: Identifier | None = None
-    champion_ids: dict[Identifier, str] = Field(default_factory=dict)
+    champion_ids: dict[Identifier, NonEmptyText] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def validate_mapping(self) -> TeamPlannerData:
         if self.codec is None and self.champion_ids:
             raise ValueError("champion_ids require a Team Planner codec")
-        if any(not value.strip() for value in self.champion_ids.values()):
-            raise ValueError("Team Planner IDs must not be empty")
+        values = list(self.champion_ids.values())
+        if len(values) != len(set(values)):
+            raise ValueError("Team Planner IDs must be unique")
         return self
 
 
 class SourceManifest(StrictModel):
     schema_version: Literal[SOURCE_MANIFEST_SCHEMA_VERSION]
     source_type: Identifier
-    source_sha256: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
-    generated_file_sha256: dict[str, Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]]
-    asset_sha256: dict[str, Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]]
+    source_sha256: Sha256
+    generated_file_sha256: dict[str, Sha256]
+    asset_sha256: dict[str, Sha256]
 
     @field_validator("generated_file_sha256", "asset_sha256")
     @classmethod
@@ -193,7 +258,7 @@ class SourceManifest(StrictModel):
 
 
 class LocalSetSpec(StrictModel):
-    """Offline source specification used by the Block 1 deterministic builder."""
+    """Offline source specification used by the deterministic Set builder."""
 
     schema_version: Literal[SOURCE_SPEC_SCHEMA_VERSION]
     manifest: SetManifest
@@ -201,7 +266,7 @@ class LocalSetSpec(StrictModel):
     traits: list[TraitDefinition]
     dynamic_traits: list[DynamicTraitDefinition] = Field(default_factory=list)
     team_planner: TeamPlannerData = Field(default_factory=TeamPlannerData)
-    locales: dict[LocaleCode, dict[str, str]]
+    locales: dict[LocaleCode, dict[Identifier, NonEmptyText]]
     assets: dict[str, str]
 
     @field_validator("assets")
@@ -211,3 +276,48 @@ class LocalSetSpec(StrictModel):
             validate_relative_path(target)
             validate_relative_path(source)
         return value
+
+    @model_validator(mode="after")
+    def validate_package_inventory(self) -> LocalSetSpec:
+        expected_locales = set(self.manifest.supported_locales)
+        actual_locales = set(self.locales)
+        if actual_locales != expected_locales:
+            missing = sorted(expected_locales - actual_locales)
+            unexpected = sorted(actual_locales - expected_locales)
+            raise ValueError(
+                "locale inventory must match supported_locales; "
+                f"missing={missing}, unexpected={unexpected}"
+            )
+
+        required_name_keys = {self.manifest.display_name_key}
+        required_name_keys.update(champion.name_key for champion in self.champions)
+        required_name_keys.update(trait.name_key for trait in self.traits)
+        for locale, catalog in self.locales.items():
+            missing_keys = sorted(required_name_keys - catalog.keys())
+            if missing_keys:
+                raise ValueError(
+                    f"locale '{locale}' is missing required translation keys: {missing_keys}"
+                )
+
+        assets_root = PurePosixPath(self.manifest.assets_dir)
+        asset_targets = tuple(PurePosixPath(target) for target in self.assets)
+        for target in asset_targets:
+            if assets_root not in target.parents:
+                raise ValueError("all generated asset targets must be stored under assets_dir")
+
+        for index, first in enumerate(asset_targets):
+            for second in asset_targets[index + 1 :]:
+                if first in second.parents or second in first.parents:
+                    raise ValueError("generated asset file paths must not overlap")
+
+        referenced_assets = {champion.image for champion in self.champions}
+        referenced_assets.update(trait.icon for trait in self.traits)
+        mapped_assets = set(self.assets)
+        missing_assets = sorted(referenced_assets - mapped_assets)
+        unexpected_assets = sorted(mapped_assets - referenced_assets)
+        if missing_assets:
+            raise ValueError(f"source spec has no asset mapping for: {missing_assets}")
+        if unexpected_assets:
+            raise ValueError(f"source spec maps unreferenced runtime assets: {unexpected_assets}")
+
+        return self

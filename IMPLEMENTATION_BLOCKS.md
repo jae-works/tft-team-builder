@@ -12,7 +12,7 @@ A block is only considered completed after:
 - a SHA-256 checksum is generated from that final ZIP,
 - `REQUIREMENTS.md` and `PROGRESS.md` are updated.
 
-## Block 1 - Foundation, Set system and core models - complete v0.1.0
+## Block 1 - Foundation, Set system and core models - final candidate v0.1.4
 
 - [x] Create the runnable Python/Flet project foundation and central `pyproject.toml`.
 - [x] Select and pin a current supported Python/Flet/dependency toolchain after compatibility verification.
@@ -22,7 +22,7 @@ A block is only considered completed after:
 - [x] Implement the core models: Set, ChampionDefinition, TraitDefinition, Team, TeamList, Slot, ChampionInstance and TraitSelection.
 - [x] Implement the Set package schema, loader and strict validator.
 - [x] Add the developer-side Set import/build skeleton described in `SET_DATA_PIPELINE.md`.
-- [x] Add small valid and deliberately invalid offline Set fixtures.
+- [x] Add one canonical valid offline Set fixture and deliberately invalid temporary test cases derived from it.
 - [x] Add search-text normalization.
 - [x] Add extensive tests for model invariants, Set validation and deterministic Set generation behavior that exists at this stage.
 - [x] Provide a small developer command/entry point for building or validating Set packages without the GUI.
@@ -34,19 +34,19 @@ User-test goal:
 
 
 Verification summary:
-- 204 pytest tests passed in the implementation environment.
-- ASCII policy check passed.
-- Python compileall passed for source, tools and tests.
-- Bundled `sample_set` was regenerated deterministically and validated successfully.
+- 349 pytest tests pass in the current Block 1 implementation environment with no skipped tests.
+- Branch-aware coverage is 99.63 percent, above the required 95 percent threshold.
+- ASCII policy and Python compileall checks pass.
+- Bundled `sample_set` regenerates deterministically and validates successfully.
 - Set generation uses isolated staging and non-destructive overwrite behavior.
-- Source manifests verify both generated data files and required assets.
-- Exact Flet/Ruff executable checks remain for the user environment because the implementation sandbox cannot download missing packages. See `BLOCK_01_REPORT.md`.
+- Symbolic links and Windows junctions are treated as link-like filesystem redirects where containment matters.
+- The user already verified 348 tests, Ruff lint, Set validation and Flet startup on Windows for v0.1.3. Version 0.1.4 applies the exact remaining Ruff formatter corrections and needs one final clean Windows recheck. See `BLOCK_01_REPORT.md`.
 
 ## Block 2 - SQLite persistence, migrations, autosave primitives and backups - planned v0.2
 
-- Add SQLite persistence using the current maintained persistence stack chosen for the project (planned SQLAlchemy 2.x).
+- Add SQLite persistence after the Block 2 persistence decision gate compares direct `sqlite3` with SQLAlchemy 2.0.x for simplicity, migration needs, testing and deferred platform compatibility.
 - Store Teams, Lists, Slots, ChampionInstances and TraitSelections.
-- Add schema versioning and explicit migrations (planned Alembic).
+- Add schema versioning and explicit migrations. Use Alembic only if SQLAlchemy is selected and it reduces total complexity compared with small explicit migrations.
 - Add straightforward repository/service functions without unnecessary abstraction layers.
 - Use transactions for critical writes.
 - Add backup creation and restore foundations.
@@ -155,6 +155,10 @@ User-test goal:
 User-test goal:
 - Lists can be exchanged with TFT's Team Planner where supported.
 - Complete Teams can be exported and re-imported exactly.
+
+## Deferred platform work after desktop v1.0
+
+Browser and mobile/tablet support are not part of the current nine-block desktop release plan, but they remain valid future directions. Any future platform block must re-evaluate persistence, filesystem behavior, UI layout, packaging, dependency compatibility, security and licensing for that target. Flet is retained partly because it provides official web, Android and iOS build paths.
 
 ## Block 9 - Hardening, recovery, performance, Windows packaging and v1.0 release candidate
 

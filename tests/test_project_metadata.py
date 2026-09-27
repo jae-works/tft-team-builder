@@ -4,23 +4,11 @@ import json
 from pathlib import Path
 
 
-CORE_MIRRORED_DOCS = (
-    "PROJECT_CONTEXT.md",
-    "REQUIREMENTS.md",
-    "PROGRESS.md",
-    "IMPLEMENTATION_BLOCKS.md",
-    "DEVELOPMENT_PLAN.md",
-    "DECISIONS.md",
-    "SET_DATA_PIPELINE.md",
-    "BLOCK_01_REPORT.md",
-)
-
-
 def test_project_manifest_is_valid_json(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     assert payload["project"] == "TFT Team Builder"
-    assert payload["version"] == "0.1.0"
-    assert payload["current_state"] == "block_1_complete"
+    assert payload["version"] == "0.1.4"
+    assert payload["current_state"] == "block_1_final_candidate_pending_windows_recheck"
     assert payload["current_block"] == 1
     assert payload["next_block"] == 2
 
@@ -34,8 +22,9 @@ def test_every_manifest_required_document_exists(project_root: Path) -> None:
 
 
 def test_project_docs_contains_exact_mirrors_of_core_documents(project_root: Path) -> None:
+    payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="ascii"))
     mirror_root = project_root / "project_docs"
-    for filename in CORE_MIRRORED_DOCS:
+    for filename in payload["mirrored_project_documents"]:
         source = project_root / filename
         mirror = mirror_root / filename
         assert source.is_file(), filename
@@ -55,8 +44,25 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_block_one_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] >= 170
+    assert verification["pytest_passed"] >= 300
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
     assert verification["sample_set_validated"] is True
+
+
+def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:
+    payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
+    platform = payload["platform_strategy"]
+    assert platform["required_first_target"] == "Windows desktop"
+    assert platform["browser"] == "deferred possible target"
+    assert platform["mobile_tablet"] == "deferred possible target"
+    assert platform["core_must_remain_ui_independent"] is True
+
+
+def test_license_review_is_required_before_public_release(project_root: Path) -> None:
+    payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
+    assert payload["engineering_rules"]["public_release_license_audit_required"] is True
+    license_review = (project_root / "LICENSE_REVIEW.md").read_text(encoding="ascii")
+    assert "Public binary release gate" in license_review
+    assert "Riot/TFT data and assets" in license_review

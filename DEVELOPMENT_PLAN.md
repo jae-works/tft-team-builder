@@ -72,10 +72,10 @@ The code should remain practical, modern and human-readable.
 
 Block 1 selected and pinned the current baseline after compatibility research:
 
-- Flet 1.0.1 for the desktop GUI.
+- Flet 1.0.1 for the Windows-first GUI, while preserving official Flet web/mobile options for possible later work. Deferred web tooling is isolated in its own dependency group so normal desktop development does not install it unnecessarily.
 - Pydantic 2.13.5 for strict external Set/manifest/schema validation.
-- `platformdirs` 4.11.14 for writable platform-specific application paths.
-- SQLAlchemy 2.x for SQLite persistence and Alembic for explicit database migrations, unless Block 1/2 tests show a materially simpler robust approach.
+- `platformdirs` 4.11.15 for writable platform-specific application paths when Flet-specific storage paths are not available.
+- Persistence library choice is intentionally deferred to Block 2. Compare direct `sqlite3` plus explicit migrations against SQLAlchemy/Alembic before adding either; prefer the simpler approach if it satisfies transactional, migration, testing and future-platform requirements.
 - `httpx` for developer-side Set source downloads in Block 7.
 - pytest 9.1.1 for tests.
 - Ruff 0.16.9 for formatting/linting/import checks.
@@ -104,6 +104,7 @@ Every source delivery includes at least:
 - `IMPLEMENTATION_BLOCKS.md`
 - `DEVELOPMENT_PLAN.md`
 - `DECISIONS.md`
+- `LICENSE_REVIEW.md`
 - `SET_DATA_PIPELINE.md`
 - the current block implementation report, currently `BLOCK_01_REPORT.md`
 
@@ -111,4 +112,4 @@ The final Windows package also ships readable copies of the relevant project doc
 
 ## Current implementation position
 
-Block 1 is complete in version 0.1.0. Block 2 is the next planned implementation block, subject to user verification of version 0.1.0.
+Block 1 is cleaned and hardened in version 0.1.4. Block 2 remains the next planned implementation block, subject to one final clean Windows verification of version 0.1.4.

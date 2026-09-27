@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
+from .file_integrity import sha256_file
+from .filesystem import is_link_like, scan_regular_files
+from .json_utils import DuplicateJsonKeyError, loads_json
 from .set_schema import (
     ChampionDefinition,
     DynamicTraitDefinition,
@@ -20,14 +22,6 @@ from .set_schema import (
 )
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 @dataclass(frozen=True, slots=True, order=True)
@@ -46,6 +40,8 @@ class ValidationIssue:
 
 @dataclass(frozen=True, slots=True)
 class LoadedSet:
+    """A fully validated runtime Set package."""
+
     root: Path
     manifest: SetManifest
     champions: tuple[ChampionDefinition, ...]
@@ -66,6 +62,8 @@ class LoadedSet:
 
 @dataclass(frozen=True, slots=True)
 class ValidationReport:
+    """Validation result that can report several independent Set problems at once."""
+
     root: Path
     issues: tuple[ValidationIssue, ...]
     loaded_set: LoadedSet | None = None
@@ -90,11 +88,13 @@ def _json_load(path: Path, issues: list[ValidationIssue], location: str) -> Any 
     if not path.is_file():
         issues.append(ValidationIssue("missing_file", "required file does not exist", location))
         return None
+
     try:
-        with path.open("r", encoding="utf-8") as handle:
-            return json.load(handle)
+        return loads_json(path.read_text(encoding="utf-8"))
     except UnicodeDecodeError as error:
         issues.append(ValidationIssue("invalid_utf8", str(error), location))
+    except DuplicateJsonKeyError as error:
+        issues.append(ValidationIssue("duplicate_json_key", str(error), location))
     except json.JSONDecodeError as error:
         issues.append(
             ValidationIssue(
@@ -117,7 +117,12 @@ def _model_error_issues(error: ValidationError, prefix: str) -> list[ValidationI
     return converted
 
 
-def _parse_model(model_type: type, payload: Any, issues: list[ValidationIssue], prefix: str) -> Any:
+def _parse_model[ModelT: BaseModel](
+    model_type: type[ModelT],
+    payload: Any,
+    issues: list[ValidationIssue],
+    prefix: str,
+) -> ModelT | None:
     try:
         return model_type.model_validate(payload)
     except ValidationError as error:
@@ -125,17 +130,17 @@ def _parse_model(model_type: type, payload: Any, issues: list[ValidationIssue], 
         return None
 
 
-def _parse_model_list(
-    model_type: type,
+def _parse_model_list[ModelT: BaseModel](
+    model_type: type[ModelT],
     payload: Any,
     issues: list[ValidationIssue],
     prefix: str,
-) -> list[Any] | None:
+) -> list[ModelT] | None:
     if not isinstance(payload, list):
         issues.append(ValidationIssue("schema_error", "expected a JSON array", prefix))
         return None
 
-    values: list[Any] = []
+    values: list[ModelT] = []
     for index, item in enumerate(payload):
         value = _parse_model(model_type, item, issues, f"{prefix}[{index}]")
         if value is not None:
@@ -143,26 +148,47 @@ def _parse_model_list(
     return values
 
 
-def _safe_package_path(root: Path, relative: str, issues: list[ValidationIssue], location: str) -> Path | None:
-    """Resolve an already schema-validated relative path and defend against symlink escapes."""
+def _safe_package_path(
+    resolved_root: Path,
+    relative: str,
+    issues: list[ValidationIssue],
+    location: str,
+) -> Path | None:
+    """Resolve a schema-validated relative path and reject symlink/path escapes."""
 
-    candidate = root.joinpath(*relative.split("/"))
+    candidate = resolved_root.joinpath(*relative.split("/"))
+    current = resolved_root
     try:
-        resolved_root = root.resolve(strict=True)
-    except FileNotFoundError:
-        issues.append(ValidationIssue("missing_set", "Set directory does not exist", str(root)))
-        return None
+        for component in relative.split("/"):
+            current = current / component
+            if is_link_like(current):
+                issues.append(
+                    ValidationIssue(
+                        "unexpected_symlink",
+                        "runtime Set paths must not contain symbolic links or junctions",
+                        location,
+                    )
+                )
+                return None
 
-    try:
         resolved_candidate = candidate.resolve(strict=False)
         resolved_candidate.relative_to(resolved_root)
     except ValueError:
-        issues.append(ValidationIssue("path_escape", "path resolves outside the Set directory", location))
+        issues.append(
+            ValidationIssue("path_escape", "path resolves outside the Set directory", location)
+        )
+        return None
+    except (OSError, RuntimeError) as error:
+        issues.append(ValidationIssue("unreadable_path", str(error), location))
         return None
     return candidate
 
 
-def _check_unique_ids(values: list[Any], kind: str, issues: list[ValidationIssue]) -> None:
+def _check_unique_ids(
+    values: list[ChampionDefinition] | list[TraitDefinition],
+    kind: str,
+    issues: list[ValidationIssue],
+) -> None:
     seen: set[str] = set()
     for value in values:
         if value.id in seen:
@@ -176,13 +202,40 @@ def _check_unique_ids(values: list[Any], kind: str, issues: list[ValidationIssue
         seen.add(value.id)
 
 
-def _validate_asset(root: Path, relative: str, issues: list[ValidationIssue], location: str) -> None:
+def _check_unique_display_orders(
+    values: list[ChampionDefinition] | list[TraitDefinition],
+    kind: str,
+    issues: list[ValidationIssue],
+) -> None:
+    seen: dict[int, str] = {}
+    for value in values:
+        previous_id = seen.get(value.display_order)
+        if previous_id is not None:
+            issues.append(
+                ValidationIssue(
+                    "duplicate_display_order",
+                    f"{kind} '{value.id}' shares display_order {value.display_order} "
+                    f"with '{previous_id}'",
+                    f"data.{kind}s",
+                )
+            )
+        else:
+            seen[value.display_order] = value.id
+
+
+def _validate_asset(
+    root: Path,
+    relative: str,
+    issues: list[ValidationIssue],
+    location: str,
+) -> None:
     path = _safe_package_path(root, relative, issues, location)
     if path is None:
         return
     if not path.is_file():
         issues.append(ValidationIssue("missing_asset", "asset file does not exist", location))
         return
+
     try:
         if path.stat().st_size == 0:
             issues.append(ValidationIssue("empty_asset", "asset file is empty", location))
@@ -190,22 +243,136 @@ def _validate_asset(root: Path, relative: str, issues: list[ValidationIssue], lo
         if path.suffix.casefold() == ".png":
             with path.open("rb") as handle:
                 if handle.read(len(PNG_SIGNATURE)) != PNG_SIGNATURE:
-                    issues.append(ValidationIssue("invalid_png", "PNG signature is invalid", location))
+                    issues.append(
+                        ValidationIssue("invalid_png", "PNG signature is invalid", location)
+                    )
     except OSError as error:
         issues.append(ValidationIssue("unreadable_asset", str(error), location))
+
+
+def _validate_hash_inventory(
+    *,
+    root: Path,
+    required_paths: set[str],
+    declared_hashes: dict[str, str],
+    issues: list[ValidationIssue],
+    location: str,
+    missing_code: str,
+    unexpected_code: str,
+    mismatch_code: str,
+    unreadable_code: str,
+    item_label: str,
+) -> None:
+    """Compare one required file inventory with its declared SHA-256 mapping."""
+
+    declared_paths = set(declared_hashes)
+    for relative in sorted(required_paths - declared_paths):
+        issues.append(
+            ValidationIssue(
+                missing_code,
+                f"required {item_label} '{relative}' has no source-manifest hash",
+                location,
+            )
+        )
+
+    for relative in sorted(declared_paths - required_paths):
+        issues.append(
+            ValidationIssue(
+                unexpected_code,
+                f"source manifest hashes unexpected {item_label} '{relative}'",
+                location,
+            )
+        )
+
+    for relative in sorted(required_paths & declared_paths):
+        path = _safe_package_path(root, relative, issues, f"{location}.{relative}")
+        if path is None or not path.is_file():
+            continue
+        try:
+            actual = sha256_file(path)
+        except OSError as error:
+            issues.append(ValidationIssue(unreadable_code, str(error), f"{location}.{relative}"))
+            continue
+        if actual != declared_hashes[relative]:
+            issues.append(
+                ValidationIssue(
+                    mismatch_code,
+                    f"{item_label} hash does not match source manifest for '{relative}'",
+                    location,
+                )
+            )
+
+
+def _validate_package_inventory(
+    root: Path,
+    expected_files: set[str],
+    issues: list[ValidationIssue],
+) -> None:
+    """Reject symlinks and stale/untracked files in a schema-v1 runtime Set package."""
+
+    try:
+        files, links = scan_regular_files(root)
+    except OSError as error:
+        issues.append(ValidationIssue("unreadable_set", str(error), str(root)))
+        return
+
+    for candidate in links:
+        issues.append(
+            ValidationIssue(
+                "unexpected_symlink",
+                "runtime Set packages must not contain symbolic links or junctions",
+                candidate.relative_to(root).as_posix(),
+            )
+        )
+
+    actual_files = {candidate.relative_to(root).as_posix() for candidate in files}
+
+    for relative in sorted(actual_files - expected_files):
+        issues.append(
+            ValidationIssue(
+                "unexpected_file",
+                "file is not part of the declared Set package inventory",
+                relative,
+            )
+        )
 
 
 def validate_set_directory(root: Path) -> ValidationReport:
     """Validate one Set directory and collect all practical errors in one pass."""
 
-    root = Path(root)
-    issues: list[ValidationIssue] = []
-    if not root.is_dir():
+    supplied_root = Path(root)
+    if is_link_like(supplied_root):
         return ValidationReport(
-            root=root,
-            issues=(ValidationIssue("missing_set", "Set directory does not exist", str(root)),),
+            root=supplied_root,
+            issues=(
+                ValidationIssue(
+                    "unexpected_symlink",
+                    "runtime Set directory must not be a symbolic link or junction",
+                    str(supplied_root),
+                ),
+            ),
+        )
+    if not supplied_root.is_dir():
+        return ValidationReport(
+            root=supplied_root,
+            issues=(
+                ValidationIssue(
+                    "missing_set",
+                    "Set directory does not exist",
+                    str(supplied_root),
+                ),
+            ),
         )
 
+    try:
+        root = supplied_root.resolve(strict=True)
+    except (OSError, RuntimeError) as error:
+        return ValidationReport(
+            root=supplied_root,
+            issues=(ValidationIssue("unreadable_set", str(error), str(supplied_root)),),
+        )
+
+    issues: list[ValidationIssue] = []
     manifest_payload = _json_load(root / "manifest.json", issues, "manifest.json")
     manifest = (
         _parse_model(SetManifest, manifest_payload, issues, "manifest")
@@ -216,7 +383,9 @@ def validate_set_directory(root: Path) -> ValidationReport:
         return ValidationReport(root=root, issues=tuple(sorted(issues)))
 
     paths: dict[str, Path | None] = {
-        "champions": _safe_package_path(root, manifest.champions_file, issues, "manifest.champions_file"),
+        "champions": _safe_package_path(
+            root, manifest.champions_file, issues, "manifest.champions_file"
+        ),
         "traits": _safe_package_path(root, manifest.traits_file, issues, "manifest.traits_file"),
         "dynamic_traits": _safe_package_path(
             root,
@@ -292,12 +461,24 @@ def validate_set_directory(root: Path) -> ValidationReport:
 
     if champions is not None:
         if not champions:
-            issues.append(ValidationIssue("empty_champions", "Set must define at least one Champion", "champions"))
+            issues.append(
+                ValidationIssue(
+                    "empty_champions",
+                    "Set must define at least one Champion",
+                    "champions",
+                )
+            )
         _check_unique_ids(champions, "champion", issues)
+        _check_unique_display_orders(champions, "champion", issues)
+
     if traits is not None:
         if not traits:
-            issues.append(ValidationIssue("empty_traits", "Set must define at least one Trait", "traits"))
+            issues.append(
+                ValidationIssue("empty_traits", "Set must define at least one Trait", "traits")
+            )
         _check_unique_ids(traits, "trait", issues)
+        _check_unique_display_orders(traits, "trait", issues)
+
     if dynamic_traits is not None:
         dynamic_ids = [item.champion_id for item in dynamic_traits]
         if len(dynamic_ids) != len(set(dynamic_ids)):
@@ -373,16 +554,12 @@ def validate_set_directory(root: Path) -> ValidationReport:
     locales_dir = _safe_package_path(root, manifest.locales_dir, issues, "manifest.locales_dir")
     if locales_dir is not None:
         for locale in manifest.supported_locales:
-            locale_path = locales_dir / f"{locale}.json"
-            payload = _json_load(
-                locale_path,
-                issues,
-                f"{manifest.locales_dir}/{locale}.json",
-            )
+            relative_locale = f"{manifest.locales_dir}/{locale}.json"
+            payload = _json_load(locales_dir / f"{locale}.json", issues, relative_locale)
             if payload is None:
                 continue
             if not isinstance(payload, dict) or not all(
-                isinstance(key, str) and isinstance(value, str) and value.strip()
+                isinstance(key, str) and key.strip() and isinstance(value, str) and value.strip()
                 for key, value in payload.items()
             ):
                 issues.append(
@@ -405,8 +582,7 @@ def validate_set_directory(root: Path) -> ValidationReport:
 
     if team_planner is not None:
         mapped_ids = set(team_planner.champion_ids)
-        unknown_mappings = mapped_ids - champion_ids
-        for champion_id in sorted(unknown_mappings):
+        for champion_id in sorted(mapped_ids - champion_ids):
             issues.append(
                 ValidationIssue(
                     "unknown_champion",
@@ -432,122 +608,68 @@ def validate_set_directory(root: Path) -> ValidationReport:
                     )
                 )
 
+    required_generated_files = {
+        "manifest.json",
+        manifest.champions_file,
+        manifest.traits_file,
+        manifest.dynamic_traits_file,
+        manifest.team_planner_file,
+        *(f"{manifest.locales_dir}/{locale}.json" for locale in manifest.supported_locales),
+    }
+
     if source_manifest is not None:
-        required_generated_files = {
-            "manifest.json",
-            manifest.champions_file,
-            manifest.traits_file,
-            manifest.dynamic_traits_file,
-            manifest.team_planner_file,
-            *(f"{manifest.locales_dir}/{locale}.json" for locale in manifest.supported_locales),
-        }
-        declared_generated_files = set(source_manifest.generated_file_sha256)
+        _validate_hash_inventory(
+            root=root,
+            required_paths=required_generated_files,
+            declared_hashes=source_manifest.generated_file_sha256,
+            issues=issues,
+            location="source_manifest.generated_file_sha256",
+            missing_code="missing_generated_file_hash",
+            unexpected_code="unexpected_generated_file_hash",
+            mismatch_code="generated_file_hash_mismatch",
+            unreadable_code="unreadable_file",
+            item_label="generated file",
+        )
+        _validate_hash_inventory(
+            root=root,
+            required_paths=required_assets,
+            declared_hashes=source_manifest.asset_sha256,
+            issues=issues,
+            location="source_manifest.asset_sha256",
+            missing_code="missing_asset_hash",
+            unexpected_code="unexpected_asset_hash",
+            mismatch_code="asset_hash_mismatch",
+            unreadable_code="unreadable_asset",
+            item_label="asset",
+        )
 
-        for relative in sorted(required_generated_files - declared_generated_files):
-            issues.append(
-                ValidationIssue(
-                    "missing_generated_file_hash",
-                    f"required generated file '{relative}' has no source-manifest hash",
-                    "source_manifest.generated_file_sha256",
-                )
-            )
-        for relative in sorted(declared_generated_files - required_generated_files):
-            issues.append(
-                ValidationIssue(
-                    "unexpected_generated_file_hash",
-                    f"source manifest hashes unexpected generated file '{relative}'",
-                    "source_manifest.generated_file_sha256",
-                )
-            )
-        for relative in sorted(required_generated_files & declared_generated_files):
-            generated_path = _safe_package_path(
-                root,
-                relative,
-                issues,
-                f"source_manifest.generated_file_sha256.{relative}",
-            )
-            if generated_path is None or not generated_path.is_file():
-                continue
-            try:
-                actual = _sha256_file(generated_path)
-            except OSError as error:
-                issues.append(
-                    ValidationIssue(
-                        "unreadable_file",
-                        str(error),
-                        f"source_manifest.generated_file_sha256.{relative}",
-                    )
-                )
-                continue
-            expected = source_manifest.generated_file_sha256[relative]
-            if actual != expected:
-                issues.append(
-                    ValidationIssue(
-                        "generated_file_hash_mismatch",
-                        f"generated file hash does not match source manifest for '{relative}'",
-                        "source_manifest.generated_file_sha256",
-                    )
-                )
-
-        declared_assets = set(source_manifest.asset_sha256)
-        for relative in sorted(required_assets - declared_assets):
-            issues.append(
-                ValidationIssue(
-                    "missing_asset_hash",
-                    f"required asset '{relative}' has no source-manifest hash",
-                    "source_manifest.asset_sha256",
-                )
-            )
-        for relative in sorted(declared_assets - required_assets):
-            issues.append(
-                ValidationIssue(
-                    "unexpected_asset_hash",
-                    f"source manifest hashes unused asset '{relative}'",
-                    "source_manifest.asset_sha256",
-                )
-            )
-        for relative in sorted(required_assets & declared_assets):
-            asset_path = _safe_package_path(
-                root,
-                relative,
-                issues,
-                f"source_manifest.asset_sha256.{relative}",
-            )
-            if asset_path is None or not asset_path.is_file():
-                continue
-            try:
-                actual = _sha256_file(asset_path)
-            except OSError as error:
-                issues.append(
-                    ValidationIssue(
-                        "unreadable_asset",
-                        str(error),
-                        f"source_manifest.asset_sha256.{relative}",
-                    )
-                )
-                continue
-            expected = source_manifest.asset_sha256[relative]
-            if actual != expected:
-                issues.append(
-                    ValidationIssue(
-                        "asset_hash_mismatch",
-                        f"asset hash does not match source manifest for '{relative}'",
-                        "source_manifest.asset_sha256",
-                    )
-                )
+    expected_files = required_generated_files | required_assets | {manifest.source_manifest_file}
+    _validate_package_inventory(root, expected_files, issues)
 
     sorted_issues = tuple(sorted(issues))
     if sorted_issues:
         return ValidationReport(root=root, issues=sorted_issues)
 
-    assert champions is not None
-    assert traits is not None
-    assert dynamic_traits is not None
-    assert team_planner is not None
-    assert source_manifest is not None
+    if (
+        champions is None
+        or traits is None
+        or dynamic_traits is None
+        or team_planner is None
+        or source_manifest is None
+    ):
+        return ValidationReport(
+            root=root,
+            issues=(
+                ValidationIssue(
+                    "internal_validation_error",
+                    "validation completed without required parsed data",
+                    str(root),
+                ),
+            ),
+        )
 
     loaded_set = LoadedSet(
-        root=root.resolve(),
+        root=root,
         manifest=manifest,
         champions=tuple(sorted(champions, key=lambda item: (item.display_order, item.id))),
         traits=tuple(sorted(traits, key=lambda item: (item.display_order, item.id))),
@@ -563,9 +685,8 @@ def load_set_directory(root: Path) -> LoadedSet:
     """Return a fully validated Set or raise ``SetValidationError``."""
 
     report = validate_set_directory(root)
-    if not report.is_valid:
+    if not report.is_valid or report.loaded_set is None:
         raise SetValidationError(report)
-    assert report.loaded_set is not None
     return report.loaded_set
 
 
@@ -575,13 +696,25 @@ def discover_set_directories(parent: Path) -> tuple[Path, ...]:
     parent = Path(parent)
     if not parent.is_dir():
         return ()
+    try:
+        children = tuple(parent.iterdir())
+    except OSError:
+        return ()
     return tuple(
         sorted(
-            (child for child in parent.iterdir() if child.is_dir() and (child / "manifest.json").is_file()),
+            (
+                child
+                for child in children
+                if not is_link_like(child)
+                and child.is_dir()
+                and (child / "manifest.json").is_file()
+            ),
             key=lambda path: path.name.casefold(),
         )
     )
 
 
 def validate_all_sets(parent: Path) -> tuple[ValidationReport, ...]:
+    """Validate every discoverable Set package below one parent directory."""
+
     return tuple(validate_set_directory(path) for path in discover_set_directories(parent))

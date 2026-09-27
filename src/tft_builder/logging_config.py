@@ -14,31 +14,61 @@ def _is_managed(handler: logging.Handler) -> bool:
     return bool(getattr(handler, _HANDLER_MARKER, False))
 
 
-def _mark_managed(handler: logging.Handler) -> None:
+def _mark_managed(handler: logging.Handler) -> logging.Handler:
     setattr(handler, _HANDLER_MARKER, True)
+    return handler
+
+
+def _managed_handlers(logger: logging.Logger) -> list[logging.Handler]:
+    return [handler for handler in logger.handlers if _is_managed(handler)]
 
 
 def _managed_file_path(logger: logging.Logger) -> Path | None:
-    for handler in logger.handlers:
-        if _is_managed(handler) and isinstance(handler, RotatingFileHandler):
+    for handler in _managed_handlers(logger):
+        if isinstance(handler, RotatingFileHandler):
             return Path(handler.baseFilename).resolve()
     return None
 
 
 def _remove_managed_handlers(logger: logging.Logger) -> None:
-    for handler in list(logger.handlers):
-        if not _is_managed(handler):
-            continue
+    for handler in list(_managed_handlers(logger)):
         logger.removeHandler(handler)
         handler.close()
+
+
+def _create_managed_handlers(log_path: Path, level: int) -> tuple[logging.Handler, logging.Handler]:
+    """Create both handlers before changing the active logger configuration."""
+
+    formatter = logging.Formatter(LOG_FORMAT)
+    stream_handler = _mark_managed(logging.StreamHandler())
+    stream_handler.setLevel(level)
+    stream_handler.setFormatter(formatter)
+
+    try:
+        file_handler = _mark_managed(
+            RotatingFileHandler(
+                log_path,
+                maxBytes=2_000_000,
+                backupCount=3,
+                encoding="utf-8",
+            )
+        )
+    except Exception:
+        stream_handler.close()
+        raise
+
+    file_handler.setLevel(level)
+    file_handler.setFormatter(formatter)
+    return stream_handler, file_handler
 
 
 def configure_logging(log_dir: Path, *, level: int = logging.INFO) -> Path:
     """Configure predictable console and rotating-file logging.
 
-    Repeating the call for the same target only updates levels. If the runtime log directory
-    changes, the managed handlers are replaced so the logger never silently continues writing
-    to the previous location. Handlers attached by unrelated code are left untouched.
+    Repeating the call for the same target only updates managed handler levels. If the target
+    directory changes, replacement handlers are fully constructed before the old handlers are
+    removed. A failed reconfiguration therefore leaves the previous working logger intact.
+    Handlers attached by pytest, libraries, or other application code are never modified.
     """
 
     resolved_dir = Path(log_dir).expanduser().resolve()
@@ -46,35 +76,19 @@ def configure_logging(log_dir: Path, *, level: int = logging.INFO) -> Path:
     log_path = resolved_dir / "app.log"
 
     logger = logging.getLogger("tft_builder")
-    logger.setLevel(level)
-    logger.propagate = False
-
+    managed = _managed_handlers(logger)
     current_file = _managed_file_path(logger)
-    managed_handlers = [handler for handler in logger.handlers if _is_managed(handler)]
-    needs_rebuild = current_file != log_path or len(managed_handlers) != 2
+    needs_rebuild = current_file != log_path or len(managed) != 2
 
     if needs_rebuild:
+        replacement = _create_managed_handlers(log_path, level)
         _remove_managed_handlers(logger)
-        formatter = logging.Formatter(LOG_FORMAT)
-
-        stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(level)
-        stream_handler.setFormatter(formatter)
-        _mark_managed(stream_handler)
-        logger.addHandler(stream_handler)
-
-        file_handler = RotatingFileHandler(
-            log_path,
-            maxBytes=2_000_000,
-            backupCount=3,
-            encoding="utf-8",
-        )
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        _mark_managed(file_handler)
-        logger.addHandler(file_handler)
+        for handler in replacement:
+            logger.addHandler(handler)
     else:
-        for handler in managed_handlers:
+        for handler in managed:
             handler.setLevel(level)
 
+    logger.setLevel(level)
+    logger.propagate = False
     return log_path

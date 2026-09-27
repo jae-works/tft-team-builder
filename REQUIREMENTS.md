@@ -12,6 +12,9 @@ Legend:
 ## Core
 - [ ] Python desktop application for Windows.
 - [ ] Flet GUI.
+- [x] Windows desktop is the required first release target.
+- [x] Browser and mobile/tablet support are deferred future targets, not removed from the long-term project direction.
+- [x] Core game/build logic, Set logic and persistence boundaries must remain independent from Flet widgets so future platform/UI changes do not require a core rewrite.
 - [ ] Core logic kept independent from GUI code where useful, without unnecessary abstraction layers.
 - [ ] Local-first; no account or cloud required.
 - [ ] Full local test suite.
@@ -32,7 +35,7 @@ Legend:
 - [x] Runtime writable paths do not depend on the current working directory.
 - [x] Runtime user-data locations use `platformdirs` or an equivalent actively maintained platform-aware library.
 - [x] No developer-machine absolute paths are committed to source, configuration, tests or generated manifests.
-- [ ] Source and runtime path behavior is explicitly tested on Windows-compatible path semantics where practical.
+- [x] Source and runtime path behavior is explicitly tested on Windows-compatible path semantics where practical.
 - [x] Dependencies are declared centrally in `pyproject.toml` and use maintained stable versions compatible with the selected Python/Flet toolchain.
 - [x] Prefer modern, actively maintained libraries when they materially improve correctness, portability or maintainability.
 - [x] Prefer the Python standard library when it already provides a clear, robust solution; do not add dependencies only to appear modern.
@@ -40,7 +43,30 @@ Legend:
 - [x] Dependency choices are kept pragmatic; do not introduce generic frameworks, interfaces or abstractions without a concrete need.
 - [x] Formatting/linting uses Ruff or an equivalent current tool configured in `pyproject.toml`.
 - [x] Tests use pytest and remain easy to run locally with one documented command.
+- [x] Test coverage includes branch coverage and enforces a minimum 95 percent project coverage gate; Block 1 exceeds that gate substantially.
+- [x] Production source does not rely on `assert` statements for required runtime validation or recovery behavior.
+- [x] `uv` is constrained to a version range that includes the September 2026 Windows wheel path-traversal security fix.
 - [x] A project-level automated check prevents accidental non-ASCII characters in project-authored technical files, with explicit allowlists only for localization/external data directories that legitimately require them.
+
+## Platform and dependency strategy
+- [x] Flet 1.0.1 is retained after explicit comparison with desktop-only and web-first alternatives.
+- [x] Runtime uses the base `flet` package; desktop/test tooling stays in the default development group and deferred web tooling stays in a separate optional dependency group.
+- [x] CPython is pinned to the 3.13 minor line for the current development cycle so Flet packaging does not silently select another Python minor version.
+- [x] `platformdirs` is used only as a platform-native writable-path fallback; Flet-provided storage paths take priority inside packaged Flet applications.
+- [x] `pathlib` is used for filesystem path construction and operations; `os.environ` is used only for the separate job of reading environment variables.
+- [x] Static browser deployment is not assumed to be compatible with future persistence dependencies; any future browser target must be evaluated separately.
+- [ ] If browser deployment is implemented, evaluate Flet dynamic web first because it preserves normal server-side Python package compatibility.
+- [ ] If mobile deployment is implemented, re-run dependency, filesystem, persistence, packaging and license compatibility tests for Android/iOS before declaring support.
+
+## Licensing and public distribution
+- [x] `LICENSE_REVIEW.md` records the current direct dependency license review and release gates.
+- [x] The project itself intentionally has no selected public source-code license yet.
+- [ ] Select an explicit project license or proprietary distribution model before any public source release.
+- [ ] Audit the exact locked transitive dependency graph and final packaged artifact before public binary distribution.
+- [ ] Produce required third-party copyright/license notices for the final distributed artifact.
+- [ ] Perform a separate license/artifact audit for each future browser/mobile distribution target.
+- [ ] Choose final independent product branding before a public release.
+- [ ] Set deliberate Flet company/organization/bundle metadata only after final release identity is known; do not ship default or invented mobile bundle identifiers.
 
 ## Riot compliance
 - [ ] Unofficial third-party product presentation.
@@ -52,7 +78,7 @@ Legend:
 - [ ] Re-check current Riot rules before any public release.
 
 ## Sets
-- [x] Dedicated sets/ folder.
+- [x] Dedicated bundled Set folder at `src/assets/sets/`.
 - [x] One folder per TFT set.
 - [x] Each set has a manifest and data files.
 - [x] Application validates each installed set before use.
@@ -80,7 +106,9 @@ Legend:
 - [x] Block 1 local source specs record a SHA-256 source hash plus hashes for every generated runtime JSON/locale file and every required runtime asset.
 - [x] Runtime Set validation verifies required generated-file and asset hashes before accepting a Set.
 - [x] Local Set generation uses a validated staging directory so a failed build does not leave partial output or destroy a previous valid output.
-- [x] Set-source asset paths cannot escape the source-spec directory through path traversal or symlinks.
+- [x] Set-source asset paths cannot escape the source-spec directory through path traversal, symbolic links, or Windows junctions.
+- [x] Set-source roots, source-spec files, runtime Set roots and generated output roots reject symbolic-link or Windows-junction ambiguity where it could undermine reproducibility or safe replacement.
+- [x] Runtime Set discovery does not follow symbolic-link or junction Set directories.
 
 ## Teams and lists
 - [x] A Team is the top-level saved build.
@@ -175,6 +203,8 @@ Legend:
 
 ## Persistence
 - [ ] SQLite database.
+- [ ] Database access is concentrated in the persistence package; UI controls and domain models do not issue SQL directly.
+- [ ] Persistence code stays direct and concrete; do not add repository/interface hierarchies unless a real second backend or test seam requires them.
 - [ ] Autosave; no normal manual-save workflow.
 - [ ] Structural changes saved immediately.
 - [ ] Text edits use short debounce and save on focus loss.
@@ -225,11 +255,16 @@ Legend:
 - [ ] Windows executable/package.
 - [ ] Complete data folder behavior verified.
 - [ ] Delivered ZIP always contains the complete current project.
+- [x] Development handoffs use clean project replacement while preserving the existing `.git` directory.
+- [x] Runtime Set data has exactly one authoritative bundled root: `src/assets/sets`.
+- [x] Delivered project archives exclude caches, coverage files, bytecode caches, virtual environments, and obsolete development-only files.
+- [x] Mandatory Block 1 tests do not rely on platform-specific symlink privileges and therefore have no expected OS-permission skips.
 - [ ] SHA-256 checksum is calculated for every delivered ZIP.
 - [ ] Release candidate is tested from a clean extracted copy.
 
-## Explicitly out of scope for the current project
-- Mobile/tablet app.
+## Explicitly out of scope for the current implementation blocks
+- Browser deployment is deferred.
+- Mobile/tablet deployment is deferred.
 - Hex board view.
 - Items.
 - Trait items / emblems.
@@ -252,6 +287,7 @@ Legend:
 - [x] `DEVELOPMENT_PLAN.md` remains part of every delivered source version.
 - [ ] The Windows release package includes these planning/handoff files in a readable `project_docs/` directory.
 - [x] `PROGRESS.md` is updated only with work that is actually implemented and locally verified.
+- [x] `project_docs/` mirrors are synchronized from the root documents by a tested tool instead of manual copying.
 - [x] Requirements discovered during development are added to `REQUIREMENTS.md` before or together with their implementation.
 - [ ] Every delivered ZIP is complete and accompanied by a SHA-256 checksum calculated from that final ZIP.
 - [x] The current implementation blocks are documented and their completion status is maintained.

@@ -1,7 +1,7 @@
-# Set import developer tools
+# Future upstream Set adapters
 
-This directory is reserved for the build-time Set importer and validator implemented in Development Step 1.
+Block 1 already provides the local deterministic Set builder and validator through the `tft-builder-dev` command.
 
-The runtime application will not call remote Riot/CommunityDragon services. These tools will generate the local packages consumed from `sets/`.
+This directory is reserved for Block 7 adapters that acquire and normalize pinned Riot Data Dragon and supplemental CommunityDragon source data. Those tools are build-time developer tooling only. The normal application must continue to consume local validated Set packages without a runtime network dependency.
 
-See `../../SET_DATA_PIPELINE.md` for the required behavior before adding importer code.
+See `SET_DATA_PIPELINE.md` in the repository root before adding code here.

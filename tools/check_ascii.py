@@ -6,7 +6,17 @@ import argparse
 from pathlib import Path
 
 TEXT_SUFFIXES = {".json", ".md", ".py", ".toml", ".txt", ".yaml", ".yml"}
-SKIP_DIRECTORY_NAMES = {".git", ".cache", ".pytest_cache", ".ruff_cache", ".venv", "dist", "build"}
+SKIP_DIRECTORY_NAMES = {
+    ".cache",
+    ".flet",
+    ".git",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "build",
+    "dist",
+    "htmlcov",
+}
 
 
 def is_allowed_unicode_path(relative: Path) -> bool:
@@ -16,22 +26,41 @@ def is_allowed_unicode_path(relative: Path) -> bool:
     return "locales" in parts
 
 
+def _is_link_like(path: Path) -> bool:
+    return path.is_symlink() or path.is_junction()
+
+
+def _iter_technical_text_files(root: Path):
+    for directory, directory_names, file_names in root.walk(
+        top_down=True,
+        follow_symlinks=False,
+    ):
+        directory_names[:] = [
+            name
+            for name in directory_names
+            if name not in SKIP_DIRECTORY_NAMES and not _is_link_like(directory / name)
+        ]
+        for name in file_names:
+            path = directory / name
+            if _is_link_like(path) or path.suffix.casefold() not in TEXT_SUFFIXES:
+                continue
+            yield path
+
+
 def find_non_ascii_files(root: Path) -> list[tuple[Path, int, str]]:
     root = root.resolve()
     failures: list[tuple[Path, int, str]] = []
-    for path in sorted(root.rglob("*")):
-        if not path.is_file() or path.suffix.casefold() not in TEXT_SUFFIXES:
-            continue
+    for path in sorted(_iter_technical_text_files(root)):
         relative = path.relative_to(root)
-        if any(part in SKIP_DIRECTORY_NAMES for part in relative.parts):
-            continue
         if is_allowed_unicode_path(relative):
             continue
 
         text = path.read_text(encoding="utf-8")
         for line_number, line in enumerate(text.splitlines(), start=1):
             if not line.isascii():
-                offending = "".join(sorted({character for character in line if not character.isascii()}))
+                offending = "".join(
+                    sorted({character for character in line if not character.isascii()})
+                )
                 failures.append((relative, line_number, offending))
     return failures
 

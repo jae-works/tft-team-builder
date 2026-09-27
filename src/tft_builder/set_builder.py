@@ -7,8 +7,6 @@ the runtime package consumed by the application.
 
 from __future__ import annotations
 
-import hashlib
-import json
 import shutil
 import tempfile
 from pathlib import Path
@@ -17,33 +15,24 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from .constants import SOURCE_MANIFEST_SCHEMA_VERSION
+from .file_integrity import sha256_bytes, sha256_file
+from .filesystem import is_link_like
+from .json_utils import canonical_json_bytes, loads_json
 from .set_loader import load_set_directory
 from .set_schema import LocalSetSpec
 
 
-def _read_bytes(path: Path) -> bytes:
-    with path.open("rb") as handle:
-        return handle.read()
-
-
-def _sha256_bytes(value: bytes) -> str:
-    return hashlib.sha256(value).hexdigest()
-
-
-def _canonical_json_bytes(value: object) -> bytes:
-    text = json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
-    return text.encode("utf-8")
-
-
 def _write_json(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(_canonical_json_bytes(value))
+    path.write_bytes(canonical_json_bytes(value))
 
 
 def _load_source_spec(spec_dir: Path) -> tuple[LocalSetSpec, bytes]:
     spec_path = spec_dir / "set_spec.json"
-    raw = _read_bytes(spec_path)
-    payload = json.loads(raw.decode("utf-8"))
+    if is_link_like(spec_path):
+        raise ValueError("source spec file must not be a symbolic link or junction")
+    raw = spec_path.read_bytes()
+    payload = loads_json(raw.decode("utf-8"))
     try:
         return LocalSetSpec.model_validate(payload), raw
     except ValidationError as error:
@@ -57,11 +46,21 @@ def _resolve_source_asset(spec_dir: Path, relative: str) -> Path:
     if not candidate.exists():
         raise FileNotFoundError(f"source asset does not exist: {candidate}")
 
+    current = spec_dir
+    for component in relative.split("/"):
+        current = current / component
+        if is_link_like(current):
+            raise ValueError(
+                f"source asset path must not contain symbolic links or junctions: {relative}"
+            )
+
     resolved = candidate.resolve(strict=True)
     try:
         resolved.relative_to(spec_dir)
     except ValueError as error:
-        raise ValueError(f"source asset resolves outside source spec directory: {relative}") from error
+        raise ValueError(
+            f"source asset resolves outside source spec directory: {relative}"
+        ) from error
 
     if not resolved.is_file():
         raise FileNotFoundError(f"source asset is not a file: {resolved}")
@@ -99,9 +98,8 @@ def _populate_staging_directory(spec_dir: Path, staging_dir: Path) -> None:
         source_path = _resolve_source_asset(spec_dir, source)
         target_path = staging_dir.joinpath(*target.split("/"))
         target_path.parent.mkdir(parents=True, exist_ok=True)
-        data = _read_bytes(source_path)
-        target_path.write_bytes(data)
-        asset_hashes[target] = _sha256_bytes(data)
+        shutil.copyfile(source_path, target_path)
+        asset_hashes[target] = sha256_file(target_path)
 
     generated_paths = {
         "manifest.json",
@@ -109,17 +107,20 @@ def _populate_staging_directory(spec_dir: Path, staging_dir: Path) -> None:
         spec.manifest.traits_file,
         spec.manifest.dynamic_traits_file,
         spec.manifest.team_planner_file,
-        *(f"{spec.manifest.locales_dir}/{locale}.json" for locale in spec.manifest.supported_locales),
+        *(
+            f"{spec.manifest.locales_dir}/{locale}.json"
+            for locale in spec.manifest.supported_locales
+        ),
     }
     generated_file_hashes = {
-        relative: _sha256_bytes(_read_bytes(staging_dir.joinpath(*relative.split("/"))))
+        relative: sha256_file(staging_dir.joinpath(*relative.split("/")))
         for relative in sorted(generated_paths)
     }
 
     source_manifest = {
         "schema_version": SOURCE_MANIFEST_SCHEMA_VERSION,
         "source_type": "local_spec",
-        "source_sha256": _sha256_bytes(raw_spec),
+        "source_sha256": sha256_bytes(raw_spec),
         "generated_file_sha256": generated_file_hashes,
         "asset_sha256": asset_hashes,
     }
@@ -140,7 +141,7 @@ def _promote_staging_directory(staging_dir: Path, output_dir: Path) -> None:
 
     try:
         staging_dir.rename(output_dir)
-    except Exception:
+    except BaseException:
         # If promotion fails after the previous output was moved aside, restore it before
         # propagating the original error. This keeps overwrite failures non-destructive.
         if backup_dir is not None and backup_dir.exists() and not output_dir.exists():
@@ -164,14 +165,25 @@ def build_set_from_local_spec(
     Existing output is left untouched if generation fails before promotion.
     """
 
-    spec_dir = Path(spec_dir).resolve()
-    output_dir = Path(output_dir).resolve()
+    raw_spec_dir = Path(spec_dir).expanduser()
+    raw_output_dir = Path(output_dir).expanduser()
+    if is_link_like(raw_spec_dir):
+        raise ValueError("source spec directory must not be a symbolic link or junction")
+    if is_link_like(raw_output_dir):
+        raise ValueError("output directory must not be a symbolic link or junction")
+
+    spec_dir = raw_spec_dir.resolve()
+    output_dir = raw_output_dir.resolve()
     if not spec_dir.is_dir():
         raise FileNotFoundError(f"source spec directory does not exist: {spec_dir}")
 
     # Overlapping input/output trees are dangerous with overwrite=True because removing or
     # replacing output could also destroy all or part of the source specification.
-    if output_dir == spec_dir or output_dir.is_relative_to(spec_dir) or spec_dir.is_relative_to(output_dir):
+    if (
+        output_dir == spec_dir
+        or output_dir.is_relative_to(spec_dir)
+        or spec_dir.is_relative_to(output_dir)
+    ):
         raise ValueError("source spec and output directories must not overlap")
 
     if output_dir.exists():
@@ -181,32 +193,12 @@ def build_set_from_local_spec(
             raise FileExistsError(f"output directory already exists: {output_dir}")
 
     output_dir.parent.mkdir(parents=True, exist_ok=True)
-    staging_dir = Path(
-        tempfile.mkdtemp(prefix=f".{output_dir.name}.build-", dir=output_dir.parent)
-    )
+    staging_dir = Path(tempfile.mkdtemp(prefix=f".{output_dir.name}.build-", dir=output_dir.parent))
     try:
         _populate_staging_directory(spec_dir, staging_dir)
         _promote_staging_directory(staging_dir, output_dir)
-    except Exception:
+    except BaseException:
         shutil.rmtree(staging_dir, ignore_errors=True)
         raise
 
     return output_dir
-
-
-def directory_content_hash(root: Path) -> str:
-    """Hash relative file names and contents for deterministic-generation tests."""
-
-    root = Path(root).resolve()
-    digest = hashlib.sha256()
-    for path in sorted(
-        (path for path in root.rglob("*") if path.is_file()),
-        key=lambda item: item.as_posix(),
-    ):
-        relative = path.relative_to(root).as_posix().encode("utf-8")
-        digest.update(len(relative).to_bytes(8, "big"))
-        digest.update(relative)
-        data = _read_bytes(path)
-        digest.update(len(data).to_bytes(8, "big"))
-        digest.update(data)
-    return digest.hexdigest()

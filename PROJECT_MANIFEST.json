@@ -1,7 +1,7 @@
 {
   "project": "TFT Team Builder",
-  "version": "0.1.0",
-  "current_state": "block_1_complete",
+  "version": "0.1.4",
+  "current_state": "block_1_final_candidate_pending_windows_recheck",
   "current_block": 1,
   "next_block": 2,
   "handoff_document": "PROJECT_CONTEXT.md",
@@ -12,34 +12,56 @@
     "IMPLEMENTATION_BLOCKS.md",
     "DEVELOPMENT_PLAN.md",
     "DECISIONS.md",
+    "LICENSE_REVIEW.md",
     "SET_DATA_PIPELINE.md",
     "BLOCK_01_REPORT.md",
-    "sets/README.md",
-    "set_sources/README.md"
+    "src/assets/sets/README.md",
+    "set_sources/README.md",
+    "tools/set_import/README.md"
   ],
   "toolchain": {
     "python": ">=3.13,<3.14",
     "flet": "1.0.1",
     "pydantic": "2.13.5",
-    "platformdirs": "4.11.14",
+    "platformdirs": "4.11.15",
     "pytest": "9.1.1",
+    "pytest_cov": "7.1.0",
     "ruff": "0.16.9",
     "hatchling": "1.32.4"
   },
+  "platform_strategy": {
+    "required_first_target": "Windows desktop",
+    "browser": "deferred possible target",
+    "mobile_tablet": "deferred possible target",
+    "ui_framework": "Flet",
+    "core_must_remain_ui_independent": true
+  },
   "verification": {
-    "pytest_passed": 204,
+    "pytest_passed": 349,
+    "branch_coverage_minimum_percent": 95,
     "compileall_passed": true,
     "ascii_policy_passed": true,
     "sample_set_regenerated": true,
     "sample_set_validated": true,
-    "exact_flet_runtime_tested_in_implementation_sandbox": false,
-    "exact_ruff_binary_tested_in_implementation_sandbox": false,
     "required_generated_file_hashes_verified": true,
     "transactional_set_builds_verified": true,
-    "application_startup_integration_verified_without_flet_ui": true
+    "application_startup_integration_verified_without_flet_ui": true,
+    "exact_flet_runtime_tested_in_implementation_sandbox": false,
+    "exact_ruff_binary_tested_in_implementation_sandbox": false,
+    "branch_coverage_percent": 99.63,
+    "project_docs_mirror_check_passed": true,
+    "previous_windows_smoke_test_passed": true,
+    "previous_windows_quality_run_found_formatter_drift": true,
+    "current_windows_verification_pending": true,
+    "expected_test_skips": 0,
+    "windows_0_1_3_pytest_passed": 348,
+    "windows_0_1_3_ruff_lint_passed": true,
+    "windows_0_1_3_flet_run_passed": true,
+    "windows_0_1_3_formatter_drift_files": 3
   },
   "set_data_policy": {
     "runtime_remote_dependency": false,
+    "runtime_set_root": "src/assets/sets",
     "preferred_official_source": "Riot Data Dragon",
     "supplemental_build_source": "CommunityDragon",
     "pinned_source_versions_required": true,
@@ -68,8 +90,25 @@
     "dependencies_declared_in_pyproject": true,
     "prefer_maintained_current_libraries": true,
     "avoid_unnecessary_dependencies_and_abstractions": true,
+    "core_flet_dependency_allowed": false,
     "pytest_required": true,
     "ruff_required": true,
-    "automated_character_policy_check_required": true
-  }
+    "automated_character_policy_check_required": true,
+    "public_release_license_audit_required": true,
+    "uv_security_floor": ">=0.12.18,<0.13",
+    "production_assert_dependency_allowed": false,
+    "symbolic_links_and_windows_junctions_share_containment_policy": true,
+    "development_handoffs_use_clean_replacement": true
+  },
+  "mirrored_project_documents": [
+    "PROJECT_CONTEXT.md",
+    "REQUIREMENTS.md",
+    "PROGRESS.md",
+    "IMPLEMENTATION_BLOCKS.md",
+    "DEVELOPMENT_PLAN.md",
+    "DECISIONS.md",
+    "LICENSE_REVIEW.md",
+    "SET_DATA_PIPELINE.md",
+    "BLOCK_01_REPORT.md"
+  ]
 }

@@ -1,7 +1,7 @@
 """Minimal Block 1 application shell and startup integration.
 
-The complete Builder UI starts in Block 4. Block 1 still wires the non-visual startup path so
-runtime directories, logging, and bundled Set validation are exercised as one unit without
+The complete Builder UI starts in Block 4. Block 1 wires the non-visual startup path so
+runtime directories, logging, and bundled Set validation are exercised together without
 putting those responsibilities inside Flet controls.
 """
 
@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from .logging_config import configure_logging
 from .paths import ApplicationPaths, build_application_paths
@@ -34,8 +34,7 @@ def startup_set_summary(sets_dir: Path) -> tuple[str, ...]:
 
     lines: list[str] = []
     for report in reports:
-        if report.is_valid:
-            assert report.loaded_set is not None
+        if report.is_valid and report.loaded_set is not None:
             loaded = report.loaded_set
             lines.append(
                 f"{loaded.manifest.set_id}: valid - "
@@ -50,12 +49,14 @@ def initialize_application(
     *,
     project_root: Path | None = None,
     data_dir_override: Path | None = None,
+    assets_dir_override: Path | None = None,
 ) -> StartupState:
     """Initialize non-visual runtime services and return their resolved state."""
 
     paths = build_application_paths(
         project_root=project_root,
         data_dir_override=data_dir_override,
+        assets_dir_override=assets_dir_override,
     )
     paths.ensure_runtime_directories()
     log_path = configure_logging(paths.user_log_dir)
@@ -70,7 +71,9 @@ def initialize_application(
     return StartupState(paths=paths, log_path=log_path, set_summary=set_summary)
 
 
-def main(page: Any) -> None:
+def main(page: ft.Page) -> None:
+    """Render the small Block 1 smoke-test shell."""
+
     import flet as ft
 
     state = initialize_application()

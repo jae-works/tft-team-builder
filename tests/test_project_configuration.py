@@ -85,6 +85,7 @@ def test_pytest_is_configured_for_src_layout_and_coverage(project_root: Path) ->
     config = load_pyproject(project_root)
     pytest_config = config["tool"]["pytest"]["ini_options"]
     assert pytest_config["testpaths"] == ["tests"]
+    assert pytest_config["asyncio_mode"] == "auto"
     assert "pythonpath" not in pytest_config
     assert "--import-mode=importlib" in pytest_config["addopts"]
     assert "--strict-config" in pytest_config["addopts"]

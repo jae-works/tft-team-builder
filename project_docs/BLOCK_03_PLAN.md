@@ -1,7 +1,7 @@
 # Block 3 Plan - Core builder logic, Trait engine and undo/redo
 
 Target version: 0.3.0
-Status: implemented. See `BLOCK_03_REPORT.md` for the delivered code and verification evidence.
+Status: implemented in 0.3.0 and re-audited in 0.3.1. See `BLOCK_03_REPORT.md` for verification evidence.
 
 ## Purpose
 

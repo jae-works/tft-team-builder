@@ -656,3 +656,104 @@ def test_large_realistic_list_compaction_is_correct() -> None:
     assert len(compacted.slots) == 200
     assert [slot.champion.instance_id for slot in compacted.slots] == expected_ids
     assert [slot.index for slot in compacted.slots] == list(range(200))
+
+
+def test_returned_ids_remain_stable_across_undo_redo() -> None:
+    source = make_list("Source", "a")
+    editor = TeamEditor(make_team(source))
+
+    created_list_id = editor.create_list("Second", when=BASE + timedelta(seconds=1))
+    copied_id = editor.copy_champion(
+        source.list_id,
+        0,
+        created_list_id,
+        0,
+        when=BASE + timedelta(seconds=2),
+    )
+    expected = deepcopy(editor.team)
+
+    assert editor.undo() is True
+    assert editor.undo() is True
+    assert [item.list_id for item in editor.team.lists] == [source.list_id]
+
+    assert editor.redo() is True
+    assert editor.redo() is True
+    assert editor.team == expected
+    assert editor.team.lists[1].list_id == created_list_id
+    assert editor.team.lists[1].slots[0].champion.instance_id == copied_id
+
+
+def test_remove_occupied_slot_discards_champion_and_undo_restores_exact_instance() -> None:
+    team_list = make_list("Main", "a", "b")
+    removed_id = instance_ids(team_list)[0]
+    editor = TeamEditor(make_team(team_list))
+
+    assert editor.remove_slot(team_list.list_id, 0, when=BASE + timedelta(seconds=1)) is True
+    assert ids(editor.team.lists[0]) == ["b"]
+    assert removed_id not in instance_ids(editor.team.lists[0])
+
+    assert editor.undo() is True
+    assert ids(editor.team.lists[0]) == ["a", "b"]
+    assert instance_ids(editor.team.lists[0])[0] == removed_id
+
+
+def test_copy_inside_same_list_after_source_uses_original_source_before_insertion() -> None:
+    team_list = make_list("Main", "a", "b", "c")
+    source_id = instance_ids(team_list)[0]
+    editor = TeamEditor(make_team(team_list))
+
+    copied_id = editor.copy_champion(
+        team_list.list_id,
+        0,
+        team_list.list_id,
+        2,
+        when=BASE + timedelta(seconds=1),
+    )
+
+    assert ids(editor.team.lists[0]) == ["a", "b", "a", "c"]
+    assert instance_ids(editor.team.lists[0])[0] == source_id
+    assert instance_ids(editor.team.lists[0])[2] == copied_id
+    assert copied_id != source_id
+
+
+def test_complete_builder_workflow_round_trips_every_snapshot() -> None:
+    main = make_list("Main", "a", None, "b")
+    editor = TeamEditor(make_team(main))
+    original = deepcopy(editor.team)
+    snapshots: list[Team] = []
+
+    second_id = editor.create_list("Second", when=BASE + timedelta(seconds=1))
+    snapshots.append(deepcopy(editor.team))
+    editor.add_champion(second_id, 0, "c", when=BASE + timedelta(seconds=2))
+    snapshots.append(deepcopy(editor.team))
+    editor.copy_champion(main.list_id, 0, second_id, 0, when=BASE + timedelta(seconds=3))
+    snapshots.append(deepcopy(editor.team))
+    editor.set_trait_selection(
+        second_id,
+        0,
+        TraitSelection(("trait_a",)),
+        when=BASE + timedelta(seconds=4),
+    )
+    snapshots.append(deepcopy(editor.team))
+    duplicate_id = editor.duplicate_list(
+        second_id, name="Second copy", when=BASE + timedelta(seconds=5)
+    )
+    snapshots.append(deepcopy(editor.team))
+    editor.reorder_list(duplicate_id, 0, when=BASE + timedelta(seconds=6))
+    snapshots.append(deepcopy(editor.team))
+    editor.set_primary_list(duplicate_id, when=BASE + timedelta(seconds=7))
+    snapshots.append(deepcopy(editor.team))
+    editor.clear_list(second_id, when=BASE + timedelta(seconds=8))
+    snapshots.append(deepcopy(editor.team))
+    editor.compact_list(second_id, when=BASE + timedelta(seconds=9))
+    snapshots.append(deepcopy(editor.team))
+
+    for expected in reversed([original, *snapshots[:-1]]):
+        assert editor.undo() is True
+        assert editor.team == expected
+    assert editor.can_undo is False
+
+    for expected in snapshots:
+        assert editor.redo() is True
+        assert editor.team == expected
+    assert editor.can_redo is False

@@ -1,7 +1,7 @@
 {
   "project": "TFT Team Builder",
-  "version": "0.3.0",
-  "current_state": "block_3_implemented_pending_windows_recheck",
+  "version": "0.3.1",
+  "current_state": "block_3_corrected_block_4_prepared_pending_windows_recheck",
   "current_block": 3,
   "next_block": 4,
   "handoff_document": "PROJECT_CONTEXT.md",
@@ -20,7 +20,8 @@
     "tools/set_import/README.md",
     "BLOCK_02_REPORT.md",
     "BLOCK_03_PLAN.md",
-    "BLOCK_03_REPORT.md"
+    "BLOCK_03_REPORT.md",
+    "BLOCK_04_PLAN.md"
   ],
   "toolchain": {
     "python": ">=3.13,<3.14",
@@ -40,7 +41,7 @@
     "core_must_remain_ui_independent": true
   },
   "verification": {
-    "pytest_passed": 529,
+    "pytest_passed": 537,
     "branch_coverage_minimum_percent": 100,
     "compileall_passed": true,
     "ascii_policy_passed": true,
@@ -104,7 +105,37 @@
     "block_3_undo_redo_verified": true,
     "block_3_builder_smoke_available": true,
     "block_3_per_champion_set_semantics_verified": true,
-    "block_3_builder_smoke_passed": true
+    "block_3_builder_smoke_passed": true,
+    "windows_0_3_0_pytest_passed": 529,
+    "windows_0_3_0_coverage_percent": 100.0,
+    "windows_0_3_0_ruff_lint_passed": false,
+    "windows_0_3_0_ruff_format_applied_files": 4,
+    "windows_0_3_0_formatter_check_passed": true,
+    "windows_0_3_0_ruff_pth201_errors": 1,
+    "windows_0_3_0_ruff_ruf043_errors": 1,
+    "windows_0_3_0_ascii_policy_passed": true,
+    "windows_0_3_0_doc_mirror_passed": true,
+    "windows_0_3_0_compileall_passed": true,
+    "windows_0_3_0_set_validation_passed": true,
+    "windows_0_3_0_set_inspection_passed": true,
+    "windows_0_3_0_database_smoke_passed": true,
+    "windows_0_3_0_builder_smoke_passed": true,
+    "windows_0_3_0_flet_run_passed": true,
+    "block_3_ruff_findings_corrected": true,
+    "block_3_semantic_regression_tests_expanded": true,
+    "block_3_editor_autosave_integration_verified": true,
+    "block_4_plan_prepared": true,
+    "flet_integration_test_config_prepared": true,
+    "statement_coverage_percent": 100.0,
+    "production_statements": 1797,
+    "production_branches": 564,
+    "block_3_redundant_validation_removed": true,
+    "block_3_redundant_trait_lookup_removed": true,
+    "block_3_editor_stress_operations": 30000,
+    "block_3_trait_oracle_generated_lists": 2500,
+    "production_duplicate_function_groups": 0,
+    "static_python_files_audited": 52,
+    "all_python_duplicate_function_groups": 0
   },
   "set_data_policy": {
     "runtime_remote_dependency": false,
@@ -159,6 +190,7 @@
     "BLOCK_01_REPORT.md",
     "BLOCK_02_REPORT.md",
     "BLOCK_03_PLAN.md",
-    "BLOCK_03_REPORT.md"
+    "BLOCK_03_REPORT.md",
+    "BLOCK_04_PLAN.md"
   ]
 }

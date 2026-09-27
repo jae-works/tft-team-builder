@@ -14,15 +14,16 @@ This is the first document another developer or AI instance should read before c
 8. `SET_DATA_PIPELINE.md`
 9. The latest completed block report, currently `BLOCK_03_REPORT.md`
 10. `BLOCK_03_PLAN.md` for the implemented Block 3 behavior contract
-11. `src/assets/sets/README.md`
-12. `set_sources/README.md`
+11. `BLOCK_04_PLAN.md` for the prepared GUI implementation contract
+12. `src/assets/sets/README.md`
+13. `set_sources/README.md`
 
 ## Current state
 
-- Current version: 0.3.0.
-- Blocks 1 and 2 are implemented; the user Windows-verified the Block 2 behavior and found one final Ruff SIM300 warning that is corrected in 0.3.0.
-- Block 3 core Builder editing, Trait calculation and Team-scoped undo/redo are implemented and fully covered in the implementation environment.
-- The current application shell is intentionally minimal. The complete Builder GUI begins in Block 4 after the 0.3.0 Windows quality gate.
+- Current version: 0.3.1.
+- Blocks 1, 2 and 3 are implemented. The user Windows-verified the 0.3.0 Block 3 runtime behavior: 529 tests at 100 percent statement/branch coverage, Set and database smoke tests, Builder smoke and Flet startup all passed.
+- That Windows run found only two Ruff lint findings in `tests/test_trait_engine.py` after Ruff formatted four files. Version 0.3.1 applies both exact lint corrections and expands the semantic/integration audit to 537 tests while retaining the 100 percent production coverage gate.
+- The current application shell is intentionally minimal. `BLOCK_04_PLAN.md` now defines the first complete Builder GUI before implementation begins.
 
 ## Source of truth
 
@@ -37,6 +38,7 @@ This is the first document another developer or AI instance should read before c
 - `BLOCK_02_REPORT.md` records persistence implementation and hardening evidence for Block 2.
 - `BLOCK_03_PLAN.md` is the concrete behavior contract implemented by Block 3.
 - `BLOCK_03_REPORT.md` records Block 3 implementation and test evidence.
+- `BLOCK_04_PLAN.md` is the prepared concrete contract for the next GUI block.
 
 These files are part of the project. They are not chat-only notes.
 
@@ -142,4 +144,4 @@ Persistence is implemented under `src/tft_builder/persistence/` using direct Pyt
 
 Version 0.2.2 also validates required schema tables/columns and migration history before treating an existing database as healthy.
 
-Block 3 adds `TeamEditor` in `builder.py` and the Flet-independent calculation engine in `trait_engine.py`. GUI code should call these concrete core operations rather than reimplementing slot/move/copy/history/Trait semantics in controls. `TeamEditor` owns in-memory history only; Block 4 will connect successful edits to `AutosaveService`.
+Block 3 adds `TeamEditor` in `builder.py` and the Flet-independent calculation engine in `trait_engine.py`. GUI code should call these concrete core operations rather than reimplementing slot/move/copy/history/Trait semantics in controls. `TeamEditor` owns in-memory history only; Block 4 will connect successful edits to `AutosaveService`. The active List is transient GUI-session state and is deliberately not added to the persisted Team model.

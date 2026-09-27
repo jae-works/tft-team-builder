@@ -1,7 +1,7 @@
 # Block 3 Report - Core builder logic, Trait engine and undo/redo
 
-Version: 0.3.0
-Status: implemented; complete implementation-environment test suite passes. Final pinned Windows Ruff/Flet verification is required before Block 4.
+Version: 0.3.1
+Status: Block 3 implemented in 0.3.0 and corrected/re-audited in 0.3.1. One clean pinned Windows quality rerun remains before Block 4 implementation.
 
 ## Scope delivered
 
@@ -110,25 +110,36 @@ The test matrix covers, among other cases:
 
 ## Verification evidence
 
-Implementation environment:
+Current version 0.3.1 audit environment:
 
 - Python 3.13.5.
-- 529 pytest tests pass with no skips.
+- 537 pytest tests pass with no skips.
 - Statement coverage: 100.00 percent.
 - Branch coverage: 100.00 percent.
-- Production coverage total at this stage: 1,799 statements and 564 branches.
+- Current production coverage total: 1,797 statements and 564 branches.
 - ASCII policy check passes.
 - Project document mirror check passes.
 - `compileall` passes for `src`, `tests`, and `tools`.
 - Bundled Set validation and inspection pass.
 - Persistence database smoke passes.
 - Block 3 `builder-smoke` passes with the expected three-slot, Trait-count, and undo/redo results.
+- Deterministic manual stress audit passes 30,000 mixed TeamEditor operations across 12 seeds with invariants checked after every operation.
+- Independent Trait oracle audit passes 2,500 generated Lists across both counting modes with native/dynamic overlap.
+- Static production review found no exact non-trivial duplicate function bodies; the large Set validator remains one cohesive collect-all-errors pass rather than being split into state-heavy wrappers without a concrete benefit.
+- The full Python-body audit also found one duplicated local failure-injection helper in adjacent Set-builder tests; those cases are now one parametrized two-case regression test, leaving zero exact non-trivial duplicate function-body groups across project Python code.
 
-The implementation environment does not have network access and does not contain the exact locked Ruff 0.16.9/Flet development toolchain, so the normal pinned Windows quality sequence remains the release gate for this candidate. The user's previous v0.2.2 Windows run already verified 438 tests at 100 percent, ASCII/document checks, compileall, Set validation/inspection, database smoke and Flet startup; it found one remaining Ruff SIM300 warning, which v0.3.0 fixes exactly.
+Windows 0.3.0 verification:
+
+- 529 tests passed with no skips and 100 percent statement/branch coverage.
+- Ruff formatter changed four files; the following format check reported all 80 files formatted.
+- Ruff lint then found two test-only issues: `PTH201` for `Path(".")` and `RUF043` for a regex passed to `match=` without an explicit raw string.
+- ASCII policy, project-document mirrors, compileall, Set validation/inspection, persistence smoke, Builder smoke and Flet 1.0.1 startup all passed.
+
+Version 0.3.1 applies both exact Ruff corrections, expands the suite from 529 to 537 tests with semantic history/copy/removal/Trait-overlap regression coverage and a TeamEditor-to-Autosave integration test, removes one redundant pre-commit Team invariant pass and one redundant Trait-ID lookup map, removes stale project-status text, prepares Flet integration-test configuration, and adds `BLOCK_04_PLAN.md`. The exact pinned Windows Ruff run remains the final confirmation because Ruff 0.16.9 is not available in the offline implementation sandbox.
 
 ## Block 4 handoff
 
-Block 4 should build the first complete Flet Builder GUI on top of these existing core operations rather than reimplementing their rules in controls.
+Block 4 should follow `BLOCK_04_PLAN.md` and build the first complete Flet Builder GUI on top of these existing core operations rather than reimplementing their rules in controls.
 
 - Use `TeamEditor` as the mutation/history boundary for Builder actions.
 - Calculate the active List's Trait panel through `calculate_traits()`.

@@ -44,6 +44,7 @@ Legend:
 - [x] Dependency choices are kept pragmatic; do not introduce generic frameworks, interfaces or abstractions without a concrete need.
 - [x] Formatting/linting uses Ruff or an equivalent current tool configured in `pyproject.toml`.
 - [x] Tests use pytest and remain easy to run locally with one documented command.
+- [x] Flet integration-test prerequisites are prepared before Block 4: `flet[test]` is pinned and pytest uses `asyncio_mode = "auto"`.
 - [x] Tests include statement and branch coverage, and the project now enforces a 100 percent coverage gate.
 - [x] Resource warnings are treated as test failures so leaked runtime resources cannot pass silently.
 - [x] Production source does not rely on `assert` statements for required runtime validation or recovery behavior.
@@ -283,23 +284,23 @@ Legend:
 ## Testing
 - [x] Unit tests for models.
 - [x] Detailed set-package validation tests.
-- [ ] Detailed trait-engine tests, including duplicate champions and dynamic choices.
-- [ ] Detailed slot move/swap/copy tests.
+- [x] Detailed trait-engine tests, including duplicate champions and dynamic choices.
+- [x] Detailed slot move/swap/copy tests.
 - [ ] Detailed similarity ranking tests.
 - [x] Detailed core undo/redo tests.
 - [ ] Import/export round-trip tests.
 - [x] Persistence and migration tests.
-- [ ] App-level smoke tests where practical.
+- [~] Startup/developer smoke tests exist for implemented pre-GUI blocks; real Flet Builder integration tests begin in Block 4.
 
 ## Packaging
 - [ ] Windows executable/package.
 - [ ] Complete data folder behavior verified.
-- [ ] Delivered ZIP always contains the complete current project.
+- [x] Delivered ZIP always contains the complete current project.
 - [x] Development handoffs use clean project replacement while preserving the existing `.git` directory.
 - [x] Runtime Set data has exactly one authoritative bundled root: `src/assets/sets`.
 - [x] Delivered project archives exclude caches, coverage files, bytecode caches, virtual environments, and obsolete development-only files.
 - [x] Mandatory Block 1 tests do not rely on platform-specific symlink privileges and therefore have no expected OS-permission skips.
-- [ ] SHA-256 checksum is calculated for every delivered ZIP.
+- [x] SHA-256 checksum is calculated for every delivered ZIP.
 - [ ] Release candidate is tested from a clean extracted copy.
 
 ## Explicitly out of scope for the current implementation blocks

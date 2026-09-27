@@ -311,7 +311,6 @@ class TeamEditor:
         timestamp = self._edit_timestamp(when)
         working = deepcopy(self.team)
         mutate(working)
-        working.validate_invariants()
         if working == self.team:
             return False
 

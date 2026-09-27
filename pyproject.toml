@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tft-team-builder"
-version = "0.3.0"
+version = "0.3.1"
 description = "Local-first team planning and library tool for Teamfight Tactics."
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
@@ -44,6 +44,7 @@ path = "src"
 module = "main.py"
 
 [tool.pytest.ini_options]
+asyncio_mode = "auto"
 addopts = "-ra --strict-config --strict-markers --import-mode=importlib --cov=tft_builder --cov-branch --cov-report=term-missing --cov-fail-under=100"
 testpaths = ["tests"]
 filterwarnings = ["error::ResourceWarning"]

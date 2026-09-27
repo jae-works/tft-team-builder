@@ -113,7 +113,7 @@ The final Windows package also ships readable copies of the relevant project doc
 
 ## Current implementation position
 
-Blocks 1, 2 and 3 are implemented. The user Windows run for version 0.2.2 verified 438 tests at 100 percent coverage, Set validation/inspection, database smoke, compileall, documentation/ASCII checks and Flet startup. That run found one Ruff SIM300 lint warning after formatting; version 0.3.0 fixes it and adds the complete UI-independent Builder editor, Trait engine and snapshot undo/redo core. Block 4 is the next implementation block after one clean Windows quality recheck of 0.3.0.
+Blocks 1, 2 and 3 are implemented. The user Windows run for version 0.3.0 verified 529 tests at 100 percent statement/branch coverage, ASCII/document checks, compileall, Set validation/inspection, persistence smoke, Builder smoke and Flet startup. Ruff formatted four files and then reported two test-only lint findings (`PTH201` and `RUF043`). Version 0.3.1 applies those exact corrections, expands the local audit to 537 tests with additional semantic/integration coverage, aligns the Flet integration-test configuration, and prepares `BLOCK_04_PLAN.md`. Block 4 begins only after one clean Windows quality rerun of 0.3.1.
 
 
 ## Block 2 persistence decision

@@ -73,7 +73,7 @@ def loaded_set(
     dynamic_traits: tuple[DynamicTraitDefinition, ...] = (),
 ) -> LoadedSet:
     return LoadedSet(
-        root=Path("."),
+        root=Path(),
         manifest=SetManifest(
             schema_version=1,
             set_id="test_set",
@@ -138,7 +138,7 @@ def test_calculate_traits_revalidates_list_invariants() -> None:
 
 def test_unknown_champion_id_is_reported_clearly() -> None:
     set_data = loaded_set(champions=(champion("a", "x"),), traits=(trait("x", order=0),))
-    with pytest.raises(ValueError, match="unknown Champion ID.*missing"):
+    with pytest.raises(ValueError, match=r"unknown Champion ID.*missing"):
         calculate_traits(set_data, team_list(("missing", ())))
 
 
@@ -482,3 +482,40 @@ def test_per_champion_selection_order_does_not_create_false_conflict() -> None:
     assert [item.trait_id for item in result.traits] == ["x", "y"]
     assert [item.count for item in result.traits] == [1, 1]
     assert result.dynamic_issues == ()
+
+
+def test_native_and_dynamic_same_trait_do_not_double_count_one_instance() -> None:
+    set_data = loaded_set(
+        champions=(champion("a", "x"),),
+        traits=(trait("x", order=0, mode=TraitCountingMode.UNIQUE_INSTANCE),),
+        dynamic_traits=(dynamic("a", DynamicSelectionRule.EXACTLY_ONE, ("x",)),),
+    )
+    result = calculate_traits(set_data, team_list(("a", ("x",))))
+    assert result.traits[0].count == 1
+    assert result.dynamic_issues == ()
+
+
+def test_distinct_dynamic_champion_definitions_count_for_unique_champion_trait() -> None:
+    set_data = loaded_set(
+        champions=(champion("a"), champion("b")),
+        traits=(trait("x", order=0),),
+        dynamic_traits=(
+            dynamic("a", DynamicSelectionRule.EXACTLY_ONE, ("x",)),
+            dynamic("b", DynamicSelectionRule.EXACTLY_ONE, ("x",)),
+        ),
+    )
+    result = calculate_traits(set_data, team_list(("a", ("x",)), ("b", ("x",))))
+    assert result.traits[0].count == 2
+    assert result.dynamic_issues == ()
+
+
+def test_any_number_still_rejects_traits_outside_allowed_choices() -> None:
+    set_data = loaded_set(
+        champions=(champion("a"),),
+        traits=(trait("x", order=0), trait("other", order=1)),
+        dynamic_traits=(dynamic("a", DynamicSelectionRule.ANY_NUMBER, ("x",)),),
+    )
+    result = calculate_traits(set_data, team_list(("a", ("other",))))
+    assert result.traits == ()
+    assert result.dynamic_issues[0].code == "invalid_choice"
+    assert result.dynamic_issues[0].selected_trait_ids == ("other",)

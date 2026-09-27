@@ -88,15 +88,18 @@ The concrete behavior contract remains documented in `BLOCK_03_PLAN.md`; impleme
 - [x] Add extensive edge-case and large-realistic-input tests while keeping the 100 percent statement/branch coverage gate.
 
 Verification summary:
-- 529 pytest tests pass in the Block 3 implementation environment with no skips.
-- Statement and branch coverage are both 100 percent across 1,799 production statements and 564 branches.
-- `compileall`, ASCII policy, project-document mirror, sample Set validation/inspection, persistence smoke and the new Builder smoke are part of the required final Windows verification sequence.
-- The exact pinned Ruff 0.16.9 binary is unavailable in the offline implementation environment, so the delivered v0.3.0 candidate still requires the normal Windows Ruff lint/format gate before Block 4 begins.
+- The 0.3.0 Windows run passed all 529 tests with no skips and 100 percent statement/branch coverage across 1,799 production statements and 564 branches.
+- ASCII policy, project-document mirror, compileall, sample Set validation/inspection, persistence smoke, Builder smoke and Flet startup all passed on Windows.
+- Ruff formatted four files and then reported two test-only lint findings (`PTH201` and `RUF043`); version 0.3.1 fixes both exact findings and adds extra semantic regression coverage.
+- The 0.3.1 audit suite expands to 537 tests while retaining 100 percent production statement/branch coverage; one pinned Windows rerun remains the final quality gate.
+- One clean pinned Windows Ruff/pytest rerun of 0.3.1 remains the release gate before Block 4 implementation starts.
 
 User-test goal:
 - The Windows verification run demonstrates exact slot behavior, duplicate counting, dynamic Trait validation, moves, swaps, copies, List operations, Trait results and full-state undo/redo restoration.
 
-## Block 4 - First complete functional Builder GUI - planned v0.4
+## Block 4 - First complete functional Builder GUI - prepared, planned v0.4
+
+Detailed behavior, persistence wiring and Flet integration-test scope are defined in `BLOCK_04_PLAN.md`.
 
 - Build the desktop Flet shell.
 - Build the three-column Builder layout: Traits | Lists | Champion library.
@@ -107,7 +110,8 @@ User-test goal:
 - Add basic reliable Champion placement/removal interaction.
 - Wire Trait display to the active List.
 - Wire real persistence/autosave and undo/redo to GUI actions.
-- Add practical smoke tests in addition to the full existing suite.
+- Add independent vertical panel scrolling and horizontal List scrolling.
+- Add stable control keys and practical Flet integration smoke tests in addition to the full existing suite.
 
 User-test goal:
 - A real Team can be built visually and survives restart.
@@ -123,7 +127,6 @@ User-test goal:
 - Add Champion and Trait search using the normalizer.
 - Add hover/details information.
 - Add dynamic Trait selection dialogs.
-- Add independent panel/list scrolling behavior.
 - Add relevant keyboard shortcuts and focus behavior.
 - Add tests for the new interaction logic where it can be tested below the GUI layer.
 

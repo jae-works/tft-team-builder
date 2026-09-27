@@ -86,3 +86,24 @@ def test_save_now_clears_queued_snapshot(tmp_path: Path) -> None:
     autosave.save_now(team)
     assert autosave.pending_count == 0
     assert repository.load(team.team_id).name == "Immediate"
+
+
+def test_editor_changes_round_trip_through_immediate_autosave(tmp_path: Path) -> None:
+    from datetime import timedelta
+
+    from tft_builder.builder import TeamEditor
+
+    autosave, repository = make_autosave(tmp_path)
+    team = Team.create(set_id="set", name="Builder")
+    editor = TeamEditor(team)
+    changed_at = team.updated_at + timedelta(seconds=1)
+
+    list_id = team.primary_list_id
+    editor.add_champion(list_id, 0, "champion", when=changed_at)
+    autosave.save_now(team)
+    assert repository.load(team.team_id) == team
+
+    assert editor.undo() is True
+    autosave.save_now(team)
+    assert repository.load(team.team_id) == team
+    assert repository.load(team.team_id).primary_list.slots == []

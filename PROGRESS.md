@@ -1,7 +1,7 @@
 # TFT Team Builder - Progress
 
-Current version: 0.3.0
-Current status: Block 3 implemented; version 0.3.0 is the Windows verification candidate.
+Current version: 0.3.1
+Current status: Block 3 corrected and re-audited; Block 4 behavior is prepared, pending one clean Windows quality rerun.
 Next planned block: Block 4 - first complete functional Builder GUI.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
@@ -170,6 +170,43 @@ No Block 2 persistence implementation is included in version 0.1.4.
 - [x] Fixed the remaining Windows-reported Ruff `SIM300` condition in the Block 2 database hardening code.
 - [x] 529 pytest tests pass with 0 skips in the Block 3 implementation environment.
 - [x] Statement and branch coverage both remain 100.00 percent.
+
+## Version 0.3.0 Windows verification
+
+- [x] 529 pytest tests passed with no skips.
+- [x] Statement and branch coverage both reached 100.00 percent across 1,799 production statements and 564 branches.
+- [ ] `uv run ruff format .` reformatted four files, so the delivered 0.3.0 archive was not formatter-clean before the local normalization pass.
+- [ ] Ruff lint then reported two test-only findings in `tests/test_trait_engine.py`: `PTH201` for `Path(".")` and `RUF043` for a regex passed to `match=` without an explicit raw string.
+- [x] The following Ruff format check reported all 80 files formatted.
+- [x] ASCII policy passed.
+- [x] Project document mirror check passed.
+- [x] `compileall` passed.
+- [x] Bundled Set validation and inspection passed.
+- [x] Database smoke round-trip and backup passed.
+- [x] Block 3 Builder smoke passed with expected slot, Trait and undo/redo results.
+- [x] Flet 1.0.1 / Flutter 3.44.8 started successfully.
+
+## Version 0.3.1 correction and Block 4 preparation
+
+- [x] Apply the exact Ruff `PTH201` correction: use `Path()` instead of `Path(".")`.
+- [x] Apply the exact Ruff `RUF043` correction: make the regex passed to `pytest.raises(..., match=...)` explicitly raw.
+- [x] Re-audit Block 3 edit/history/Trait behavior instead of relying on coverage percentage alone.
+- [x] Add semantic regression tests for returned-ID stability across undo/redo, occupied-slot removal restoration, same-List copy after the source, a full multi-operation history round-trip, native/dynamic overlap counting, multiple dynamic contributors and ANY_NUMBER invalid-choice handling.
+- [x] Add an integration test showing TeamEditor state can be saved, undone and saved again through AutosaveService/TeamRepository without a new adapter layer.
+- [x] Remove stale pre-Block-3 wording from the application shell and project handoff documents.
+- [x] Prepare Flet integration testing with pytest `asyncio_mode = "auto"` while keeping the already-pinned `flet[test]==1.0.1` dependency.
+- [x] Add `BLOCK_04_PLAN.md` with concrete startup, active-List, layout, persistence, testing and error-handling rules.
+- [x] Make both required Trait display toggles explicit Block 4 scope and define that transient active-List navigation is not restored by domain undo/redo.
+- [x] Move independent panel/List scrolling into Block 4 planning and remove the duplicate later-block roadmap entry.
+- [x] Correct stale requirement statuses for the already-implemented detailed Trait and slot tests, complete-project ZIP rule and ZIP checksum rule.
+- [x] Expand the current local audit suite from 529 to 537 tests while keeping the production coverage gate at 100 percent statement and branch coverage.
+- [x] Record active List state as transient GUI state and direct Flet composition/stable-key testing as explicit Block 4 decisions.
+- [x] Update the machine-readable manifest and mirrored project documents for version 0.3.1 and the prepared Block 4 contract.
+- [x] Remove one redundant Team invariant validation per attempted edit and reuse the existing Trait contributor map for Trait-ID membership checks; current production coverage is 1,797 statements / 564 branches at 100 percent.
+- [x] Run a deterministic 30,000-operation TeamEditor stress audit with invariant/identity checks after every operation.
+- [x] Run a 2,500-List independent Trait-count oracle audit covering both counting modes and native/dynamic overlap.
+- [x] Audit all production functions for exact non-trivial body duplication; no merge-worthy copy/paste groups remain.
+- [x] Consolidate the only exact non-trivial duplicate test helper into one parametrized two-case Set-builder regression test; no exact duplicate function-body groups remain across project Python code.
 
 ## Final Windows verification required before Block 4
 

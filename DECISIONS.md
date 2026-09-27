@@ -409,3 +409,41 @@ Reasoning:
 Revisit when:
 - profiling shows snapshot history has a real memory/performance problem;
 - a real TFT Set requires a counting rule that cannot be represented by `UNIQUE_CHAMPION` or `UNIQUE_INSTANCE`.
+
+## D025 - Active List is transient Builder session state
+
+Status: accepted during version 0.3.1 Block 4 preparation.
+
+Decision:
+- Keep the currently displayed/edited List as transient Builder UI state.
+- Do not persist the active List in `Team`, SQLite, or undo/redo history.
+- Initialize the active List from `Team.primary_list_id`.
+- If the active List disappears after delete, undo, redo, or reload, fall back to the current primary List.
+- Reordering Lists does not change which List is active because identity is ID-based rather than index-based.
+
+Reasoning:
+- `primary_list_id` is persistent Team/library meaning, while the active List is navigation state for one UI session.
+- Persisting navigation state would mix presentation concerns into the domain model and require a schema migration with no user-data benefit.
+- Keeping this distinction explicit prevents GUI actions from accidentally changing the Team's primary List.
+
+Revisit when:
+- a future product requirement explicitly asks to restore the last viewed List across application sessions.
+
+## D026 - Block 4 uses direct Flet composition with stable test keys
+
+Status: accepted during version 0.3.1 Block 4 preparation.
+
+Decision:
+- Start the Builder GUI with one concrete Flet composition module and small local helper functions where they remove real duplication.
+- Do not introduce presenter interfaces, a service container, an event bus, or a generic component framework before a concrete need exists.
+- Use `TeamEditor` for domain mutations/history, `calculate_traits()` for Trait results, and Block 2 persistence/autosave primitives directly from the GUI composition layer.
+- Give interactive controls stable explicit keys so integration tests do not depend on visible labels or localized text.
+- Configure pytest with `asyncio_mode = "auto"` before Flet integration tests are added; the existing `flet[test]` development dependency remains the test dependency.
+
+Reasoning:
+- Block 3 already owns editing semantics; Block 4 should adapt those operations to controls instead of creating a parallel application architecture.
+- Stable keys make GUI tests resilient to text and layout changes.
+- A small direct UI is easier to inspect and change while the first real Builder workflow is still being discovered.
+
+Revisit when:
+- the concrete GUI grows enough repeated interaction/state code that extracting a focused helper clearly reduces complexity.

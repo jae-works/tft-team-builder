@@ -256,35 +256,11 @@ def test_builder_rejects_source_asset_that_is_directory(project_root: Path, tmp_
         build_set_from_local_spec(spec, tmp_path / "output")
 
 
-def test_promotion_failure_restores_previous_output(tmp_path: Path, monkeypatch) -> None:
-    from tft_builder.set_builder import _promote_staging_directory
-
-    staging = tmp_path / ".output.build-test"
-    output = tmp_path / "output"
-    staging.mkdir()
-    output.mkdir()
-    (staging / "new.txt").write_text("new", encoding="ascii")
-    (output / "old.txt").write_text("old", encoding="ascii")
-
-    original_rename = Path.rename
-
-    def controlled_rename(self: Path, target: Path):
-        if self == staging and Path(target) == output:
-            raise OSError("simulated promotion failure")
-        return original_rename(self, target)
-
-    monkeypatch.setattr(Path, "rename", controlled_rename)
-
-    with pytest.raises(OSError, match="simulated promotion failure"):
-        _promote_staging_directory(staging, output)
-
-    assert output.is_dir()
-    assert (output / "old.txt").read_text(encoding="ascii") == "old"
-    assert staging.is_dir()
-
-
-def test_promotion_failure_without_previous_output_leaves_staging_for_caller_cleanup(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+@pytest.mark.parametrize(
+    "has_previous_output", [True, False], ids=["restore", "no-previous-output"]
+)
+def test_promotion_failure_preserves_recoverable_state(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, has_previous_output: bool
 ) -> None:
     from tft_builder.set_builder import _promote_staging_directory
 
@@ -292,6 +268,9 @@ def test_promotion_failure_without_previous_output_leaves_staging_for_caller_cle
     output = tmp_path / "output"
     staging.mkdir()
     (staging / "new.txt").write_text("new", encoding="ascii")
+    if has_previous_output:
+        output.mkdir()
+        (output / "old.txt").write_text("old", encoding="ascii")
 
     original_rename = Path.rename
 
@@ -305,7 +284,11 @@ def test_promotion_failure_without_previous_output_leaves_staging_for_caller_cle
     with pytest.raises(OSError, match="simulated promotion failure"):
         _promote_staging_directory(staging, output)
 
-    assert not output.exists()
+    if has_previous_output:
+        assert output.is_dir()
+        assert (output / "old.txt").read_text(encoding="ascii") == "old"
+    else:
+        assert not output.exists()
     assert staging.is_dir()
 
 

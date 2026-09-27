@@ -1,8 +1,8 @@
-"""Minimal Block 1 application shell and startup integration.
+"""Minimal pre-Builder application shell and startup integration.
 
-The complete Builder UI starts in Block 4. Block 1 wires the non-visual startup path so
-runtime directories, logging, and bundled Set validation are exercised together without
-putting those responsibilities inside Flet controls.
+The complete Builder UI starts in Block 4. The current shell keeps runtime directories,
+logging, database initialization, and bundled Set validation outside Flet controls so the
+startup path remains independently testable.
 """
 
 from __future__ import annotations
@@ -83,7 +83,7 @@ def initialize_application(
 
 
 def main(page: ft.Page) -> None:
-    """Render the small Block 1 smoke-test shell."""
+    """Render the small pre-Builder smoke-test shell."""
 
     import flet as ft
 
@@ -94,7 +94,7 @@ def main(page: ft.Page) -> None:
             content=ft.Column(
                 controls=[
                     ft.Text(APP_NAME, size=28, weight=ft.FontWeight.BOLD),
-                    ft.Text("Block 3 core builder logic is active."),
+                    ft.Text("Block 3 core is ready; Block 4 GUI is prepared."),
                     ft.Text(f"Database schema: {state.database_schema_version}"),
                     ft.Text("Bundled Set validation:"),
                     *[ft.Text(line) for line in state.set_summary],

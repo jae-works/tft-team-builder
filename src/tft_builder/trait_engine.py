@@ -64,7 +64,6 @@ def calculate_traits(loaded_set: LoadedSet, team_list: TeamList) -> TraitCalcula
     team_list.validate_invariants()
 
     champions_by_id = loaded_set.champions_by_id
-    traits_by_id = loaded_set.traits_by_id
     dynamic_by_champion = {item.champion_id: item for item in loaded_set.dynamic_traits}
     contributors = {
         trait.id: _TraitContributors(champion_ids=set(), instance_ids=set())
@@ -97,7 +96,7 @@ def calculate_traits(loaded_set: LoadedSet, team_list: TeamList) -> TraitCalcula
         trait_id
         for issue in issues
         for trait_id in issue.affected_trait_ids
-        if trait_id in traits_by_id
+        if trait_id in contributors
     }
     results: list[TraitResult] = []
     for trait in sorted(loaded_set.traits, key=lambda item: (item.display_order, item.id)):

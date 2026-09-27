@@ -43,7 +43,8 @@ Legend:
 - [x] Dependency choices are kept pragmatic; do not introduce generic frameworks, interfaces or abstractions without a concrete need.
 - [x] Formatting/linting uses Ruff or an equivalent current tool configured in `pyproject.toml`.
 - [x] Tests use pytest and remain easy to run locally with one documented command.
-- [x] Test coverage includes branch coverage and enforces a minimum 95 percent project coverage gate; Block 1 exceeds that gate substantially.
+- [x] Tests include statement and branch coverage, and the project now enforces a 100 percent coverage gate.
+- [x] Resource warnings are treated as test failures so leaked runtime resources cannot pass silently.
 - [x] Production source does not rely on `assert` statements for required runtime validation or recovery behavior.
 - [x] `uv` is constrained to a version range that includes the September 2026 Windows wheel path-traversal security fix.
 - [x] A project-level automated check prevents accidental non-ASCII characters in project-authored technical files, with explicit allowlists only for localization/external data directories that legitimately require them.
@@ -109,6 +110,25 @@ Legend:
 - [x] Set-source asset paths cannot escape the source-spec directory through path traversal, symbolic links, or Windows junctions.
 - [x] Set-source roots, source-spec files, runtime Set roots and generated output roots reject symbolic-link or Windows-junction ambiguity where it could undermine reproducibility or safe replacement.
 - [x] Runtime Set discovery does not follow symbolic-link or junction Set directories.
+
+## Persistence and local data safety
+- [x] User-created Team data is stored locally in SQLite using Python 3.13 `sqlite3`; no ORM is added without a demonstrated need.
+- [x] Database schema changes use small explicit versioned migrations.
+- [x] Critical Team writes use explicit transactions and rollback on failure.
+- [x] SQLite connections enable foreign keys, WAL mode, `synchronous=FULL`, `trusted_schema=OFF` and a configured busy timeout.
+- [x] The configured Database timeout controls SQLite busy timeout consistently.
+- [x] Complete Team aggregates round-trip exactly, including multiple Lists, empty slots, duplicate Champion definitions, Champion instance IDs and ordered Trait selections.
+- [x] Team aggregate loading uses a bounded query count instead of per-Champion Trait queries.
+- [x] Team aggregate saving batches child-row writes while preserving one atomic transaction.
+- [x] Team soft delete, restore, permanent delete and last-opened timestamps are persisted.
+- [x] Autosave primitives support immediate structural saves and queued immutable snapshots for later GUI debounce integration.
+- [x] Backups use SQLite's online backup API instead of copying a live WAL database file directly.
+- [x] Program-managed backup filenames use a dedicated prefix; retention never deletes unrelated `.db` files from the backup directory.
+- [x] Backup name prefixes are validated so they cannot create paths outside the configured backup directory.
+- [x] Backup and restore validation checks SQLite integrity, foreign keys, supported schema versions and application-level Team/List/slot structure.
+- [x] Migration of an existing database creates a pre-migration backup before schema changes are applied.
+- [x] Backup restore is staged through a temporary database and only replaces the active database after validation succeeds.
+- [x] Persistence tests include restart round-trips, large Team aggregates, migration, rollback, corruption detection, backup retention and restore failure cases.
 
 ## Teams and lists
 - [x] A Team is the top-level saved build.

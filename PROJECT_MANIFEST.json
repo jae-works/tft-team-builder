@@ -1,6 +1,6 @@
 {
   "project": "TFT Team Builder",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "current_state": "block_2_implemented_pending_windows_verification",
   "current_block": 2,
   "next_block": 3,
@@ -38,8 +38,8 @@
     "core_must_remain_ui_independent": true
   },
   "verification": {
-    "pytest_passed": 407,
-    "branch_coverage_minimum_percent": 95,
+    "pytest_passed": 425,
+    "branch_coverage_minimum_percent": 100,
     "compileall_passed": true,
     "ascii_policy_passed": true,
     "sample_set_regenerated": true,
@@ -62,7 +62,15 @@
     "block_2_persistence_roundtrip_verified": true,
     "block_2_migration_verified": true,
     "block_2_backup_restore_verified": true,
-    "block_2_windows_verification_pending": true
+    "block_2_windows_verification_pending": true,
+    "windows_0_2_0_pytest_passed": 407,
+    "windows_0_2_0_coverage_percent": 100.0,
+    "windows_0_2_0_set_validation_passed": true,
+    "windows_0_2_0_database_smoke_passed": true,
+    "windows_0_2_0_flet_run_passed": true,
+    "windows_0_2_0_ruff_lint_passed": false,
+    "windows_0_2_0_ruff_format_drift_files": 2,
+    "resource_warnings_are_errors": true
   },
   "set_data_policy": {
     "runtime_remote_dependency": false,

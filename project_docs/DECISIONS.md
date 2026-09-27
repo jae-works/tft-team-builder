@@ -371,3 +371,15 @@ Reasons:
 - 100 percent branch coverage is practical with the direct layer.
 
 Connection policy: application-controlled explicit transactions in SQLite autocommit mode, `foreign_keys=ON`, WAL journal mode, `synchronous=FULL`, busy timeout, and `trusted_schema=OFF`.
+
+## Block 2 hardening decisions - v0.2.1
+
+- Keep direct Python `sqlite3`. The local Team aggregate store does not currently justify an ORM or migration framework dependency.
+- Treat the complete Team as the transaction boundary. Saving a Team replaces its persisted child graph atomically.
+- Batch List, Slot, ChampionInstance and TraitSelection writes with `executemany()` and load a Team with a bounded number of aggregate queries. This avoids per-Champion query growth while keeping the SQL explicit.
+- Bind SQLite `busy_timeout` to the configured `Database.timeout` value so configuration has one meaning.
+- Program-generated backup files use the `tft-builder-` filename namespace. Retention operates only on that namespace and never deletes unrelated `.db` files.
+- Validate backup prefixes as one ASCII-safe filename token before constructing a backup path.
+- Validate SQLite integrity, foreign keys, supported schema versions and Team/List/slot structural invariants before accepting restored data.
+- Keep browser/mobile persistence deferred. Windows desktop uses SQLite now; a future web/mobile target must re-evaluate storage/runtime constraints instead of forcing a weaker cross-platform abstraction into the desktop core today.
+- Raise the enforced statement and branch coverage gate from 95 percent to 100 percent while the project remains small enough to maintain that standard without artificial tests.

@@ -6,9 +6,9 @@ from .database import CURRENT_SCHEMA_VERSION, Database
 from .team_repository import TeamRepository
 
 __all__ = [
+    "CURRENT_SCHEMA_VERSION",
     "AutosaveService",
     "BackupManager",
-    "CURRENT_SCHEMA_VERSION",
     "Database",
     "TeamRepository",
 ]

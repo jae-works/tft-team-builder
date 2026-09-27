@@ -195,3 +195,20 @@ def test_duplicate_champion_definitions_round_trip_as_distinct_instances(tmp_pat
     first_id = loaded.primary_list.slots[0].champion.instance_id
     second_id = loaded.primary_list.slots[1].champion.instance_id
     assert first_id != second_id
+
+
+def test_large_team_round_trip_preserves_all_slots_and_traits(tmp_path: Path) -> None:
+    repository = make_repository(tmp_path)
+    team = Team.create(set_id="set", name="Large")
+    team.primary_list.slots = [
+        Slot(
+            index,
+            ChampionInstance(
+                f"unit-{index % 7}",
+                trait_selection=TraitSelection((f"trait-{index % 3}", f"extra-{index}")),
+            ),
+        )
+        for index in range(200)
+    ]
+    repository.save(team)
+    assert repository.load(team.team_id) == team

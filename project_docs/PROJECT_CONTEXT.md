@@ -12,15 +12,15 @@ This is the first document another developer or AI instance should read before c
 6. `DECISIONS.md`
 7. `LICENSE_REVIEW.md`
 8. `SET_DATA_PIPELINE.md`
-9. The latest block report, currently `BLOCK_01_REPORT.md`
+9. The latest block report, currently `BLOCK_02_REPORT.md`
 10. `src/assets/sets/README.md`
 11. `set_sources/README.md`
 
 ## Current state
 
-- Current version: 0.2.0.
+- Current version: 0.2.1.
 - Block 1 is hardened and pending final user verification.
-- Block 2 is next, but should not begin until the user has run the final 0.2.0 Windows quality commands successfully.
+- Block 2 is implemented. Version 0.2.1 is the hardened persistence release candidate and must receive the final Windows quality recheck before Block 3 begins.
 - The current application shell is intentionally minimal. The complete Builder GUI begins in Block 4.
 
 ## Source of truth

@@ -102,7 +102,7 @@ def test_database_smoke_command_round_trips_and_creates_backup(tmp_path: Path, c
     assert "Round-trip Team:" in output
     assert "Backup:" in output
     assert (tmp_path / "smoke" / "builder.db").is_file()
-    assert len(tuple((tmp_path / "smoke" / "backups").glob("smoke-*.db"))) == 1
+    assert len(tuple((tmp_path / "smoke" / "backups").glob("tft-builder-smoke-*.db"))) == 1
 
 
 def test_database_smoke_detects_round_trip_mismatch(tmp_path: Path, monkeypatch) -> None:

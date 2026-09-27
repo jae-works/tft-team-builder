@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import math
 import sqlite3
+from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterator
 
 from .migrations import CURRENT_SCHEMA_VERSION, MIGRATIONS
 from .time_codec import encode_timestamp
@@ -25,6 +26,8 @@ class Database:
     """
 
     def __init__(self, path: Path, *, backups_dir: Path | None = None, timeout: float = 5.0):
+        if not math.isfinite(timeout) or timeout < 0:
+            raise ValueError("timeout must be a finite value greater than or equal to zero")
         self.path = Path(path).expanduser().resolve()
         self.backups_dir = Path(backups_dir).expanduser().resolve() if backups_dir else None
         self.timeout = timeout
@@ -36,12 +39,16 @@ class Database:
             timeout=self.timeout,
             autocommit=True,
         )
-        connection.row_factory = sqlite3.Row
-        connection.execute("PRAGMA foreign_keys = ON")
-        connection.execute("PRAGMA busy_timeout = 5000")
-        connection.execute("PRAGMA trusted_schema = OFF")
-        connection.execute("PRAGMA journal_mode = WAL")
-        connection.execute("PRAGMA synchronous = FULL")
+        try:
+            connection.row_factory = sqlite3.Row
+            connection.execute("PRAGMA foreign_keys = ON")
+            connection.execute(f"PRAGMA busy_timeout = {round(self.timeout * 1000)}")
+            connection.execute("PRAGMA trusted_schema = OFF")
+            connection.execute("PRAGMA journal_mode = WAL")
+            connection.execute("PRAGMA synchronous = FULL")
+        except BaseException:
+            connection.close()
+            raise
         return connection
 
     @contextmanager
@@ -76,8 +83,7 @@ class Database:
         current = self.schema_version()
         if current > CURRENT_SCHEMA_VERSION:
             raise DatabaseVersionError(
-                f"database schema {current} is newer than supported schema "
-                f"{CURRENT_SCHEMA_VERSION}"
+                f"database schema {current} is newer than supported schema {CURRENT_SCHEMA_VERSION}"
             )
         if current == CURRENT_SCHEMA_VERSION:
             return current
@@ -102,7 +108,55 @@ class Database:
         return CURRENT_SCHEMA_VERSION
 
     def integrity_check(self) -> bool:
-        with self.connection() as connection:
-            row = connection.execute("PRAGMA integrity_check").fetchone()
-            foreign_key_issue = connection.execute("PRAGMA foreign_key_check").fetchone()
-            return row is not None and row[0] == "ok" and foreign_key_issue is None
+        if not self.path.exists():
+            return False
+        try:
+            with self.connection() as connection:
+                row = connection.execute("PRAGMA integrity_check").fetchone()
+                foreign_key_issue = connection.execute("PRAGMA foreign_key_check").fetchone()
+                primary_list_issue = connection.execute(
+                    """
+                    SELECT 1
+                    FROM teams AS t
+                    LEFT JOIN team_lists AS l
+                      ON l.team_id = t.team_id AND l.list_id = t.primary_list_id
+                    WHERE l.list_id IS NULL
+                    LIMIT 1
+                    """
+                ).fetchone()
+                list_order_issue = connection.execute(
+                    """
+                    SELECT 1
+                    FROM (
+                        SELECT team_id, COUNT(*) AS item_count,
+                               MIN(order_index) AS min_index, MAX(order_index) AS max_index
+                        FROM team_lists
+                        GROUP BY team_id
+                    )
+                    WHERE min_index != 0 OR max_index != item_count - 1
+                    LIMIT 1
+                    """
+                ).fetchone()
+                slot_order_issue = connection.execute(
+                    """
+                    SELECT 1
+                    FROM (
+                        SELECT list_id, COUNT(*) AS item_count,
+                               MIN(slot_index) AS min_index, MAX(slot_index) AS max_index
+                        FROM slots
+                        GROUP BY list_id
+                    )
+                    WHERE min_index != 0 OR max_index != item_count - 1
+                    LIMIT 1
+                    """
+                ).fetchone()
+        except sqlite3.DatabaseError:
+            return False
+        return (
+            row is not None
+            and row[0] == "ok"
+            and foreign_key_issue is None
+            and primary_list_issue is None
+            and list_order_issue is None
+            and slot_order_issue is None
+        )

@@ -14,7 +14,7 @@ def load_pyproject(project_root: Path) -> dict:
 def test_pyproject_declares_expected_project_identity(project_root: Path) -> None:
     project = load_pyproject(project_root)["project"]
     assert project["name"] == "tft-team-builder"
-    assert project["version"] == "0.2.0"
+    assert project["version"] == "0.2.1"
     assert project["requires-python"] == ">=3.13,<3.14"
 
 
@@ -85,8 +85,9 @@ def test_pytest_is_configured_for_src_layout_and_coverage(project_root: Path) ->
     assert "--strict-markers" in pytest_config["addopts"]
     assert "--cov=tft_builder" in pytest_config["addopts"]
     assert "--cov-branch" in pytest_config["addopts"]
-    assert "--cov-fail-under=95" in pytest_config["addopts"]
-    assert config["tool"]["coverage"]["report"]["fail_under"] == 95
+    assert "--cov-fail-under=100" in pytest_config["addopts"]
+    assert pytest_config["filterwarnings"] == ["error::ResourceWarning"]
+    assert config["tool"]["coverage"]["report"]["fail_under"] == 100
 
 
 def test_ruff_targets_python_313_and_all_project_code(project_root: Path) -> None:

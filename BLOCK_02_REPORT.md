@@ -1,13 +1,13 @@
 # Block 2 Report - Persistence, migrations, autosave primitives and backups
 
-Version: 0.2.0
+Version: 0.2.1
 Status: implemented and verified in the implementation environment; final Windows verification required before Block 3.
 
 ## Scope delivered
 
 - Standard-library SQLite persistence using Python 3.13 `sqlite3`.
 - Explicit modern transaction handling with `autocommit=True` plus application-controlled `BEGIN IMMEDIATE`, `COMMIT`, and `ROLLBACK` boundaries.
-- SQLite configured with foreign keys, WAL journal mode, `synchronous=FULL`, a 5-second busy timeout, and `trusted_schema=OFF`.
+- SQLite configured with foreign keys, WAL journal mode, `synchronous=FULL`, a configurable busy timeout, and `trusted_schema=OFF`.
 - Schema versioning through `PRAGMA user_version` plus a migration history table.
 - Two explicit migrations, including a tested v1-to-v2 upgrade path.
 - Automatic pre-migration backup for existing databases.
@@ -15,7 +15,7 @@ Status: implemented and verified in the implementation environment; final Window
 - Exact persistence of empty slots, duplicate Champion definitions with distinct instance IDs, primary List identity, timestamps, and List ordering.
 - `last_opened_at` and recoverable `deleted_at` Team metadata.
 - Team soft delete, restore, permanent delete, last-opened update, and visible/deleted listing semantics.
-- SQLite online backups, integrity validation, retention pruning, and atomic restore through a temporary database.
+- SQLite online backups, integrity validation, application-structure validation, namespaced retention pruning, and atomic restore through a temporary database.
 - Autosave primitives with immediate structural saves and queued immutable snapshots for future GUI debounce integration.
 - Application startup now initializes/migrates `builder.db` in the central writable data path.
 - Developer `database-smoke` command for round-trip persistence and backup verification.
@@ -58,7 +58,7 @@ The actual GUI debounce timer belongs to the later UI block. This keeps persiste
 ## Verification
 
 Implementation-environment result:
-- 407 pytest tests passed.
+- 425 pytest tests passed.
 - 0 skipped tests.
 - 100.00 percent statement coverage.
 - 100.00 percent branch coverage.
@@ -71,3 +71,17 @@ Implementation-environment result:
 - Database migration, rollback, integrity, backup, restore, soft-delete, and restart round-trip behavior are covered by tests.
 
 Exact Ruff 0.16.9 and Flet desktop runtime checks still require the user's Windows environment before Block 3 begins.
+
+## v0.2.1 hardening after Windows verification
+
+The user's v0.2.0 Windows run confirmed 407 tests at 100 percent coverage, Set validation, database smoke, and Flet startup. It also found five Ruff lint findings and two formatter drift files. v0.2.1 fixes those reported style issues and additionally hardens persistence behavior:
+
+- Backup filenames are namespaced with `tft-builder-`; retention ignores unrelated `.db` files.
+- Backup prefixes are validated as one ASCII-safe filename token.
+- Backup creation rejects uninitialized or application-corrupt source databases.
+- Restore validates SQLite integrity, foreign keys, supported schema version, and Team/List/slot structural integrity before replacing the active database.
+- SQLite busy timeout now follows the configured `Database.timeout` value.
+- Database integrity checks detect invalid primary List references and non-contiguous List/slot order.
+- Team save batches child-row writes and Team load uses a bounded number of aggregate queries instead of per-Champion Trait queries.
+- A 200-slot Team round-trip is included in the test suite.
+- The enforced statement and branch coverage gate is now 100 percent.

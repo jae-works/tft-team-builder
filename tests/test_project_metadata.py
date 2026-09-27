@@ -7,7 +7,7 @@ from pathlib import Path
 def test_project_manifest_is_valid_json(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     assert payload["project"] == "TFT Team Builder"
-    assert payload["version"] == "0.2.0"
+    assert payload["version"] == "0.2.1"
     assert payload["current_state"] == "block_2_implemented_pending_windows_verification"
     assert payload["current_block"] == 2
     assert payload["next_block"] == 3

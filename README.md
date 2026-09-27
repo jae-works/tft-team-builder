@@ -1,6 +1,6 @@
 # TFT Team Builder
 
-Current version: 0.2.0
+Current version: 0.2.1
 Current milestone: Block 2 persistence candidate pending clean Windows verification.
 
 TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.

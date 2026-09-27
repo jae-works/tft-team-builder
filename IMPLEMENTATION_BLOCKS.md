@@ -42,22 +42,32 @@ Verification summary:
 - Symbolic links and Windows junctions are treated as link-like filesystem redirects where containment matters.
 - The user already verified 348 tests, Ruff lint, Set validation and Flet startup on Windows for v0.1.3. Version 0.1.4 applies the exact remaining Ruff formatter corrections and needs one final clean Windows recheck. See `BLOCK_01_REPORT.md`.
 
-## Block 2 - SQLite persistence, migrations, autosave primitives and backups - planned v0.2
+## Block 2 - SQLite persistence, migrations, autosave primitives and backups - release candidate v0.2.1
 
-- Add SQLite persistence after the Block 2 persistence decision gate compares direct `sqlite3` with SQLAlchemy 2.0.x for simplicity, migration needs, testing and deferred platform compatibility.
-- Store Teams, Lists, Slots, ChampionInstances and TraitSelections.
-- Add schema versioning and explicit migrations. Use Alembic only if SQLAlchemy is selected and it reduces total complexity compared with small explicit migrations.
-- Add straightforward repository/service functions without unnecessary abstraction layers.
-- Use transactions for critical writes.
-- Add backup creation and restore foundations.
-- Add Team soft delete/restore data model.
-- Add persistence round-trip and migration tests.
-- Add a developer/demo path that creates data, reloads it and verifies equality.
+- [x] Select direct Python 3.13 `sqlite3` after comparing it with an ORM for this local aggregate-oriented store.
+- [x] Store Teams, Lists, Slots, ChampionInstances and TraitSelections.
+- [x] Add schema versioning and explicit migrations.
+- [x] Add direct persistence services without repository/interface boilerplate beyond the concrete Team repository.
+- [x] Use explicit transactions for critical writes.
+- [x] Add backup creation, validation, retention and restore.
+- [x] Add Team soft delete and restore.
+- [x] Add autosave primitives for immediate saves and queued immutable snapshots.
+- [x] Add persistence round-trip, restart, migration, rollback, corruption, large-Team and backup tests.
+- [x] Add a developer database smoke command.
+- [x] Keep browser/mobile persistence as a deferred target-specific evaluation rather than constraining the Windows store prematurely.
+
+Verification summary:
+- 425 pytest tests pass in the implementation environment with no skipped tests.
+- Statement and branch coverage are both 100 percent and the project coverage gate is now 100 percent.
+- The Team repository uses bounded aggregate queries and batched writes rather than per-Champion Trait queries.
+- Backups are namespaced, path-safe, application-integrity checked and retained without touching unrelated database files.
+- The user's Windows v0.2.0 run already verified 407 tests at 100 percent coverage, Set validation, database smoke and Flet startup; v0.2.1 addresses the reported Ruff findings and persistence hardening and needs the final Windows recheck.
 
 User-test goal:
 - Data survives process restart exactly.
-- Backups are generated.
+- Backups are generated and can be restored safely.
 - Deleted Teams can be restored at data level.
+- Ruff lint and format checks are completely clean.
 
 ## Block 3 - Core builder logic: slots, move/copy/swap, Trait engine and undo/redo - planned v0.3
 

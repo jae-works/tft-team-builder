@@ -59,14 +59,13 @@ def test_successful_transaction_commits(tmp_path: Path) -> None:
 def test_failed_transaction_rolls_back(tmp_path: Path) -> None:
     database = Database(tmp_path / "builder.db")
     database.initialize()
-    with pytest.raises(RuntimeError, match="stop"):
-        with database.transaction() as connection:
-            connection.execute(
-                "INSERT INTO teams(team_id,set_id,name,primary_list_id,created_at,updated_at) "
-                "VALUES('t','s','n','l',"
-                "'2026-01-01T00:00:00.000000Z','2026-01-01T00:00:00.000000Z')"
-            )
-            raise RuntimeError("stop")
+    with pytest.raises(RuntimeError, match="stop"), database.transaction() as connection:
+        connection.execute(
+            "INSERT INTO teams(team_id,set_id,name,primary_list_id,created_at,updated_at) "
+            "VALUES('t','s','n','l',"
+            "'2026-01-01T00:00:00.000000Z','2026-01-01T00:00:00.000000Z')"
+        )
+        raise RuntimeError("stop")
     with database.connection() as connection:
         assert connection.execute("SELECT COUNT(*) FROM teams").fetchone()[0] == 0
 
@@ -92,9 +91,7 @@ def test_migration_history_contains_every_version(tmp_path: Path) -> None:
     with database.connection() as connection:
         versions = tuple(
             row[0]
-            for row in connection.execute(
-                "SELECT version FROM schema_migrations ORDER BY version"
-            )
+            for row in connection.execute("SELECT version FROM schema_migrations ORDER BY version")
         )
     assert versions == tuple(migration.version for migration in MIGRATIONS)
 
@@ -119,7 +116,7 @@ def test_existing_v1_database_migrates_and_creates_pre_migration_backup(tmp_path
     _create_v1_database(path)
     database = Database(path, backups_dir=backup_dir)
     assert database.initialize() == CURRENT_SCHEMA_VERSION
-    backups = tuple(backup_dir.glob("pre-migration-*.db"))
+    backups = tuple(backup_dir.glob("tft-builder-pre-migration-*.db"))
     assert len(backups) == 1
     with closing(sqlite3.connect(backups[0], autocommit=True)) as connection:
         assert connection.execute("PRAGMA user_version").fetchone()[0] == 1
@@ -139,3 +136,77 @@ def test_integrity_check_includes_foreign_keys(tmp_path: Path) -> None:
         )
         connection.execute("PRAGMA foreign_keys = ON")
     assert not database.integrity_check()
+
+
+def test_busy_timeout_matches_constructor_timeout(tmp_path: Path) -> None:
+    database = Database(tmp_path / "builder.db", timeout=1.25)
+    database.initialize()
+    with database.connection() as connection:
+        assert connection.execute("PRAGMA busy_timeout").fetchone()[0] == 1250
+
+
+@pytest.mark.parametrize("timeout", [-1.0, float("inf"), float("nan")])
+def test_invalid_timeout_is_rejected(tmp_path: Path, timeout: float) -> None:
+    with pytest.raises(ValueError, match="timeout must be"):
+        Database(tmp_path / "builder.db", timeout=timeout)
+
+
+def test_integrity_check_detects_invalid_primary_list_reference(tmp_path: Path) -> None:
+    database = Database(tmp_path / "builder.db")
+    database.initialize()
+    with database.connection() as connection:
+        connection.execute(
+            "INSERT INTO teams(team_id,set_id,name,primary_list_id,created_at,updated_at) "
+            "VALUES('team','set','name','missing',"
+            "'2026-01-01T00:00:00.000000Z','2026-01-01T00:00:00.000000Z')"
+        )
+    assert not database.integrity_check()
+
+
+def test_integrity_check_detects_non_contiguous_list_order(tmp_path: Path) -> None:
+    database = Database(tmp_path / "builder.db")
+    database.initialize()
+    with database.connection() as connection:
+        connection.execute(
+            "INSERT INTO teams(team_id,set_id,name,primary_list_id,created_at,updated_at) "
+            "VALUES('team','set','name','list-a',"
+            "'2026-01-01T00:00:00.000000Z','2026-01-01T00:00:00.000000Z')"
+        )
+        connection.execute(
+            "INSERT INTO team_lists(list_id,team_id,name,order_index) "
+            "VALUES('list-a','team','A',0)"
+        )
+        connection.execute(
+            "INSERT INTO team_lists(list_id,team_id,name,order_index) "
+            "VALUES('list-b','team','B',2)"
+        )
+    assert not database.integrity_check()
+
+
+def test_integrity_check_detects_non_contiguous_slot_order(tmp_path: Path) -> None:
+    database = Database(tmp_path / "builder.db")
+    database.initialize()
+    with database.connection() as connection:
+        connection.execute(
+            "INSERT INTO teams(team_id,set_id,name,primary_list_id,created_at,updated_at) "
+            "VALUES('team','set','name','list-a',"
+            "'2026-01-01T00:00:00.000000Z','2026-01-01T00:00:00.000000Z')"
+        )
+        connection.execute(
+            "INSERT INTO team_lists(list_id,team_id,name,order_index) "
+            "VALUES('list-a','team','A',0)"
+        )
+        connection.execute("INSERT INTO slots(list_id,slot_index) VALUES('list-a',1)")
+    assert not database.integrity_check()
+
+
+def test_integrity_check_returns_false_for_missing_database(tmp_path: Path) -> None:
+    database = Database(tmp_path / "missing.db")
+    assert not database.integrity_check()
+    assert not database.path.exists()
+
+
+def test_integrity_check_returns_false_for_non_sqlite_file(tmp_path: Path) -> None:
+    path = tmp_path / "broken.db"
+    path.write_text("not sqlite", encoding="ascii")
+    assert not Database(path).integrity_check()

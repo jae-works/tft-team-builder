@@ -1,6 +1,6 @@
 # TFT Team Builder - Progress
 
-Current version: 0.2.0
+Current version: 0.2.1
 Current status: Block 2 implemented in the implementation environment; final Windows verification pending.
 Next planned block: Block 3 - core builder logic, Trait engine, and undo/redo.
 
@@ -77,7 +77,7 @@ Version 0.1.3 user run:
 - [x] 349 pytest tests passed.
 - [x] 0 tests skipped.
 - [x] Branch-aware coverage reached 99.63 percent.
-- [x] Required branch-aware coverage threshold remains 95 percent.
+- [x] Required statement and branch coverage threshold is now 100 percent.
 - [x] Python source/test/tool syntax compilation passed during the clean delivery audit.
 - [x] Repository ASCII-policy check passed during the clean delivery audit.
 - [x] Bundled `sample_set` validates successfully.
@@ -113,14 +113,14 @@ No Block 2 persistence implementation is included in version 0.1.4.
 - [x] Autosave primitives for immediate saves and queued immutable snapshots.
 - [x] Application startup initializes the database through the central path layer.
 - [x] Developer database smoke command.
-- [x] 407 tests passed with 0 skips in the implementation environment.
+- [x] 425 tests passed with 0 skips in the implementation environment.
 - [x] 100.00 percent statement and branch coverage in the implementation environment.
 
 ## Final Windows verification required before Block 3
 
 - [ ] Run `uv lock --check`.
 - [ ] Run `uv sync --frozen`.
-- [ ] Run `uv run pytest` and confirm 407 passed with no skips.
+- [ ] Run `uv run pytest` on Windows and confirm 425 passed with no skips.
 - [ ] Run `uv run ruff check .`.
 - [ ] Run `uv run ruff format --check .`.
 - [ ] Run `uv run python tools/check_ascii.py`.

@@ -22,6 +22,26 @@ class TeamRepository:
         """Persist one complete Team in a single transaction."""
 
         team.validate_invariants()
+        list_rows: list[tuple[str, str, str, int]] = []
+        slot_rows: list[tuple[str, int]] = []
+        champion_rows: list[tuple[str, str, int, str]] = []
+        trait_rows: list[tuple[str, int, str]] = []
+
+        for order_index, team_list in enumerate(team.lists):
+            list_id = str(team_list.list_id)
+            list_rows.append((list_id, str(team.team_id), team_list.name, order_index))
+            for slot in team_list.slots:
+                slot_rows.append((list_id, slot.index))
+                champion = slot.champion
+                if champion is None:
+                    continue
+                instance_id = str(champion.instance_id)
+                champion_rows.append((instance_id, list_id, slot.index, champion.champion_id))
+                trait_rows.extend(
+                    (instance_id, index, trait_id)
+                    for index, trait_id in enumerate(champion.trait_selection.trait_ids)
+                )
+
         with self.database.transaction() as connection:
             connection.execute(
                 """
@@ -50,43 +70,28 @@ class TeamRepository:
                 ),
             )
             connection.execute("DELETE FROM team_lists WHERE team_id = ?", (str(team.team_id),))
-            for order_index, team_list in enumerate(team.lists):
-                connection.execute(
-                    "INSERT INTO team_lists(list_id, team_id, name, order_index) "
-                    "VALUES (?, ?, ?, ?)",
-                    (str(team_list.list_id), str(team.team_id), team_list.name, order_index),
-                )
-                for slot in team_list.slots:
-                    connection.execute(
-                        "INSERT INTO slots(list_id, slot_index) VALUES (?, ?)",
-                        (str(team_list.list_id), slot.index),
-                    )
-                    champion = slot.champion
-                    if champion is None:
-                        continue
-                    connection.execute(
-                        """
-                        INSERT INTO champion_instances(
-                            instance_id, list_id, slot_index, champion_id
-                        ) VALUES (?, ?, ?, ?)
-                        """,
-                        (
-                            str(champion.instance_id),
-                            str(team_list.list_id),
-                            slot.index,
-                            champion.champion_id,
-                        ),
-                    )
-                    connection.executemany(
-                        """
-                        INSERT INTO trait_selections(instance_id, selection_index, trait_id)
-                        VALUES (?, ?, ?)
-                        """,
-                        [
-                            (str(champion.instance_id), index, trait_id)
-                            for index, trait_id in enumerate(champion.trait_selection.trait_ids)
-                        ],
-                    )
+            connection.executemany(
+                "INSERT INTO team_lists(list_id, team_id, name, order_index) VALUES (?, ?, ?, ?)",
+                list_rows,
+            )
+            connection.executemany(
+                "INSERT INTO slots(list_id, slot_index) VALUES (?, ?)",
+                slot_rows,
+            )
+            connection.executemany(
+                """
+                INSERT INTO champion_instances(instance_id, list_id, slot_index, champion_id)
+                VALUES (?, ?, ?, ?)
+                """,
+                champion_rows,
+            )
+            connection.executemany(
+                """
+                INSERT INTO trait_selections(instance_id, selection_index, trait_id)
+                VALUES (?, ?, ?)
+                """,
+                trait_rows,
+            )
 
     def load(self, team_id: UUID, *, include_deleted: bool = False) -> Team:
         with self.database.connection() as connection:
@@ -102,42 +107,56 @@ class TeamRepository:
                 "SELECT * FROM team_lists WHERE team_id = ? ORDER BY order_index",
                 (str(team_id),),
             ).fetchall()
-            lists: list[TeamList] = []
-            for list_row in list_rows:
-                slot_rows = connection.execute(
-                    """
-                    SELECT s.slot_index, c.instance_id, c.champion_id
-                    FROM slots AS s
-                    LEFT JOIN champion_instances AS c
-                      ON c.list_id = s.list_id AND c.slot_index = s.slot_index
-                    WHERE s.list_id = ?
-                    ORDER BY s.slot_index
-                    """,
-                    (list_row["list_id"],),
-                ).fetchall()
-                slots: list[Slot] = []
-                for slot_row in slot_rows:
-                    champion = None
-                    instance_id = slot_row["instance_id"]
-                    if instance_id is not None:
-                        trait_rows = connection.execute(
-                            """
-                            SELECT trait_id FROM trait_selections
-                            WHERE instance_id = ? ORDER BY selection_index
-                            """,
-                            (instance_id,),
-                        ).fetchall()
-                        champion = ChampionInstance(
-                            champion_id=slot_row["champion_id"],
-                            instance_id=UUID(instance_id),
-                            trait_selection=TraitSelection(
-                                tuple(row["trait_id"] for row in trait_rows)
-                            ),
-                        )
-                    slots.append(Slot(index=slot_row["slot_index"], champion=champion))
-                lists.append(
-                    TeamList(name=list_row["name"], list_id=UUID(list_row["list_id"]), slots=slots)
+            slot_rows = connection.execute(
+                """
+                SELECT l.list_id, s.slot_index, c.instance_id, c.champion_id
+                FROM team_lists AS l
+                JOIN slots AS s ON s.list_id = l.list_id
+                LEFT JOIN champion_instances AS c
+                  ON c.list_id = s.list_id AND c.slot_index = s.slot_index
+                WHERE l.team_id = ?
+                ORDER BY l.order_index, s.slot_index
+                """,
+                (str(team_id),),
+            ).fetchall()
+            trait_rows = connection.execute(
+                """
+                SELECT c.instance_id, t.trait_id
+                FROM team_lists AS l
+                JOIN champion_instances AS c ON c.list_id = l.list_id
+                JOIN trait_selections AS t ON t.instance_id = c.instance_id
+                WHERE l.team_id = ?
+                ORDER BY c.instance_id, t.selection_index
+                """,
+                (str(team_id),),
+            ).fetchall()
+
+        traits_by_instance: dict[str, list[str]] = {}
+        for row in trait_rows:
+            traits_by_instance.setdefault(row["instance_id"], []).append(row["trait_id"])
+
+        slots_by_list: dict[str, list[Slot]] = {row["list_id"]: [] for row in list_rows}
+        for row in slot_rows:
+            champion = None
+            instance_id = row["instance_id"]
+            if instance_id is not None:
+                champion = ChampionInstance(
+                    champion_id=row["champion_id"],
+                    instance_id=UUID(instance_id),
+                    trait_selection=TraitSelection(tuple(traits_by_instance.get(instance_id, ()))),
                 )
+            slots_by_list[row["list_id"]].append(
+                Slot(index=row["slot_index"], champion=champion)
+            )
+
+        lists = [
+            TeamList(
+                name=row["name"],
+                list_id=UUID(row["list_id"]),
+                slots=slots_by_list[row["list_id"]],
+            )
+            for row in list_rows
+        ]
 
         return Team(
             set_id=team_row["set_id"],

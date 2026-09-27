@@ -1,9 +1,30 @@
+# Python
 __pycache__/
+*.py[cod]
+*.pyd
 .pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
 .venv/
 venv/
-*.pyc
-*.pyo
-*.log
+env/
+
+# Build/package output
 build/
 dist/
+*.spec
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local importer/download caches
+.cache/
+
+# Local logs / runtime data generated during development
+*.log
+local_data/

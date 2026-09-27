@@ -1,6 +1,6 @@
 {
   "project": "TFT Team Builder",
-  "planning_version": "0.0.1",
+  "planning_version": "0.0.2",
   "current_state": "planning baseline",
   "handoff_document": "PROJECT_CONTEXT.md",
   "required_project_documents": [
@@ -8,11 +8,22 @@
     "REQUIREMENTS.md",
     "PROGRESS.md",
     "DEVELOPMENT_PLAN.md",
-    "sets/README.md"
+    "SET_DATA_PIPELINE.md",
+    "sets/README.md",
+    "set_sources/README.md"
   ],
+  "set_data_policy": {
+    "runtime_remote_dependency": false,
+    "preferred_official_source": "Riot Data Dragon",
+    "supplemental_build_source": "CommunityDragon",
+    "pinned_source_versions_required": true,
+    "source_hashes_required": true,
+    "explicit_exclusion_reasons_required": true,
+    "silent_source_conflict_resolution": false
+  },
   "delivery_rules": {
     "complete_project_zip": true,
-    "run_full_local_test_suite": true,
+    "run_full_local_test_suite_when_code_exists": true,
     "update_progress_after_verified_work": true,
     "sha256_after_packaging": true,
     "ship_docs_with_windows_release": true

@@ -37,6 +37,23 @@ Legend:
 - [ ] Invalid/incomplete sets fail with understandable validation errors instead of partially loading.
 - [ ] Set data contains no executable Python code.
 
+## Set data acquisition and generation
+- [ ] Runtime Set packages are generated local data; the normal app has no network dependency on Riot Data Dragon or CommunityDragon.
+- [ ] Riot Data Dragon is the preferred official source for supported localized TFT data and shipped visible assets.
+- [ ] CommunityDragon may be used only as a pinned build-time supplemental/cross-check source for TFT metadata not exposed adequately by Data Dragon.
+- [ ] Public-release compliance is rechecked for any CommunityDragon-derived fields/assets that are shipped.
+- [ ] Release Set generation uses pinned/recorded source versions; unrecorded `latest` data is not accepted as a reproducible release input.
+- [ ] Generated Set packages record source provenance, locale, retrieval metadata and source payload hashes.
+- [ ] Source ownership is defined per field; source disagreements fail with a readable conflict instead of silently overwriting values.
+- [ ] Manual Set overrides are small, explicit, version-controlled and require a human-readable reason.
+- [ ] Raw downloaded source payloads are cached outside Git and are not required at runtime.
+- [ ] Generated Set packages contain local champion/Trait assets; runtime UI does not hotlink these assets.
+- [ ] Set generation produces a source inventory/completeness report.
+- [ ] Every source candidate is either included, explicitly excluded with a reason, or causes validation to fail.
+- [ ] Completeness checks account for debug/summoned/alternate/legacy source records rather than assuming every raw record is a player-selectable champion.
+- [ ] Normal unit tests for the importer/validator run offline against committed fixtures.
+- [ ] Generated output from identical pinned inputs and overrides is deterministic.
+
 ## Teams and lists
 - [ ] A Team is the top-level saved build.
 - [ ] A Team belongs to exactly one TFT set.

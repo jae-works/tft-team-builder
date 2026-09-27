@@ -5,23 +5,33 @@ This is the implementation log. REQUIREMENTS.md describes what the project must 
 Legend:
 - [ ] pending
 - [~] in progress
-- [x] implemented and locally verified
+- [x] implemented/planning artifact created and locally verified
 - [!] blocked / needs correction
 
 ## Current version
-v0.0-planning
+v0.0.2-planning
 
-## Completed
+## Completed planning/handoff work
 - [x] Requirements checklist established.
 - [x] Development workflow established.
 - [x] Project divided into larger implementation steps.
-- [x] Dedicated sets/ directory reserved from the start.
-- [x] Requirement added that each delivered build contains complete source, tests, set data, requirements and progress files.
-- [x] Requirement added that each delivered ZIP receives a SHA-256 checksum.
+- [x] `PROJECT_CONTEXT.md` established as the first handoff document.
+- [x] Dedicated `sets/`, `set_sources/`, `tools/set_import/`, `src/` and `tests/` paths are represented in the planning package.
+- [x] Requirement established that each delivered build contains complete source, tests, set data, project documents and metadata.
+- [x] Requirement established that each delivered ZIP receives a SHA-256 checksum after final packaging.
+- [x] Pragmatic coding style documented: detailed tests/comments without unnecessary interface/generic-class proliferation.
+- [x] Set-data source strategy reviewed against current Riot TFT/Data Dragon documentation and current CommunityDragon TFT listings.
+- [x] Added `SET_DATA_PIPELINE.md` defining build-time source roles, pinned provenance, source conflict handling, local assets, manual overrides and offline runtime behavior.
+- [x] Corrected completeness design so debug/summoned/alternate/legacy source records require explicit classification rather than naive source-record counting.
+- [x] Added the rule that every source candidate must be INCLUDED, EXCLUDED with a reason, or ERROR.
+- [x] Added reproducibility requirement: exact source revisions and hashes are recorded; unrecorded `latest` is not a release input.
+- [x] Added `.gitignore` rules for Python/build output and local source-download caches.
 
 ## Not yet implemented
 - [ ] Application source code.
-- [ ] Set loader and validator.
+- [ ] Set importer/downloader.
+- [ ] Generated real Set package.
+- [ ] Set loader and validator code.
 - [ ] Database.
 - [ ] Trait engine.
 - [ ] Undo/redo.
@@ -29,17 +39,14 @@ v0.0-planning
 - [ ] Import/export.
 - [ ] Windows packaging.
 
-## Verification for this version
-- [x] Required planning files exist.
-- [x] sets/ directory exists.
-- [x] src/ directory exists.
-- [x] tests/ directory exists.
+## Verification for v0.0.2-planning
+- [x] Required root planning documents exist.
+- [x] `SET_DATA_PIPELINE.md` exists.
+- [x] `sets/README.md` exists.
+- [x] `set_sources/README.md` exists.
+- [x] `tools/set_import/README.md` exists.
+- [x] `src/`, `tests/`, `sets/`, `set_sources/overrides/` and `tools/set_import/` are represented in the ZIP via tracked placeholder/readme files.
+- [x] Project documentation copies are generated into `project_docs/` before packaging.
+- [x] Planning archive integrity and required-file verification performed after packaging.
 
-## Planning baseline v0.0.1
-
-- [x] Added `PROJECT_CONTEXT.md` as a permanent handoff/orientation document.
-- [x] Defined mandatory document reading order for another developer or AI instance.
-- [x] Defined that Requirements, Progress and Development Plan are permanent project files rather than chat-only notes.
-- [x] Added the requirement that the final Windows package ships the project documents in `project_docs/`.
-- [x] Added the per-step rule that the final complete ZIP receives a SHA-256 checksum after packaging.
-- [x] Reconfirmed pragmatic coding style: thorough tests and comments without unnecessary interface/generic-class proliferation.
+No application tests are claimed in this planning-only version because application code does not exist yet.

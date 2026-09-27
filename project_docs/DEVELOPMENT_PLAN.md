@@ -2,25 +2,31 @@
 
 The project will be implemented in substantial, testable steps. Each coding step must deliver a complete ZIP containing the whole project, not a patch. Each step must update REQUIREMENTS.md and PROGRESS.md, run the full local test suite, and include a SHA-256 checksum for the ZIP. `PROJECT_CONTEXT.md`, `REQUIREMENTS.md`, `PROGRESS.md` and `DEVELOPMENT_PLAN.md` are permanent project files and must remain in every source delivery. The final Windows package must additionally copy them into a readable `project_docs/` directory.
 
-## Step 1 - Foundation, real Set package, validation and core models
+## Step 1 - Foundation, reproducible Set data pipeline, validation and core models
 Build the first actually runnable project foundation.
 
 Deliverables:
 - Python/Flet project bootstrapping.
 - Runtime/config/path handling.
 - Logging.
-- Real sets/ folder structure with one development/sample Set package.
-- Set manifest/data schema.
-- Set loader and exhaustive validator with readable errors.
+- Real `sets/`, `set_sources/` and `tools/set_import/` structure.
+- Pinned build-time source configuration using Riot Data Dragon as the preferred official data/asset source and CommunityDragon only as a supplemental/cross-check source where needed.
+- Source download/cache/provenance model with hashes; normal runtime remains offline and source-independent.
+- Import normalization with per-field source ownership, conflict detection and explicit reasoned overrides.
+- Source candidate inventory with INCLUDED / EXCLUDED-with-reason / ERROR completeness accounting.
+- One generated development/sample Set package.
+- Set manifest/data schema plus source manifest/completeness report schema.
+- Set loader and exhaustive offline validator with readable errors.
 - Core Team/List/Slot/ChampionInstance/TraitDefinition/ChampionDefinition models.
 - Search text normalizer.
-- First test suite covering model invariants and Set completeness.
-- Minimal CLI/dev validation entry point so Set data can be checked independently of the GUI.
+- First test suite covering model invariants, importer transforms, source conflicts, explicit exclusions, deterministic generation and Set completeness using offline fixtures.
+- Minimal CLI/dev build/validation entry point so Set data can be generated and checked independently of the GUI.
 
 Local user test target:
 - Project installs/runs.
-- Set validation command reports the bundled Set as valid.
-- Deliberately broken Set data produces understandable errors.
+- Set build/validation command reports the bundled Set as valid.
+- Deliberately broken source/Set fixtures produce understandable errors.
+- Generated Set provenance/completeness report explains exactly what was included and intentionally excluded.
 
 ## Step 2 - SQLite persistence, repositories, autosave primitives and backups
 Make the project capable of safely storing real Teams.

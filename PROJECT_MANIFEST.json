@@ -1,6 +1,6 @@
 {
   "project": "TFT Team Builder",
-  "planning_version": "0.0.3",
+  "planning_version": "0.0.4",
   "current_state": "planning baseline",
   "handoff_document": "PROJECT_CONTEXT.md",
   "required_project_documents": [
@@ -35,5 +35,19 @@
     "current_blocks": 9,
     "future_blocks_may_change_after_completed_block": true,
     "planning_changes_must_be_documented": true
+  },
+  "engineering_rules": {
+    "code_language": "English",
+    "project_authored_technical_text_ascii_safe": true,
+    "project_owned_paths_ascii_only": true,
+    "centralized_path_module_required": true,
+    "platform_aware_user_paths_required": true,
+    "current_working_directory_dependency_allowed": false,
+    "dependencies_declared_in_pyproject": true,
+    "prefer_maintained_current_libraries": true,
+    "avoid_unnecessary_dependencies_and_abstractions": true,
+    "pytest_required": true,
+    "ruff_or_equivalent_required": true,
+    "automated_character_policy_check_required": true
   }
 }

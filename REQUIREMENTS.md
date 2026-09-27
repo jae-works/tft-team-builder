@@ -19,6 +19,28 @@ Legend:
 - [ ] Every delivered version contains this file and PROGRESS.md.
 - [ ] Every delivered version contains all source files, tests, set data and project metadata.
 
+## Engineering conventions
+- [ ] All source code is written in English.
+- [ ] All identifiers, module names, package names, internal schema keys, configuration keys, code comments and technical log messages are English.
+- [ ] Project-authored filenames and directory names use simple ASCII characters only.
+- [ ] Project-authored source code, technical documentation, default English UI strings and developer tooling avoid decorative or typographic Unicode characters.
+- [ ] Use plain alternatives such as `-`, `->`, `...`, straight quotes and normal ASCII punctuation instead of smart quotes, long dashes, Unicode arrows, decorative bullets, emoji or similar characters.
+- [ ] Localized external/user-facing data may contain characters required by the language, but the project does not introduce unnecessary special symbols.
+- [ ] Paths are never assembled with string concatenation or hardcoded path separators.
+- [ ] Python path handling uses `pathlib` and a small centralized path/configuration module.
+- [ ] Runtime writable paths do not depend on the current working directory.
+- [ ] Runtime user-data locations use `platformdirs` or an equivalent actively maintained platform-aware library.
+- [ ] No developer-machine absolute paths are committed to source, configuration, tests or generated manifests.
+- [ ] Source and runtime path behavior is explicitly tested on Windows-compatible path semantics where practical.
+- [ ] Dependencies are declared centrally in `pyproject.toml` and use maintained stable versions compatible with the selected Python/Flet toolchain.
+- [ ] Prefer modern, actively maintained libraries when they materially improve correctness, portability or maintainability.
+- [ ] Prefer the Python standard library when it already provides a clear, robust solution; do not add dependencies only to appear modern.
+- [ ] Avoid obsolete/deprecated libraries and legacy API styles when current maintained alternatives exist.
+- [ ] Dependency choices are kept pragmatic; do not introduce generic frameworks, interfaces or abstractions without a concrete need.
+- [ ] Formatting/linting uses Ruff or an equivalent current tool configured in `pyproject.toml`.
+- [ ] Tests use pytest and remain easy to run locally with one documented command.
+- [ ] A project-level automated check prevents accidental non-ASCII characters in project-authored technical files, with explicit allowlists only for localization/external data directories that legitimately require them.
+
 ## Riot compliance
 - [ ] Unofficial third-party product presentation.
 - [ ] Own application branding and UI framing.

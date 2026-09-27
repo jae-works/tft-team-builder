@@ -41,7 +41,20 @@ For every coding step:
 - Create a SHA-256 checksum for the final ZIP after the ZIP has been created.
 - Do not mark a requirement complete merely because code exists; it should be locally verified.
 
-## Coding style
+## Coding style and engineering rules
+
+- All code, identifiers, module/package names, schema/configuration keys, comments and technical log messages are English.
+- Project-authored technical files use simple ASCII punctuation. Do not introduce smart quotes, long dashes, Unicode arrows, emoji or decorative symbols.
+- Project-owned filenames and directory names are ASCII-only and should be simple and predictable.
+- Localized external/user-facing data may contain language characters where required, but this is not a reason to use decorative Unicode in project code or documentation.
+- Use `pathlib` for paths and keep application path decisions in one small path/configuration module. Do not rely on the process current working directory or commit machine-specific absolute paths.
+- Use `platformdirs` (or an equivalent current maintained library) for writable per-user runtime directories.
+- Declare dependencies and tool configuration centrally in `pyproject.toml`.
+- Choose current, maintained libraries when they add real value, but use the standard library when it is already the cleanest robust solution.
+- Do not add dependencies merely for architectural fashion.
+- Use current library APIs rather than deprecated/legacy styles.
+- Use pytest for tests and Ruff (or an equivalent current tool) for formatting/linting.
+- Add an automated repository check that rejects unintended non-ASCII characters in project-authored technical files while allowing explicit localization/external-data paths.
 
 - Prefer clear, direct Python over architecture for architecture's sake.
 - Do not create large numbers of interfaces, generic base classes or abstraction layers without a concrete need.
@@ -49,6 +62,7 @@ For every coding step:
 - Write detailed comments for non-obvious behavior and important invariants.
 - Keep the code human-readable and explicit while still being precise and well-tested.
 - Tests should be thorough, especially for Set validation, traits, duplicate champions, slots, move/copy/swap semantics, undo/redo, persistence and import/export.
+- Consequential technical choices should be considered deliberately; when a choice affects architecture, persisted data, compatibility or maintenance, document the decision and concise rationale in the project docs rather than leaving it implicit.
 
 ## Current product scope
 

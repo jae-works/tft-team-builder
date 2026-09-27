@@ -47,7 +47,16 @@ See `IMPLEMENTATION_BLOCKS.md` for scope and user-test targets for each block.
 
 ## Coding approach
 
-The code should remain practical and human-readable.
+The code should remain practical, modern and human-readable.
+
+- Code, identifiers, comments, internal configuration/schema keys and technical logs are English.
+- Project-authored technical text uses simple ASCII punctuation and avoids decorative Unicode.
+- Use simple ASCII filenames/directories for project-owned paths.
+- Use `pathlib` and one centralized application-path module; never base runtime correctness on the current working directory.
+- Use a platform-aware maintained library such as `platformdirs` for writable user-data directories.
+- Declare runtime/dev dependencies and tool configuration in `pyproject.toml`.
+- Prefer currently maintained stable libraries when they improve correctness or portability.
+- Prefer a clear standard-library solution over an unnecessary dependency.
 
 - Do not create interfaces, abstract base classes or generic frameworks merely to match a preconceived architecture diagram.
 - Introduce abstractions only when they remove real duplication, isolate correctness-sensitive behavior or make testing materially better.
@@ -57,6 +66,21 @@ The code should remain practical and human-readable.
 - Add detailed comments around non-obvious invariants and important tradeoffs.
 - Prefer explicit code over clever code.
 - Tests are expected to be extensive even when production code stays simple.
+- Before consequential implementation choices, compare the practical alternatives and their failure modes. Record the chosen approach and concise rationale in project documentation when it materially affects architecture, persistence, compatibility or future maintenance.
+
+### Planned library policy
+
+Exact compatible versions are selected and pinned in Block 1 after verifying the current Flet/Windows build toolchain. The intended baseline is:
+
+- Flet for the desktop GUI.
+- Pydantic v2 for strict external Set/manifest/schema validation where it reduces handwritten validation errors.
+- `platformdirs` for writable platform-specific application paths.
+- SQLAlchemy 2.x for SQLite persistence and Alembic for explicit database migrations, unless Block 1/2 tests show a materially simpler robust approach.
+- `httpx` for developer-side Set source downloads in Block 7.
+- pytest for tests.
+- Ruff for formatting/linting/import checks.
+
+These are implementation tools, not goals by themselves. If a dependency does not provide a concrete benefit, the standard library is preferred.
 
 ## Set data plan
 

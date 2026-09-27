@@ -14,8 +14,11 @@ A block is only considered completed after:
 
 ## Block 1 - Foundation, Set system and core models - planned v0.1
 
-- Create the runnable Python/Flet project foundation.
-- Add configuration, paths and logging.
+- Create the runnable Python/Flet project foundation and central `pyproject.toml`.
+- Select and pin a current supported Python/Flet/dependency toolchain after compatibility verification.
+- Add configuration, centralized `pathlib`/`platformdirs` paths and logging.
+- Add Ruff configuration and a one-command pytest workflow.
+- Add an automated check that project-authored technical files remain within the agreed ASCII-safe character policy.
 - Implement the core models: Set, ChampionDefinition, TraitDefinition, Team, TeamList, Slot, ChampionInstance and TraitSelection.
 - Implement the Set package schema, loader and strict validator.
 - Add the developer-side Set import/build skeleton described in `SET_DATA_PIPELINE.md`.
@@ -31,9 +34,9 @@ User-test goal:
 
 ## Block 2 - SQLite persistence, migrations, autosave primitives and backups - planned v0.2
 
-- Add SQLite persistence.
+- Add SQLite persistence using the current maintained persistence stack chosen for the project (planned SQLAlchemy 2.x).
 - Store Teams, Lists, Slots, ChampionInstances and TraitSelections.
-- Add schema versioning and migrations.
+- Add schema versioning and explicit migrations (planned Alembic).
 - Add straightforward repository/service functions without unnecessary abstraction layers.
 - Use transactions for critical writes.
 - Add backup creation and restore foundations.
@@ -113,7 +116,7 @@ User-test goal:
 
 ## Block 7 - Real TFT Set data pipeline and production Set package - planned v0.7
 
-- Finish the reproducible Set import pipeline.
+- Finish the reproducible Set import pipeline using the maintained HTTP/download tooling selected for the project (planned `httpx`).
 - Use pinned/recorded Riot Data Dragon inputs as the preferred official visible-data/asset source.
 - Use pinned CommunityDragon inputs only as supplemental/cross-check metadata where required.
 - Record provenance and source hashes.

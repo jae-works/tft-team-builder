@@ -9,7 +9,7 @@ Legend:
 - [!] blocked / needs correction
 
 ## Current version
-v0.0.3-planning
+v0.0.4-planning
 
 ## Completed planning/handoff work
 - [x] Requirements checklist established.
@@ -56,5 +56,30 @@ v0.0.3-planning
 - [x] `src/`, `tests/`, `sets/`, `set_sources/overrides/` and `tools/set_import/` are represented in the ZIP via tracked placeholder/readme files.
 - [x] Project documentation copies are generated into `project_docs/` before packaging.
 - [x] Planning archive integrity and required-file verification performed after packaging.
+
+No application tests are claimed in this planning-only version because application code does not exist yet.
+
+
+## Planning update v0.0.4
+
+- Added binding engineering requirements for English-only code/internal identifiers/comments/logs.
+- Added ASCII-safe project-authored technical text/file rules and an automated enforcement requirement.
+- Added centralized `pathlib`/`platformdirs` path requirements and no-current-working-directory assumptions.
+- Added pragmatic modern dependency policy with central `pyproject.toml`, pytest and Ruff.
+- Updated implementation blocks so these rules are established in Block 1 before application code grows.
+- No application functionality is implemented yet.
+
+
+## Verification for v0.0.4-planning
+- [x] Requirements include English-only source/internal naming/comment/logging rules.
+- [x] Requirements include ASCII-safe project-authored technical text and path naming rules.
+- [x] Requirements include centralized `pathlib`/platform-aware runtime path handling.
+- [x] Requirements include current maintained dependency policy, `pyproject.toml`, pytest and Ruff expectations.
+- [x] Block 1 now establishes path, dependency and character-policy enforcement before application code expands.
+- [x] Block 2 records the planned modern SQLite persistence/migration stack.
+- [x] Block 7 records maintained HTTP tooling for source acquisition.
+- [x] Existing project-authored files were scanned and contain no non-ASCII characters.
+- [x] Mirrored `project_docs/` copies match their root source documents.
+- [x] `PROJECT_MANIFEST.json` parses successfully and records the new engineering rules.
 
 No application tests are claimed in this planning-only version because application code does not exist yet.

@@ -11,7 +11,7 @@ from .time_codec import decode_timestamp, encode_timestamp
 
 
 class TeamNotFoundError(LookupError):
-    pass
+    """Raised when a requested Team does not exist in the selected visibility scope."""
 
 
 class TeamRepository:
@@ -145,9 +145,7 @@ class TeamRepository:
                     instance_id=UUID(instance_id),
                     trait_selection=TraitSelection(tuple(traits_by_instance.get(instance_id, ()))),
                 )
-            slots_by_list[row["list_id"]].append(
-                Slot(index=row["slot_index"], champion=champion)
-            )
+            slots_by_list[row["list_id"]].append(Slot(index=row["slot_index"], champion=champion))
 
         lists = [
             TeamList(

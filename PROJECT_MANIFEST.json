@@ -1,7 +1,7 @@
 {
   "project": "TFT Team Builder",
-  "version": "0.2.1",
-  "current_state": "block_2_implemented_pending_windows_verification",
+  "version": "0.2.2",
+  "current_state": "block_2_hardened_pending_final_windows_recheck",
   "current_block": 2,
   "next_block": 3,
   "handoff_document": "PROJECT_CONTEXT.md",
@@ -18,7 +18,8 @@
     "src/assets/sets/README.md",
     "set_sources/README.md",
     "tools/set_import/README.md",
-    "BLOCK_02_REPORT.md"
+    "BLOCK_02_REPORT.md",
+    "BLOCK_03_PLAN.md"
   ],
   "toolchain": {
     "python": ">=3.13,<3.14",
@@ -38,7 +39,7 @@
     "core_must_remain_ui_independent": true
   },
   "verification": {
-    "pytest_passed": 425,
+    "pytest_passed": 438,
     "branch_coverage_minimum_percent": 100,
     "compileall_passed": true,
     "ascii_policy_passed": true,
@@ -70,7 +71,20 @@
     "windows_0_2_0_flet_run_passed": true,
     "windows_0_2_0_ruff_lint_passed": false,
     "windows_0_2_0_ruff_format_drift_files": 2,
-    "resource_warnings_are_errors": true
+    "resource_warnings_are_errors": true,
+    "windows_0_2_1_pytest_passed": 425,
+    "windows_0_2_1_coverage_percent": 100.0,
+    "windows_0_2_1_ruff_lint_passed": true,
+    "windows_0_2_1_ruff_format_drift_files": 3,
+    "windows_0_2_1_ascii_policy_passed": true,
+    "windows_0_2_1_doc_mirror_passed": true,
+    "windows_0_2_1_compileall_passed": true,
+    "windows_0_2_1_set_validation_passed": true,
+    "windows_0_2_1_set_inspection_passed": true,
+    "windows_0_2_1_database_smoke_passed": true,
+    "windows_0_2_1_flet_run_passed": true,
+    "database_schema_structure_validation_verified": true,
+    "block_3_plan_prepared": true
   },
   "set_data_policy": {
     "runtime_remote_dependency": false,
@@ -123,6 +137,7 @@
     "LICENSE_REVIEW.md",
     "SET_DATA_PIPELINE.md",
     "BLOCK_01_REPORT.md",
-    "BLOCK_02_REPORT.md"
+    "BLOCK_02_REPORT.md",
+    "BLOCK_03_PLAN.md"
   ]
 }

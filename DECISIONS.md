@@ -264,8 +264,11 @@ Reasoning:
 - The current domain layer is small, heavily runtime-validated and highly covered. The value of a dedicated checker increases materially once persistence repositories, command services and GUI state introduce larger typed interfaces.
 - Adding an unverified quality tool would conflict with the project rule that claimed checks must actually be runnable and tested.
 
+Revisited after Block 2:
+- The direct persistence layer remains small, fully annotated where useful, and covered at 100 percent statement/branch coverage. No second static checker was added during Block 2.
+
 Revisit when:
-- Block 2 introduces persistence/service interfaces, or `ty` reaches a stable release suitable for a hard CI gate.
+- Block 3 introduces enough editing/history/trait-engine surface that a stable static checker would catch concrete issues not already covered by Ruff, Pydantic boundaries and tests; or `ty` reaches a stable release suitable for a hard CI gate.
 
 ## D018 - Separate deferred web tooling from the default desktop dev environment
 
@@ -383,3 +386,26 @@ Connection policy: application-controlled explicit transactions in SQLite autoco
 - Validate SQLite integrity, foreign keys, supported schema versions and Team/List/slot structural invariants before accepting restored data.
 - Keep browser/mobile persistence deferred. Windows desktop uses SQLite now; a future web/mobile target must re-evaluate storage/runtime constraints instead of forcing a weaker cross-platform abstraction into the desktop core today.
 - Raise the enforced statement and branch coverage gate from 95 percent to 100 percent while the project remains small enough to maintain that standard without artificial tests.
+
+
+## D024 - Block 3 uses concrete edit semantics and snapshot undo/redo
+
+Status: accepted during the version 0.2.2 pre-Block-3 audit.
+
+Decision:
+- Define slot, move, copy, List, Trait and undo/redo behavior in `BLOCK_03_PLAN.md` before implementation.
+- Moving onto an occupied slot swaps Champion instances and preserves their IDs.
+- Copying creates a new Champion instance ID. If the target slot is occupied, insert a new slot at that position and shift existing slots right rather than overwriting data.
+- Use Team-scoped in-memory before/after snapshots for undo/redo while Team objects remain small. Do not create a generic command class hierarchy merely to implement history.
+- Set schema v1 accepts only concrete Trait counting modes that the engine can implement from existing declarative data: `UNIQUE_CHAMPION` and `UNIQUE_INSTANCE`.
+- Do not accept a placeholder custom counting mode until a real Set requirement defines the additional declarative fields and tests needed to evaluate it.
+
+Reasoning:
+- Block 3 behavior must be deterministic before GUI interactions depend on it.
+- Snapshot history gives exact restoration of IDs, gaps, ordering, timestamps and dynamic Trait selections with less code and lower correctness risk than a large inverse-command hierarchy.
+- The current Team sizes are small enough that snapshot memory cost is negligible compared with the simplicity and auditability benefit.
+- An undefined custom counting branch would either be dead code or force Champion/Set-specific Python behavior, both of which conflict with the project's direct-code and declarative-Set rules.
+
+Revisit when:
+- profiling shows snapshot history has a real memory/performance problem;
+- a real TFT Set requires a counting rule that cannot be represented by `UNIQUE_CHAMPION` or `UNIQUE_INSTANCE`.

@@ -1,7 +1,7 @@
 # Dependency and Release License Review
 
 Review date: 2026-09-27
-Project version: 0.1.4
+Project version: 0.2.2
 
 This document is an engineering release checklist, not legal advice. License obligations must be reviewed again against the exact dependency lockfile and final packaged artifact before public distribution.
 
@@ -75,7 +75,7 @@ Before public release:
 
 Browser and mobile builds can bundle a different dependency/runtime set than the Windows desktop build. Each target therefore requires its own final artifact license inventory before public distribution.
 
-Block 2 does not preselect an ORM. Flet currently publishes mobile wheels for selected SQLAlchemy 2.0.x versions, not every newest SQLAlchemy release. That is one reason the persistence decision will compare direct standard-library `sqlite3` against SQLAlchemy using the actual Block 2 schema before adding a database dependency.
+Block 2 selected the Python 3.13 standard-library `sqlite3` module and added no ORM dependency. This keeps the current Windows runtime dependency graph smaller. A future browser/mobile target must still re-evaluate persistence compatibility for that target instead of assuming the desktop SQLite design transfers unchanged.
 
 
 ## Block 2 dependency impact

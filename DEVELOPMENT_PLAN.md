@@ -75,7 +75,7 @@ Block 1 selected and pinned the current baseline after compatibility research:
 - Flet 1.0.1 for the Windows-first GUI, while preserving official Flet web/mobile options for possible later work. Deferred web tooling is isolated in its own dependency group so normal desktop development does not install it unnecessarily.
 - Pydantic 2.13.5 for strict external Set/manifest/schema validation.
 - `platformdirs` 4.11.15 for writable platform-specific application paths when Flet-specific storage paths are not available.
-- Persistence library choice is intentionally deferred to Block 2. Compare direct `sqlite3` plus explicit migrations against SQLAlchemy/Alembic before adding either; prefer the simpler approach if it satisfies transactional, migration, testing and future-platform requirements.
+- Persistence uses Python 3.13 `sqlite3` directly with explicit migrations. SQLAlchemy/Alembic remain unnecessary unless a later concrete requirement makes the direct layer materially worse.
 - `httpx` for developer-side Set source downloads in Block 7.
 - pytest 9.1.1 for tests.
 - Ruff 0.16.9 for formatting/linting/import checks.
@@ -106,13 +106,14 @@ Every source delivery includes at least:
 - `DECISIONS.md`
 - `LICENSE_REVIEW.md`
 - `SET_DATA_PIPELINE.md`
-- the current block implementation report, currently `BLOCK_01_REPORT.md`
+- the current completed block report, currently `BLOCK_02_REPORT.md`
+- the prepared next-block specification, currently `BLOCK_03_PLAN.md`
 
 The final Windows package also ships readable copies of the relevant project documentation in `project_docs/` so another developer or AI instance can understand what was built and why.
 
 ## Current implementation position
 
-Block 1 is cleaned and hardened in version 0.1.4. Block 2 remains the next planned implementation block, subject to one final clean Windows verification of version 0.1.4.
+Blocks 1 and 2 are implemented. Version 0.2.2 is the Block 2 correction candidate after the user verified 425 tests, 100 percent coverage, Set validation, database smoke and Flet startup on Windows for version 0.2.1. The only reported quality failure was Ruff formatter drift in three files; version 0.2.2 applies those corrections, adds database-schema integrity hardening, and prepares the concrete Block 3 behavior contract.
 
 
 ## Block 2 persistence decision

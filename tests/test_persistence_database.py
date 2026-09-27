@@ -6,7 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from tft_builder.persistence.database import Database, DatabaseVersionError
+from tft_builder.persistence.database import (
+    Database,
+    DatabaseIntegrityError,
+    DatabaseVersionError,
+)
 from tft_builder.persistence.migrations import CURRENT_SCHEMA_VERSION, MIGRATIONS
 
 
@@ -110,6 +114,63 @@ def _create_v1_database(path: Path) -> None:
         connection.execute("COMMIT")
 
 
+def test_initialize_rejects_non_sqlite_database(tmp_path: Path) -> None:
+    path = tmp_path / "broken.db"
+    path.write_text("not sqlite", encoding="ascii")
+    with pytest.raises(DatabaseIntegrityError, match="not a valid SQLite database"):
+        Database(path).initialize()
+
+
+def test_initialize_rejects_failed_post_migration_integrity(tmp_path: Path, monkeypatch) -> None:
+    database = Database(tmp_path / "builder.db")
+    monkeypatch.setattr(database, "integrity_check", lambda: False)
+    with pytest.raises(DatabaseIntegrityError, match="after migration"):
+        database.initialize()
+
+
+def test_integrity_check_accepts_complete_v1_schema(tmp_path: Path) -> None:
+    path = tmp_path / "builder.db"
+    _create_v1_database(path)
+    assert Database(path).integrity_check()
+
+
+def test_integrity_check_rejects_uninitialized_sqlite_file(tmp_path: Path) -> None:
+    path = tmp_path / "builder.db"
+    with closing(sqlite3.connect(path, autocommit=True)):
+        pass
+    assert not Database(path).integrity_check()
+
+
+def test_integrity_check_rejects_missing_required_table(tmp_path: Path) -> None:
+    database = Database(tmp_path / "builder.db")
+    database.initialize()
+    with database.connection() as connection:
+        connection.execute("DROP TABLE trait_selections")
+    assert not database.integrity_check()
+    with pytest.raises(DatabaseIntegrityError, match="failed integrity check"):
+        database.initialize()
+
+
+def test_integrity_check_rejects_v2_schema_missing_v2_team_columns(tmp_path: Path) -> None:
+    path = tmp_path / "builder.db"
+    _create_v1_database(path)
+    with closing(sqlite3.connect(path, autocommit=True)) as connection:
+        connection.execute(
+            "INSERT INTO schema_migrations(version, applied_at) "
+            "VALUES (2, '2026-01-02T00:00:00.000000Z')"
+        )
+        connection.execute("PRAGMA user_version = 2")
+    assert not Database(path).integrity_check()
+
+
+def test_integrity_check_rejects_incomplete_migration_history(tmp_path: Path) -> None:
+    database = Database(tmp_path / "builder.db")
+    database.initialize()
+    with database.connection() as connection:
+        connection.execute("DELETE FROM schema_migrations WHERE version = 2")
+    assert not database.integrity_check()
+
+
 def test_existing_v1_database_migrates_and_creates_pre_migration_backup(tmp_path: Path) -> None:
     path = tmp_path / "builder.db"
     backup_dir = tmp_path / "backups"
@@ -173,12 +234,10 @@ def test_integrity_check_detects_non_contiguous_list_order(tmp_path: Path) -> No
             "'2026-01-01T00:00:00.000000Z','2026-01-01T00:00:00.000000Z')"
         )
         connection.execute(
-            "INSERT INTO team_lists(list_id,team_id,name,order_index) "
-            "VALUES('list-a','team','A',0)"
+            "INSERT INTO team_lists(list_id,team_id,name,order_index) VALUES('list-a','team','A',0)"
         )
         connection.execute(
-            "INSERT INTO team_lists(list_id,team_id,name,order_index) "
-            "VALUES('list-b','team','B',2)"
+            "INSERT INTO team_lists(list_id,team_id,name,order_index) VALUES('list-b','team','B',2)"
         )
     assert not database.integrity_check()
 
@@ -193,8 +252,7 @@ def test_integrity_check_detects_non_contiguous_slot_order(tmp_path: Path) -> No
             "'2026-01-01T00:00:00.000000Z','2026-01-01T00:00:00.000000Z')"
         )
         connection.execute(
-            "INSERT INTO team_lists(list_id,team_id,name,order_index) "
-            "VALUES('list-a','team','A',0)"
+            "INSERT INTO team_lists(list_id,team_id,name,order_index) VALUES('list-a','team','A',0)"
         )
         connection.execute("INSERT INTO slots(list_id,slot_index) VALUES('list-a',1)")
     assert not database.integrity_check()

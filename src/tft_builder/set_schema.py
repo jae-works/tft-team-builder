@@ -82,7 +82,6 @@ class StrictModel(BaseModel):
 class TraitCountingMode(StrEnum):
     UNIQUE_CHAMPION = "UNIQUE_CHAMPION"
     UNIQUE_INSTANCE = "UNIQUE_INSTANCE"
-    CUSTOM_SET_RULE = "CUSTOM_SET_RULE"
 
 
 class DynamicSelectionRule(StrEnum):

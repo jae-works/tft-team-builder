@@ -42,7 +42,7 @@ Verification summary:
 - Symbolic links and Windows junctions are treated as link-like filesystem redirects where containment matters.
 - The user already verified 348 tests, Ruff lint, Set validation and Flet startup on Windows for v0.1.3. Version 0.1.4 applies the exact remaining Ruff formatter corrections and needs one final clean Windows recheck. See `BLOCK_01_REPORT.md`.
 
-## Block 2 - SQLite persistence, migrations, autosave primitives and backups - release candidate v0.2.1
+## Block 2 - SQLite persistence, migrations, autosave primitives and backups - hardened correction candidate v0.2.2
 
 - [x] Select direct Python 3.13 `sqlite3` after comparing it with an ORM for this local aggregate-oriented store.
 - [x] Store Teams, Lists, Slots, ChampionInstances and TraitSelections.
@@ -61,7 +61,7 @@ Verification summary:
 - Statement and branch coverage are both 100 percent and the project coverage gate is now 100 percent.
 - The Team repository uses bounded aggregate queries and batched writes rather than per-Champion Trait queries.
 - Backups are namespaced, path-safe, application-integrity checked and retained without touching unrelated database files.
-- The user's Windows v0.2.0 run already verified 407 tests at 100 percent coverage, Set validation, database smoke and Flet startup; v0.2.1 addresses the reported Ruff findings and persistence hardening and needs the final Windows recheck.
+- The user's Windows v0.2.1 run verified 425 tests at 100 percent coverage, Ruff lint, ASCII policy, document mirrors, Set validation/inspection, database smoke, compileall and Flet startup. Ruff format reported three formatting-only files. Version 0.2.2 applies those formatter corrections and adds schema-structure/migration-history integrity checks discovered during the final audit.
 
 User-test goal:
 - Data survives process restart exactly.
@@ -71,18 +71,22 @@ User-test goal:
 
 ## Block 3 - Core builder logic: slots, move/copy/swap, Trait engine and undo/redo - planned v0.3
 
-- Implement slot add/remove/move/swap/compact behavior.
-- Implement cross-List Copy and Move semantics.
-- Implement duplicate-champion behavior.
-- Implement Trait calculation from Set data.
-- Ensure duplicate Champion IDs do not normally double-count native Traits.
-- Implement Trait breakpoints and next-breakpoint state.
-- Implement dynamic Trait selection rules.
-- Implement command-based undo/redo for the core edit operations.
-- Add extensive edge-case tests.
+The concrete behavior contract is documented in `BLOCK_03_PLAN.md` and must be read before implementation.
+
+- Implement direct UI-independent editing operations for Lists, Slots, Champion instances, names and primary List changes.
+- Implement clear/insert/remove/compact semantics without losing instance identity.
+- Implement same-List and cross-List Move semantics: empty targets move, occupied targets swap, and instance IDs are preserved.
+- Implement Copy semantics with a new instance ID; occupied targets insert and shift instead of overwriting data.
+- Implement List create/duplicate/reorder/clear/delete behavior, including deterministic primary-List replacement and last-List protection.
+- Implement Trait calculation from validated Set data for UNIQUE_CHAMPION and UNIQUE_INSTANCE counting.
+- Implement Trait breakpoints, next-breakpoint progress and deterministic Trait ordering.
+- Validate every dynamic Trait selection rule and both PER_INSTANCE/PER_CHAMPION scopes; invalid required choices are reported and do not silently count.
+- Implement small Team-scoped undo/redo history using exact reversible state, not a generic command framework.
+- Ensure successful edits update `Team.updated_at`; undo/redo restores historical timestamps exactly.
+- Add extensive edge-case tests while keeping the 100 percent statement/branch coverage gate.
 
 User-test goal:
-- Included tests/demos show correct duplicate counting, moves, swaps, copies and exact undo/redo restoration.
+- Included tests/demos show exact slot behavior, duplicate counting, dynamic Trait validation, moves, swaps, copies, List operations and full-state undo/redo restoration.
 
 ## Block 4 - First complete functional Builder GUI - planned v0.4
 

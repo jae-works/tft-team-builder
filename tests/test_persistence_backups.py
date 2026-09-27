@@ -29,6 +29,12 @@ def test_backup_captures_committed_database_state(tmp_path: Path) -> None:
     assert TeamRepository(backup_database).load(team.team_id) == team
 
 
+def test_backup_rejects_naive_timestamp(tmp_path: Path) -> None:
+    _, _, manager = setup_store(tmp_path)
+    with pytest.raises(ValueError, match="timezone-aware"):
+        manager.create_backup(now=datetime(2026, 9, 27))
+
+
 def test_same_timestamp_generates_unique_backup_names(tmp_path: Path) -> None:
     _, _, manager = setup_store(tmp_path)
     now = datetime(2026, 9, 27, tzinfo=UTC)
@@ -192,9 +198,7 @@ def test_verify_rejects_foreign_key_damage(tmp_path: Path) -> None:
     with closing(sqlite3.connect(path, autocommit=True)) as connection:
         connection.execute("PRAGMA foreign_keys = OFF")
         connection.execute("CREATE TABLE parent(id INTEGER PRIMARY KEY)")
-        connection.execute(
-            "CREATE TABLE child(parent_id INTEGER REFERENCES parent(id))"
-        )
+        connection.execute("CREATE TABLE child(parent_id INTEGER REFERENCES parent(id))")
         connection.execute("INSERT INTO child(parent_id) VALUES (99)")
     with pytest.raises(BackupError, match="foreign key check"):
         BackupManager._verify(path)

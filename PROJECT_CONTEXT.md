@@ -12,15 +12,16 @@ This is the first document another developer or AI instance should read before c
 6. `DECISIONS.md`
 7. `LICENSE_REVIEW.md`
 8. `SET_DATA_PIPELINE.md`
-9. The latest block report, currently `BLOCK_02_REPORT.md`
-10. `src/assets/sets/README.md`
-11. `set_sources/README.md`
+9. The latest completed block report, currently `BLOCK_02_REPORT.md`
+10. The prepared next-block plan, currently `BLOCK_03_PLAN.md`
+11. `src/assets/sets/README.md`
+12. `set_sources/README.md`
 
 ## Current state
 
-- Current version: 0.2.1.
-- Block 1 is hardened and pending final user verification.
-- Block 2 is implemented. Version 0.2.1 is the hardened persistence release candidate and must receive the final Windows quality recheck before Block 3 begins.
+- Current version: 0.2.2.
+- Block 1 is complete and verified on Windows.
+- Block 2 is implemented and hardened. Version 0.2.2 contains the final correction pass and must receive one clean Windows quality recheck before Block 3 implementation begins.
 - The current application shell is intentionally minimal. The complete Builder GUI begins in Block 4.
 
 ## Source of truth
@@ -33,6 +34,8 @@ This is the first document another developer or AI instance should read before c
 - `LICENSE_REVIEW.md` records dependency-license findings and public-release license gates.
 - `SET_DATA_PIPELINE.md` defines source/provenance/completeness rules for TFT Set generation.
 - `BLOCK_01_REPORT.md` records detailed implementation and test evidence for Block 1.
+- `BLOCK_02_REPORT.md` records persistence implementation and hardening evidence for Block 2.
+- `BLOCK_03_PLAN.md` is the concrete behavior contract for the next implementation block.
 
 These files are part of the project. They are not chat-only notes.
 
@@ -135,3 +138,5 @@ The project must remain within current Riot/TFT third-party application rules. R
 ## Block 2 handoff note
 
 Persistence is implemented under `src/tft_builder/persistence/` using direct Python `sqlite3`. Do not introduce an ORM or generic repository hierarchy without a concrete requirement that outweighs the current simpler design. `TeamRepository.save()` persists one complete Team aggregate transactionally. `BackupManager` owns SQLite online backup/restore behavior. `AutosaveService` is intentionally timer-free; later UI code may debounce calls into it without moving persistence logic into Flet controls.
+
+Version 0.2.2 also validates required schema tables/columns and migration history before treating an existing database as healthy. Block 3 must read `BLOCK_03_PLAN.md` before implementing editing or Trait semantics.

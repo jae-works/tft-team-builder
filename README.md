@@ -1,7 +1,7 @@
 # TFT Team Builder
 
-Current version: 0.2.1
-Current milestone: Block 2 persistence candidate pending clean Windows verification.
+Current version: 0.2.2
+Current milestone: Block 2 hardened correction candidate pending one clean Windows recheck before Block 3.
 
 TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
 
@@ -62,13 +62,18 @@ Run the current quality checks:
 
 ```text
 uv lock --check
-uv sync
-uv run pytest
+uv sync --frozen
+uv run ruff format .
 uv run ruff check .
 uv run ruff format --check .
+uv run pytest
 uv run python tools/check_ascii.py
 uv run python tools/sync_project_docs.py --check
+uv run python -m compileall -q src tests tools
 uv run tft-builder-dev validate-set src/assets/sets/sample_set
+uv run tft-builder-dev inspect-set src/assets/sets/sample_set
+uv run tft-builder-dev database-smoke .runtime-smoke
+uv run flet --version
 uv run flet run
 ```
 
@@ -149,5 +154,6 @@ Read these in order before changing the project:
 8. `SET_DATA_PIPELINE.md`
 9. `BLOCK_01_REPORT.md`
 10. `BLOCK_02_REPORT.md`
+11. `BLOCK_03_PLAN.md`
 
 Every delivered project ZIP must contain the complete current project and a SHA-256 checksum calculated after the final ZIP is created.

@@ -17,6 +17,28 @@ class DatabaseVersionError(RuntimeError):
     """Raised when a database was created by a newer unsupported schema."""
 
 
+class DatabaseIntegrityError(RuntimeError):
+    """Raised when the application database is structurally invalid or corrupt."""
+
+
+_REQUIRED_SCHEMA_COLUMNS = {
+    "schema_migrations": {"version", "applied_at"},
+    "teams": {
+        "team_id",
+        "set_id",
+        "name",
+        "primary_list_id",
+        "created_at",
+        "updated_at",
+    },
+    "team_lists": {"list_id", "team_id", "name", "order_index"},
+    "slots": {"list_id", "slot_index"},
+    "champion_instances": {"instance_id", "list_id", "slot_index", "champion_id"},
+    "trait_selections": {"instance_id", "selection_index", "trait_id"},
+}
+_V2_TEAM_COLUMNS = {"last_opened_at", "deleted_at"}
+
+
 class Database:
     """Own database configuration and explicit transactions.
 
@@ -80,11 +102,19 @@ class Database:
     def initialize(self) -> int:
         """Create or migrate the database and return the resulting schema version."""
 
-        current = self.schema_version()
+        try:
+            current = self.schema_version()
+        except sqlite3.DatabaseError as error:
+            raise DatabaseIntegrityError(
+                f"database is not a valid SQLite database: {self.path}"
+            ) from error
+
         if current > CURRENT_SCHEMA_VERSION:
             raise DatabaseVersionError(
                 f"database schema {current} is newer than supported schema {CURRENT_SCHEMA_VERSION}"
             )
+        if current > 0 and not self.integrity_check():
+            raise DatabaseIntegrityError(f"database failed integrity check: {self.path}")
         if current == CURRENT_SCHEMA_VERSION:
             return current
 
@@ -105,7 +135,40 @@ class Database:
                     (migration.version, applied_at),
                 )
                 connection.execute(f"PRAGMA user_version = {migration.version}")
+
+        if not self.integrity_check():
+            raise DatabaseIntegrityError(
+                f"database failed integrity check after migration: {self.path}"
+            )
         return CURRENT_SCHEMA_VERSION
+
+    @staticmethod
+    def _schema_structure_is_valid(connection: sqlite3.Connection, version: int) -> bool:
+        """Check the concrete schema expected for an initialized database version."""
+
+        if not 1 <= version <= CURRENT_SCHEMA_VERSION:
+            return False
+
+        for table, required_columns in _REQUIRED_SCHEMA_COLUMNS.items():
+            columns = {
+                row["name"] for row in connection.execute(f"PRAGMA table_info({table})").fetchall()
+            }
+            if not required_columns <= columns:
+                return False
+
+        team_columns = {
+            row["name"] for row in connection.execute("PRAGMA table_info(teams)").fetchall()
+        }
+        if version >= 2 and not _V2_TEAM_COLUMNS <= team_columns:
+            return False
+
+        migration_versions = tuple(
+            row[0]
+            for row in connection.execute(
+                "SELECT version FROM schema_migrations ORDER BY version"
+            ).fetchall()
+        )
+        return migration_versions == tuple(range(1, version + 1))
 
     def integrity_check(self) -> bool:
         if not self.path.exists():
@@ -114,6 +177,8 @@ class Database:
             with self.connection() as connection:
                 row = connection.execute("PRAGMA integrity_check").fetchone()
                 foreign_key_issue = connection.execute("PRAGMA foreign_key_check").fetchone()
+                version = int(connection.execute("PRAGMA user_version").fetchone()[0])
+                schema_structure_valid = self._schema_structure_is_valid(connection, version)
                 primary_list_issue = connection.execute(
                     """
                     SELECT 1
@@ -156,6 +221,7 @@ class Database:
             row is not None
             and row[0] == "ok"
             and foreign_key_issue is None
+            and schema_structure_valid
             and primary_list_issue is None
             and list_order_issue is None
             and slot_order_issue is None

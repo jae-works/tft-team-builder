@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from .constants import APP_NAME
 from .logging_config import configure_logging
 from .paths import ApplicationPaths, build_application_paths
 from .persistence import Database
@@ -87,12 +88,12 @@ def main(page: ft.Page) -> None:
     import flet as ft
 
     state = initialize_application()
-    page.title = "TFT Team Builder"
+    page.title = APP_NAME
     page.add(
         ft.SafeArea(
             content=ft.Column(
                 controls=[
-                    ft.Text("TFT Team Builder", size=28, weight=ft.FontWeight.BOLD),
+                    ft.Text(APP_NAME, size=28, weight=ft.FontWeight.BOLD),
                     ft.Text("Block 2 persistence foundation is active."),
                     ft.Text(f"Database schema: {state.database_schema_version}"),
                     ft.Text("Bundled Set validation:"),

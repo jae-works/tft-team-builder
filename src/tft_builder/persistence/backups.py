@@ -16,7 +16,7 @@ _SAFE_PREFIX = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 
 class BackupError(RuntimeError):
-    pass
+    """Raised when a backup cannot be created, validated, or restored safely."""
 
 
 class BackupManager:
@@ -36,8 +36,10 @@ class BackupManager:
         if not self.database.integrity_check():
             raise BackupError(f"database failed integrity check: {self.database.path}")
         self.backup_dir.mkdir(parents=True, exist_ok=True)
-        moment = (now or datetime.now(UTC)).astimezone(UTC)
-        stamp = moment.strftime("%Y%m%dT%H%M%S%fZ")
+        moment = now or datetime.now(UTC)
+        if moment.utcoffset() is None:
+            raise ValueError("backup timestamp must be timezone-aware")
+        stamp = moment.astimezone(UTC).strftime("%Y%m%dT%H%M%S%fZ")
         destination = self._unique_path(prefix, stamp)
         try:
             with (

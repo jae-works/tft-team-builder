@@ -162,6 +162,20 @@ def test_champion_rejects_blank_search_alias() -> None:
         )
 
 
+def test_trait_rejects_undefined_custom_counting_mode() -> None:
+    with pytest.raises(ValidationError):
+        TraitDefinition.model_validate(
+            {
+                "id": "trait_a",
+                "name_key": "trait.a.name",
+                "icon": "assets/traits/a.png",
+                "display_order": 1,
+                "breakpoints": [{"count": 2, "style": "bronze"}],
+                "counting_mode": "CUSTOM_SET_RULE",
+            }
+        )
+
+
 def test_trait_requires_at_least_one_breakpoint() -> None:
     with pytest.raises(ValidationError):
         TraitDefinition(

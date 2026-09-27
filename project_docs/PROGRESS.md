@@ -1,7 +1,7 @@
 # TFT Team Builder - Progress
 
-Current version: 0.2.1
-Current status: Block 2 implemented in the implementation environment; final Windows verification pending.
+Current version: 0.2.2
+Current status: Block 2 hardened; version 0.2.2 is the final correction candidate pending one Windows recheck.
 Next planned block: Block 3 - core builder logic, Trait engine, and undo/redo.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
@@ -113,18 +113,46 @@ No Block 2 persistence implementation is included in version 0.1.4.
 - [x] Autosave primitives for immediate saves and queued immutable snapshots.
 - [x] Application startup initializes the database through the central path layer.
 - [x] Developer database smoke command.
-- [x] 425 tests passed with 0 skips in the implementation environment.
+- [x] 438 tests passed with 0 skips in the version 0.2.2 implementation audit.
 - [x] 100.00 percent statement and branch coverage in the implementation environment.
+
+## Version 0.2.1 Windows verification
+
+- [x] 425 pytest tests passed with no skips.
+- [x] Statement and branch coverage both reached 100.00 percent.
+- [x] Ruff lint passed.
+- [ ] Ruff format found exactly three formatting-only files: `src/tft_builder/persistence/team_repository.py`, `tests/test_persistence_backups.py`, and `tests/test_persistence_database.py`.
+- [x] ASCII policy passed.
+- [x] Project document mirror check passed.
+- [x] `compileall` passed.
+- [x] Bundled Set validation and inspection passed.
+- [x] Database smoke round-trip and backup passed.
+- [x] Flet 1.0.1/Flutter 3.44.8 started the application successfully.
+
+## Version 0.2.2 final correction pass
+
+- [x] Apply the three exact Ruff formatter corrections reported by the Windows 0.2.1 run.
+- [x] Remove the stale unused `APP_VERSION` runtime constant so package version metadata has no redundant source-code copy.
+- [x] Reject undefined `CUSTOM_SET_RULE` Trait counting because Set schema v1 has no declarative custom-rule data.
+- [x] Validate required SQLite schema tables/columns and exact migration history as part of application integrity checks.
+- [x] Reject malformed current databases during initialization instead of trusting `PRAGMA user_version` alone.
+- [x] Require explicit backup timestamps to be timezone-aware.
+- [x] Add corruption and timestamp regression tests; implementation-audit total is 438 tests at 100 percent statement/branch coverage.
+- [x] Add `BLOCK_03_PLAN.md` with concrete edit, Trait and undo/redo semantics for the next block.
 
 ## Final Windows verification required before Block 3
 
 - [ ] Run `uv lock --check`.
 - [ ] Run `uv sync --frozen`.
-- [ ] Run `uv run pytest` on Windows and confirm 425 passed with no skips.
+- [ ] Run `uv run ruff format .` once; a second run should report no changes.
 - [ ] Run `uv run ruff check .`.
 - [ ] Run `uv run ruff format --check .`.
+- [ ] Run `uv run pytest` on Windows and confirm 438 passed with no skips and 100 percent coverage.
 - [ ] Run `uv run python tools/check_ascii.py`.
 - [ ] Run `uv run python tools/sync_project_docs.py --check`.
+- [ ] Run `uv run python -m compileall -q src tests tools`.
 - [ ] Run `uv run tft-builder-dev validate-set src/assets/sets/sample_set`.
+- [ ] Run `uv run tft-builder-dev inspect-set src/assets/sets/sample_set`.
 - [ ] Run `uv run tft-builder-dev database-smoke .runtime-smoke`.
+- [ ] Run `uv run flet --version`.
 - [ ] Run `uv run flet run`.

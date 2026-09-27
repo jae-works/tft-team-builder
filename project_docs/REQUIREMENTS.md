@@ -37,6 +37,7 @@ Legend:
 - [x] No developer-machine absolute paths are committed to source, configuration, tests or generated manifests.
 - [x] Source and runtime path behavior is explicitly tested on Windows-compatible path semantics where practical.
 - [x] Dependencies are declared centrally in `pyproject.toml` and use maintained stable versions compatible with the selected Python/Flet toolchain.
+- [x] Runtime source does not duplicate the application release version in an unused constant; `pyproject.toml` is the package-version source and release metadata synchronization is tested.
 - [x] Prefer modern, actively maintained libraries when they materially improve correctness, portability or maintainability.
 - [x] Prefer the Python standard library when it already provides a clear, robust solution; do not add dependencies only to appear modern.
 - [x] Avoid obsolete/deprecated libraries and legacy API styles when current maintained alternatives exist.
@@ -126,6 +127,9 @@ Legend:
 - [x] Program-managed backup filenames use a dedicated prefix; retention never deletes unrelated `.db` files from the backup directory.
 - [x] Backup name prefixes are validated so they cannot create paths outside the configured backup directory.
 - [x] Backup and restore validation checks SQLite integrity, foreign keys, supported schema versions and application-level Team/List/slot structure.
+- [x] Database integrity validation also verifies required schema tables/columns and exact migration history for the stored schema version.
+- [x] Application initialization rejects a structurally invalid current database instead of trusting `PRAGMA user_version` alone.
+- [x] Explicit backup timestamps must be timezone-aware so generated backup names are deterministic across host time zones.
 - [x] Migration of an existing database creates a pre-migration backup before schema changes are applied.
 - [x] Backup restore is staged through a temporary database and only replaces the active database after validation succeeds.
 - [x] Persistence tests include restart round-trips, large Team aggregates, migration, rollback, corruption detection, backup retention and restore failure cases.
@@ -138,8 +142,10 @@ Legend:
 - [x] Teams and Lists use stable internal IDs; names do not need to be unique.
 - [ ] Team names and List names are editable.
 - [ ] Lists can be created, duplicated, reordered, cleared and deleted.
+- [ ] Duplicating a List creates a new List ID and new Champion instance IDs while preserving slot/gap layout and Trait selections.
+- [ ] Clearing a List removes Champions but preserves its current slot count and gaps until an explicit compact operation.
 - [ ] The last remaining List cannot be deleted.
-- [ ] Deleting the primary List automatically selects another primary List.
+- [ ] Deleting the primary List automatically selects a deterministic adjacent replacement.
 - [ ] The currently active List is separate from the primary List.
 
 ## Champion instances and slots
@@ -149,12 +155,16 @@ Legend:
 - [x] Champion instance IDs are unique inside a Team.
 - [x] Duplicate champions are allowed.
 - [ ] Duplicate champion IDs do not normally count twice for traits.
-- [ ] Moving inside a List to an empty slot moves the champion.
-- [ ] Moving inside a List to an occupied slot swaps both champions.
-- [ ] Lists can be compacted to remove gaps.
+- [ ] Clearing a Champion from a slot preserves the empty slot.
+- [ ] Inserting/removing a slot reindexes later slots contiguously without changing surviving Champion instance IDs.
+- [ ] Moving inside a List to an empty slot moves the Champion and leaves the source slot empty.
+- [ ] Moving inside a List to an occupied slot swaps both Champion instances.
+- [ ] Lists can be compacted to remove gaps while preserving Champion order and instance IDs.
 - [ ] Champions can be copied or moved between Lists.
-- [ ] Move to occupied slot swaps.
-- [ ] Copy preserves the original and inserts the copy safely without overwriting data.
+- [ ] Cross-List move to an occupied slot swaps both Champion instances and preserves both instance IDs.
+- [ ] Copy creates a new Champion instance ID and preserves Champion definition plus Trait selection.
+- [ ] Copy to an occupied slot inserts at the target position and shifts existing slots right; it never overwrites or discards the previous target.
+- [ ] A target index equal to the slot count appends; larger indexes are rejected instead of silently creating unspecified gaps.
 
 ## Champion library
 - [ ] Right-side champion library.
@@ -188,6 +198,11 @@ Legend:
 - [x] Dynamic trait selection is data-driven, not hardcoded per champion.
 - [x] Supported dynamic selection rules include NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N.
 - [ ] Required but missing dynamic choices are visibly marked and do not silently count.
+- [ ] Dynamic Trait selections are validated for NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N before they contribute.
+- [ ] PER_INSTANCE dynamic selections are evaluated independently.
+- [ ] PER_CHAMPION selections must agree across duplicate instances of that Champion within one List; conflicts are reported instead of guessed.
+- [ ] Trait counting supports the concrete declarative modes UNIQUE_CHAMPION and UNIQUE_INSTANCE; undefined custom counting placeholders are not accepted.
+- [ ] Trait results expose current count, active breakpoint, next breakpoint/progress and invalid-dynamic-selection state in UI-independent data.
 
 ## Start page
 - [ ] Set selector.
@@ -235,12 +250,15 @@ Legend:
 
 ## Undo / Redo
 - [ ] Command-based undo/redo without excessive framework abstraction.
-- [ ] Undo history starts when a Team is opened.
+- [ ] Undo history starts empty when a Team is opened and is not persisted across application restarts.
 - [ ] Add/remove/move/swap/copy champions are undoable.
 - [ ] List create/delete/reorder/duplicate/clear/compact are undoable.
 - [ ] Rename Team/List is undoable.
 - [ ] Primary List changes are undoable.
 - [ ] Dynamic Trait changes are undoable.
+- [ ] One successful user-visible edit creates one history entry; failed/no-op edits create none.
+- [ ] Undo/redo restores the exact complete Team state, including IDs, gaps, ordering, timestamps and Trait selections.
+- [ ] A new edit after undo clears the redo branch.
 - [ ] Import is a single undoable action.
 - [ ] Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z supported.
 

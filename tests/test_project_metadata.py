@@ -1,16 +1,41 @@
 from __future__ import annotations
 
 import json
+import tomllib
 from pathlib import Path
 
 
 def test_project_manifest_is_valid_json(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     assert payload["project"] == "TFT Team Builder"
-    assert payload["version"] == "0.2.1"
-    assert payload["current_state"] == "block_2_implemented_pending_windows_verification"
+    with (project_root / "pyproject.toml").open("rb") as handle:
+        project_version = tomllib.load(handle)["project"]["version"]
+    assert payload["version"] == project_version
+    assert payload["current_state"] == "block_2_hardened_pending_final_windows_recheck"
     assert payload["current_block"] == 2
     assert payload["next_block"] == 3
+
+
+def test_release_documents_match_package_version(project_root: Path) -> None:
+    with (project_root / "pyproject.toml").open("rb") as handle:
+        version = tomllib.load(handle)["project"]["version"]
+
+    expected_fragments = {
+        "README.md": f"Current version: {version}",
+        "PROGRESS.md": f"Current version: {version}",
+        "PROJECT_CONTEXT.md": f"Current version: {version}",
+        "LICENSE_REVIEW.md": f"Project version: {version}",
+        "BLOCK_02_REPORT.md": f"Version: {version}",
+    }
+    for relative, expected in expected_fragments.items():
+        text = (project_root / relative).read_text(encoding="ascii")
+        assert expected in text, relative
+
+
+def test_manifest_includes_prepared_block_3_plan(project_root: Path) -> None:
+    payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="ascii"))
+    assert "BLOCK_03_PLAN.md" in payload["required_project_documents"]
+    assert "BLOCK_03_PLAN.md" in payload["mirrored_project_documents"]
 
 
 def test_every_manifest_required_document_exists(project_root: Path) -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import tomllib
 from pathlib import Path
 
@@ -14,12 +15,17 @@ def load_pyproject(project_root: Path) -> dict:
 def test_pyproject_declares_expected_project_identity(project_root: Path) -> None:
     project = load_pyproject(project_root)["project"]
     assert project["name"] == "tft-team-builder"
-    assert project["version"] == "0.2.1"
+    assert re.fullmatch(r"\d+\.\d+\.\d+", project["version"])
     assert project["requires-python"] == ">=3.13,<3.14"
 
 
 def test_python_version_file_matches_supported_runtime(project_root: Path) -> None:
     assert (project_root / ".python-version").read_text(encoding="ascii") == "3.13\n"
+
+
+def test_runtime_constants_do_not_duplicate_release_version(project_root: Path) -> None:
+    constants = (project_root / "src" / "tft_builder" / "constants.py").read_text(encoding="ascii")
+    assert not re.search(r"^APP_VERSION\s*=", constants, flags=re.MULTILINE)
 
 
 def test_runtime_dependencies_are_minimal_and_pinned(project_root: Path) -> None:
@@ -98,6 +104,16 @@ def test_ruff_targets_python_313_and_all_project_code(project_root: Path) -> Non
     assert {"E", "F", "I", "UP", "B", "RUF", "PTH"} <= set(ruff["lint"]["select"])
 
 
+def test_uv_lock_project_version_matches_pyproject(project_root: Path) -> None:
+    config = load_pyproject(project_root)
+    with (project_root / "uv.lock").open("rb") as handle:
+        lock = tomllib.load(handle)
+    project_package = next(
+        package for package in lock["package"] if package["name"] == config["project"]["name"]
+    )
+    assert project_package["version"] == config["project"]["version"]
+
+
 def test_uv_lock_is_not_ignored(project_root: Path) -> None:
     gitignore = (project_root / ".gitignore").read_text(encoding="ascii")
     assert "uv.lock" not in gitignore
@@ -112,12 +128,15 @@ def test_quality_workflow_runs_on_windows_and_linux_with_python_313(project_root
     assert "setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0" in workflow
     assert "3.14" not in workflow
     assert "uv lock --check" in workflow
-    assert "uv sync" in workflow
+    assert "uv sync --frozen" in workflow
+    assert "uv run python -m compileall -q src tests tools" in workflow
     assert "uv run pytest" in workflow
     assert "uv run ruff check ." in workflow
     assert "uv run ruff format --check ." in workflow
     assert "tools/check_ascii.py" in workflow
     assert "tools/sync_project_docs.py --check" in workflow
+    assert "uv run tft-builder-dev validate-set src/assets/sets/sample_set" in workflow
+    assert "uv run tft-builder-dev database-smoke .runtime-smoke" in workflow
     assert "uv run flet --version" in workflow
 
 

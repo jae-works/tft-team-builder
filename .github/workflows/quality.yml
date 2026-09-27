@@ -33,7 +33,10 @@ jobs:
         run: uv lock --check
 
       - name: Install project dependencies
-        run: uv sync
+        run: uv sync --frozen
+
+      - name: Compile project Python
+        run: uv run python -m compileall -q src tests tools
 
       - name: Run tests with coverage
         run: uv run pytest
@@ -49,6 +52,12 @@ jobs:
 
       - name: Verify project document mirrors
         run: uv run python tools/sync_project_docs.py --check
+
+      - name: Validate bundled sample Set
+        run: uv run tft-builder-dev validate-set src/assets/sets/sample_set
+
+      - name: Run persistence smoke test
+        run: uv run tft-builder-dev database-smoke .runtime-smoke
 
       - name: Verify Flet CLI installation
         run: uv run flet --version

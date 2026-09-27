@@ -1,0 +1,20 @@
+{
+  "project": "TFT Team Builder",
+  "planning_version": "0.0.1",
+  "current_state": "planning baseline",
+  "handoff_document": "PROJECT_CONTEXT.md",
+  "required_project_documents": [
+    "PROJECT_CONTEXT.md",
+    "REQUIREMENTS.md",
+    "PROGRESS.md",
+    "DEVELOPMENT_PLAN.md",
+    "sets/README.md"
+  ],
+  "delivery_rules": {
+    "complete_project_zip": true,
+    "run_full_local_test_suite": true,
+    "update_progress_after_verified_work": true,
+    "sha256_after_packaging": true,
+    "ship_docs_with_windows_release": true
+  }
+}

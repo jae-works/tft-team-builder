@@ -92,3 +92,29 @@ def test_package_module_entry_point_executes_developer_cli(
 
     assert exc_info.value.code == 0
     assert "VALID: sample_set" in capsys.readouterr().out
+
+
+def test_database_smoke_command_round_trips_and_creates_backup(tmp_path: Path, capsys) -> None:
+    result = main(["database-smoke", str(tmp_path / "smoke")])
+    output = capsys.readouterr().out
+    assert result == 0
+    assert "Database schema: 2" in output
+    assert "Round-trip Team:" in output
+    assert "Backup:" in output
+    assert (tmp_path / "smoke" / "builder.db").is_file()
+    assert len(tuple((tmp_path / "smoke" / "backups").glob("smoke-*.db"))) == 1
+
+
+def test_database_smoke_detects_round_trip_mismatch(tmp_path: Path, monkeypatch) -> None:
+    from tft_builder import devtools
+
+    original_load = devtools.TeamRepository.load
+
+    def wrong_load(self, team_id, *, include_deleted=False):
+        loaded = original_load(self, team_id, include_deleted=include_deleted)
+        loaded.name = "Different"
+        return loaded
+
+    monkeypatch.setattr(devtools.TeamRepository, "load", wrong_load)
+    with pytest.raises(RuntimeError, match="round-trip mismatch"):
+        main(["database-smoke", str(tmp_path / "smoke")])

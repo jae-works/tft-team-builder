@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 from .logging_config import configure_logging
 from .paths import ApplicationPaths, build_application_paths
+from .persistence import Database
 from .set_loader import validate_all_sets
 
 if TYPE_CHECKING:
@@ -25,6 +26,7 @@ class StartupState:
     paths: ApplicationPaths
     log_path: Path
     set_summary: tuple[str, ...]
+    database_schema_version: int
 
 
 def startup_set_summary(sets_dir: Path) -> tuple[str, ...]:
@@ -60,6 +62,9 @@ def initialize_application(
     )
     paths.ensure_runtime_directories()
     log_path = configure_logging(paths.user_log_dir)
+    database_schema_version = Database(
+        paths.database_path, backups_dir=paths.backups_dir
+    ).initialize()
     set_summary = startup_set_summary(paths.bundled_sets_dir)
 
     logger = logging.getLogger("tft_builder.app")
@@ -68,7 +73,12 @@ def initialize_application(
     for line in set_summary:
         logger.info("Set status: %s", line)
 
-    return StartupState(paths=paths, log_path=log_path, set_summary=set_summary)
+    return StartupState(
+        paths=paths,
+        log_path=log_path,
+        set_summary=set_summary,
+        database_schema_version=database_schema_version,
+    )
 
 
 def main(page: ft.Page) -> None:
@@ -83,7 +93,8 @@ def main(page: ft.Page) -> None:
             content=ft.Column(
                 controls=[
                     ft.Text("TFT Team Builder", size=28, weight=ft.FontWeight.BOLD),
-                    ft.Text("Block 1 foundation is active."),
+                    ft.Text("Block 2 persistence foundation is active."),
+                    ft.Text(f"Database schema: {state.database_schema_version}"),
                     ft.Text("Bundled Set validation:"),
                     *[ft.Text(line) for line in state.set_summary],
                 ]

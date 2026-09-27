@@ -34,3 +34,5 @@ Thumbs.db
 *.log
 local_data/
 
+
+/.runtime-smoke/

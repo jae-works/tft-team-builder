@@ -113,3 +113,8 @@ The final Windows package also ships readable copies of the relevant project doc
 ## Current implementation position
 
 Block 1 is cleaned and hardened in version 0.1.4. Block 2 remains the next planned implementation block, subject to one final clean Windows verification of version 0.1.4.
+
+
+## Block 2 persistence decision
+
+Block 2 uses Python 3.13 `sqlite3` directly. SQLAlchemy and Alembic were intentionally not added because the current local-only schema is small, explicit, aggregate-oriented, and fully covered by tests. The persistence package is isolated so a later backend decision does not leak SQL into the UI or domain models.

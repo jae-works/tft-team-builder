@@ -1,8 +1,8 @@
 # TFT Team Builder - Progress
 
-Current version: 0.1.4
-Current status: Block 1 clean release candidate pending final Windows verification.
-Next planned block: Block 2 - persistence, migrations, autosave primitives, and backups.
+Current version: 0.2.0
+Current status: Block 2 implemented in the implementation environment; final Windows verification pending.
+Next planned block: Block 3 - core builder logic, Trait engine, and undo/redo.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
 
@@ -98,3 +98,33 @@ Version 0.1.3 user run:
 - [ ] Run `uv run flet run`.
 
 No Block 2 persistence implementation is included in version 0.1.4.
+
+
+## Completed in Block 2
+
+- [x] Standard-library SQLite persistence with no new runtime ORM dependency.
+- [x] WAL, foreign keys, `synchronous=FULL`, busy timeout, and trusted-schema hardening.
+- [x] Explicit schema migrations and migration history.
+- [x] Automatic pre-migration backups for existing databases.
+- [x] Complete Team/List/Slot/ChampionInstance/TraitSelection round-trip persistence.
+- [x] Empty slots and duplicate Champion definitions persist exactly.
+- [x] Soft delete, restore, permanent delete, and last-opened metadata.
+- [x] Online backup creation, validation, pruning, and atomic restore.
+- [x] Autosave primitives for immediate saves and queued immutable snapshots.
+- [x] Application startup initializes the database through the central path layer.
+- [x] Developer database smoke command.
+- [x] 407 tests passed with 0 skips in the implementation environment.
+- [x] 100.00 percent statement and branch coverage in the implementation environment.
+
+## Final Windows verification required before Block 3
+
+- [ ] Run `uv lock --check`.
+- [ ] Run `uv sync --frozen`.
+- [ ] Run `uv run pytest` and confirm 407 passed with no skips.
+- [ ] Run `uv run ruff check .`.
+- [ ] Run `uv run ruff format --check .`.
+- [ ] Run `uv run python tools/check_ascii.py`.
+- [ ] Run `uv run python tools/sync_project_docs.py --check`.
+- [ ] Run `uv run tft-builder-dev validate-set src/assets/sets/sample_set`.
+- [ ] Run `uv run tft-builder-dev database-smoke .runtime-smoke`.
+- [ ] Run `uv run flet run`.

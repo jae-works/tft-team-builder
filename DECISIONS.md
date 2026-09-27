@@ -356,3 +356,18 @@ Reasoning:
 Revisit when:
 - Block 2 begins and both persistence prototypes can be compared against the actual schema and migration tests;
 - a future web/mobile implementation requires a different storage adapter.
+
+
+## Block 2 - direct sqlite3 persistence
+
+Decision: use Python 3.13 standard-library `sqlite3` rather than SQLAlchemy/Alembic for the current local database.
+
+Reasons:
+- one embedded local database with no server/backend abstraction requirement;
+- small explicit schema and migrations are easier to audit directly;
+- no added runtime dependency or mobile packaging surface;
+- complete Team aggregates are naturally saved in one transaction;
+- SQLite online backup API is directly available;
+- 100 percent branch coverage is practical with the direct layer.
+
+Connection policy: application-controlled explicit transactions in SQLite autocommit mode, `foreign_keys=ON`, WAL journal mode, `synchronous=FULL`, busy timeout, and `trusted_schema=OFF`.

@@ -7,10 +7,10 @@ from pathlib import Path
 def test_project_manifest_is_valid_json(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     assert payload["project"] == "TFT Team Builder"
-    assert payload["version"] == "0.1.4"
-    assert payload["current_state"] == "block_1_final_candidate_pending_windows_recheck"
-    assert payload["current_block"] == 1
-    assert payload["next_block"] == 2
+    assert payload["version"] == "0.2.0"
+    assert payload["current_state"] == "block_2_implemented_pending_windows_verification"
+    assert payload["current_block"] == 2
+    assert payload["next_block"] == 3
 
 
 def test_every_manifest_required_document_exists(project_root: Path) -> None:
@@ -41,14 +41,17 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
     assert engineering["project_owned_paths_ascii_only"] is True
 
 
-def test_manifest_records_block_one_verification(project_root: Path) -> None:
+def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] >= 300
+    assert verification["pytest_passed"] >= 400
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
     assert verification["sample_set_validated"] is True
+    assert verification["block_2_persistence_roundtrip_verified"] is True
+    assert verification["block_2_migration_verified"] is True
+    assert verification["block_2_backup_restore_verified"] is True
 
 
 def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:

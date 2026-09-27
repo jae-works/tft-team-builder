@@ -54,6 +54,8 @@ def test_initialize_application_creates_runtime_dirs_logging_and_set_summary(
         assert state.log_path == state.paths.user_log_dir / "app.log"
         assert state.log_path.is_file()
         assert state.set_summary == ("sample_set: valid - 3 champions, 3 traits",)
+        assert state.database_schema_version == 2
+        assert state.paths.database_path.is_file()
     finally:
         close_application_logging()
 
@@ -71,6 +73,7 @@ def test_initialize_application_supports_explicit_packaged_assets(tmp_path: Path
         )
         assert state.paths.bundled_assets_dir == assets.resolve()
         assert state.set_summary == ("No bundled Sets found.",)
+        assert state.database_schema_version == 2
     finally:
         close_application_logging()
 
@@ -112,7 +115,10 @@ def test_main_renders_smoke_shell_without_real_flet_runtime(monkeypatch) -> None
     monkeypatch.setattr(
         app_module,
         "initialize_application",
-        lambda: SimpleNamespace(set_summary=("sample_set: valid - 3 champions, 3 traits",)),
+        lambda: SimpleNamespace(
+            set_summary=("sample_set: valid - 3 champions, 3 traits",),
+            database_schema_version=2,
+        ),
     )
 
     page = FakePage()
@@ -123,7 +129,8 @@ def test_main_renders_smoke_shell_without_real_flet_runtime(monkeypatch) -> None
     texts = [control.value for control in page.controls[0].content.controls]
     assert texts == [
         "TFT Team Builder",
-        "Block 1 foundation is active.",
+        "Block 2 persistence foundation is active.",
+        "Database schema: 2",
         "Bundled Set validation:",
         "sample_set: valid - 3 champions, 3 traits",
     ]

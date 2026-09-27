@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
@@ -417,3 +417,20 @@ def test_primary_list_property_detects_invariant_break_after_external_mutation()
 
     with pytest.raises(RuntimeError, match="primary List is missing"):
         _ = team.primary_list
+
+
+def test_team_optional_timestamps_must_be_timezone_aware() -> None:
+    team = Team.create(set_id="set", name="Time")
+    team.last_opened_at = datetime(2026, 9, 27)
+    with pytest.raises(ValueError, match="last_opened_at must be timezone-aware"):
+        team.validate_invariants()
+
+
+def test_team_optional_timestamps_cannot_precede_creation() -> None:
+    created = datetime(2026, 9, 27, tzinfo=UTC)
+    team = Team.create(set_id="set", name="Time")
+    team.created_at = created
+    team.updated_at = created
+    team.deleted_at = created - timedelta(seconds=1)
+    with pytest.raises(ValueError, match="deleted_at must not be earlier"):
+        team.validate_invariants()

@@ -183,7 +183,7 @@ User-test goal:
 ## Current block status
 
 - [x] Block 1 - Foundation, Set system and core models
-- [ ] Block 2 - SQLite persistence, migrations, autosave primitives and backups
+- [x] Block 2 - SQLite persistence, migrations, autosave primitives and backups
 - [ ] Block 3 - Core builder logic, Trait engine and undo/redo
 - [ ] Block 4 - First complete functional Builder GUI
 - [ ] Block 5 - Full desktop interaction, search and Builder polish

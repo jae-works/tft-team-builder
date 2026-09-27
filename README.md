@@ -1,7 +1,7 @@
 # TFT Team Builder
 
-Current version: 0.1.4
-Current milestone: Block 1 final candidate pending one clean Windows recheck.
+Current version: 0.2.0
+Current milestone: Block 2 persistence candidate pending clean Windows verification.
 
 TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
 
@@ -58,7 +58,7 @@ The default sync installs the Windows desktop development/test toolchain. A futu
 
 Project handoffs are clean replacements rather than ZIP overlays. When replacing a local checkout, keep the hidden `.git` directory, remove the other project files, and copy in the complete delivered project. Do not delete `.git` unless you intentionally want to destroy the local Git repository.
 
-Run all Block 1 quality checks:
+Run the current quality checks:
 
 ```text
 uv lock --check
@@ -71,6 +71,16 @@ uv run python tools/sync_project_docs.py --check
 uv run tft-builder-dev validate-set src/assets/sets/sample_set
 uv run flet run
 ```
+
+## Persistence development command
+
+Run a complete persistence round-trip and backup smoke test in an explicit disposable directory:
+
+```text
+uv run tft-builder-dev database-smoke .runtime-smoke
+```
+
+The command creates `.runtime-smoke/builder.db` and a validated SQLite backup. Remove the disposable directory after the check. Normal application data uses the centralized platform-aware writable data path instead.
 
 ## Set development commands
 
@@ -138,5 +148,6 @@ Read these in order before changing the project:
 7. `LICENSE_REVIEW.md`
 8. `SET_DATA_PIPELINE.md`
 9. `BLOCK_01_REPORT.md`
+10. `BLOCK_02_REPORT.md`
 
 Every delivered project ZIP must contain the complete current project and a SHA-256 checksum calculated after the final ZIP is created.

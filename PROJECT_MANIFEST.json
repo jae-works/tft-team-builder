@@ -1,9 +1,9 @@
 {
   "project": "TFT Team Builder",
-  "version": "0.1.4",
-  "current_state": "block_1_final_candidate_pending_windows_recheck",
-  "current_block": 1,
-  "next_block": 2,
+  "version": "0.2.0",
+  "current_state": "block_2_implemented_pending_windows_verification",
+  "current_block": 2,
+  "next_block": 3,
   "handoff_document": "PROJECT_CONTEXT.md",
   "required_project_documents": [
     "PROJECT_CONTEXT.md",
@@ -17,7 +17,8 @@
     "BLOCK_01_REPORT.md",
     "src/assets/sets/README.md",
     "set_sources/README.md",
-    "tools/set_import/README.md"
+    "tools/set_import/README.md",
+    "BLOCK_02_REPORT.md"
   ],
   "toolchain": {
     "python": ">=3.13,<3.14",
@@ -37,7 +38,7 @@
     "core_must_remain_ui_independent": true
   },
   "verification": {
-    "pytest_passed": 349,
+    "pytest_passed": 407,
     "branch_coverage_minimum_percent": 95,
     "compileall_passed": true,
     "ascii_policy_passed": true,
@@ -48,7 +49,7 @@
     "application_startup_integration_verified_without_flet_ui": true,
     "exact_flet_runtime_tested_in_implementation_sandbox": false,
     "exact_ruff_binary_tested_in_implementation_sandbox": false,
-    "branch_coverage_percent": 99.63,
+    "branch_coverage_percent": 100.0,
     "project_docs_mirror_check_passed": true,
     "previous_windows_smoke_test_passed": true,
     "previous_windows_quality_run_found_formatter_drift": true,
@@ -57,7 +58,11 @@
     "windows_0_1_3_pytest_passed": 348,
     "windows_0_1_3_ruff_lint_passed": true,
     "windows_0_1_3_flet_run_passed": true,
-    "windows_0_1_3_formatter_drift_files": 3
+    "windows_0_1_3_formatter_drift_files": 3,
+    "block_2_persistence_roundtrip_verified": true,
+    "block_2_migration_verified": true,
+    "block_2_backup_restore_verified": true,
+    "block_2_windows_verification_pending": true
   },
   "set_data_policy": {
     "runtime_remote_dependency": false,
@@ -109,6 +114,7 @@
     "DECISIONS.md",
     "LICENSE_REVIEW.md",
     "SET_DATA_PIPELINE.md",
-    "BLOCK_01_REPORT.md"
+    "BLOCK_01_REPORT.md",
+    "BLOCK_02_REPORT.md"
   ]
 }

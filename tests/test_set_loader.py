@@ -706,3 +706,44 @@ def test_set_discovery_returns_empty_when_directory_listing_fails(
 
     monkeypatch.setattr(Path, "iterdir", controlled_iterdir)
     assert discover_set_directories(parent) == ()
+
+
+def test_validate_asset_accepts_non_png_regular_file(tmp_path: Path) -> None:
+    issues = []
+    asset = tmp_path / "asset.jpg"
+    asset.write_bytes(b"not-empty")
+    set_loader._validate_asset(tmp_path, "asset.jpg", issues, "asset")
+    assert issues == []
+
+
+def test_validator_tolerates_missing_locale_directory_only_when_path_resolver_returns_none(
+    valid_set_dir: Path, monkeypatch
+) -> None:
+    original = set_loader._safe_package_path
+
+    def fake_safe_path(root, relative, issues, location):
+        if location == "manifest.locales_dir":
+            return None
+        return original(root, relative, issues, location)
+
+    monkeypatch.setattr(set_loader, "_safe_package_path", fake_safe_path)
+    report = set_loader.validate_set_directory(valid_set_dir)
+    assert report.is_valid
+    assert report.loaded_set is not None
+    assert report.loaded_set.locales == {}
+
+
+def test_validator_reports_internal_error_if_parser_breaks_without_issue(
+    valid_set_dir: Path, monkeypatch
+) -> None:
+    original = set_loader._parse_model
+
+    def fake_parse(model_type, payload, issues, prefix):
+        if model_type is set_loader.TeamPlannerData:
+            return None
+        return original(model_type, payload, issues, prefix)
+
+    monkeypatch.setattr(set_loader, "_parse_model", fake_parse)
+    report = set_loader.validate_set_directory(valid_set_dir)
+    assert not report.is_valid
+    assert [issue.code for issue in report.issues] == ["internal_validation_error"]

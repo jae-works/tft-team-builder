@@ -202,16 +202,16 @@ Legend:
 - [ ] Native format is versioned and preserves all Lists, ordering, gaps, primary List and dynamic trait choices.
 
 ## Persistence
-- [ ] SQLite database.
-- [ ] Database access is concentrated in the persistence package; UI controls and domain models do not issue SQL directly.
-- [ ] Persistence code stays direct and concrete; do not add repository/interface hierarchies unless a real second backend or test seam requires them.
-- [ ] Autosave; no normal manual-save workflow.
+- [x] SQLite database.
+- [x] Database access is concentrated in the persistence package; UI controls and domain models do not issue SQL directly.
+- [x] Persistence code stays direct and concrete; do not add repository/interface hierarchies unless a real second backend or test seam requires them.
+- [ ] Autosave; no normal manual-save workflow. Block 2 provides the tested persistence/autosave primitives; GUI scheduling is deferred to the UI block.
 - [ ] Structural changes saved immediately.
 - [ ] Text edits use short debounce and save on focus loss.
 - [ ] Do not rely on application-exit handlers for the only save.
-- [ ] Database schema version and migrations.
-- [ ] Automatic local backups.
-- [ ] Team deletion uses recoverable soft delete before permanent deletion.
+- [x] Database schema version and migrations.
+- [x] Automatic pre-migration backups plus explicit validated local backup/restore primitives.
+- [x] Team deletion uses recoverable soft delete before permanent deletion at the data layer.
 
 ## Undo / Redo
 - [ ] Command-based undo/redo without excessive framework abstraction.
@@ -237,8 +237,8 @@ Legend:
 - [ ] Unknown champion/trait IDs are surfaced clearly.
 - [ ] Invalid Set packages do not partially load.
 - [ ] Invalid Team Planner codes do not modify data.
-- [ ] Database errors are logged and surfaced appropriately.
-- [ ] Critical writes use transactions.
+- [ ] Database errors are logged and surfaced appropriately in the future GUI; persistence exceptions already propagate without silent loss.
+- [x] Critical writes use transactions.
 
 ## Testing
 - [x] Unit tests for models.
@@ -248,7 +248,7 @@ Legend:
 - [ ] Detailed similarity ranking tests.
 - [ ] Detailed undo/redo tests.
 - [ ] Import/export round-trip tests.
-- [ ] Persistence and migration tests.
+- [x] Persistence and migration tests.
 - [ ] App-level smoke tests where practical.
 
 ## Packaging

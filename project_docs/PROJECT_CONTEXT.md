@@ -18,9 +18,9 @@ This is the first document another developer or AI instance should read before c
 
 ## Current state
 
-- Current version: 0.1.4.
+- Current version: 0.2.0.
 - Block 1 is hardened and pending final user verification.
-- Block 2 is next, but should not begin until the user has run the final 0.1.4 Windows quality commands successfully.
+- Block 2 is next, but should not begin until the user has run the final 0.2.0 Windows quality commands successfully.
 - The current application shell is intentionally minimal. The complete Builder GUI begins in Block 4.
 
 ## Source of truth
@@ -130,3 +130,8 @@ Real Riot/CommunityDragon source acquisition remains Block 7 work. Do not add ad
 ## Riot compliance rule
 
 The project must remain within current Riot/TFT third-party application rules. Re-check the then-current policy before public release and before adding any Riot-sensitive feature. Do not add live match decision assistance, opponent scouting, automatic gameplay inputs, or unsupported client automation merely because it is technically possible.
+
+
+## Block 2 handoff note
+
+Persistence is implemented under `src/tft_builder/persistence/` using direct Python `sqlite3`. Do not introduce an ORM or generic repository hierarchy without a concrete requirement that outweighs the current simpler design. `TeamRepository.save()` persists one complete Team aggregate transactionally. `BackupManager` owns SQLite online backup/restore behavior. `AutosaveService` is intentionally timer-free; later UI code may debounce calls into it without moving persistence logic into Flet controls.

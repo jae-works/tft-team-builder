@@ -126,6 +126,8 @@ class Team:
     team_id: UUID = field(default_factory=uuid4)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_opened_at: datetime | None = None
+    deleted_at: datetime | None = None
 
     def __post_init__(self) -> None:
         self.validate_invariants()
@@ -166,6 +168,15 @@ class Team:
         _require_aware_timestamp(self.updated_at, "updated_at")
         if self.updated_at < self.created_at:
             raise ValueError("updated_at must not be earlier than created_at")
+        optional_timestamps = (
+            ("last_opened_at", self.last_opened_at),
+            ("deleted_at", self.deleted_at),
+        )
+        for field_name, value in optional_timestamps:
+            if value is not None:
+                _require_aware_timestamp(value, field_name)
+                if value < self.created_at:
+                    raise ValueError(f"{field_name} must not be earlier than created_at")
 
     @classmethod
     def create(cls, *, set_id: str, name: str, first_list_name: str = "Main") -> Team:

@@ -14,7 +14,7 @@ def load_pyproject(project_root: Path) -> dict:
 def test_pyproject_declares_expected_project_identity(project_root: Path) -> None:
     project = load_pyproject(project_root)["project"]
     assert project["name"] == "tft-team-builder"
-    assert project["version"] == "0.1.4"
+    assert project["version"] == "0.2.0"
     assert project["requires-python"] == ">=3.13,<3.14"
 
 

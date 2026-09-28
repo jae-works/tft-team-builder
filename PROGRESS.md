@@ -1,7 +1,7 @@
 # TFT Team Builder - Progress
 
-Current version: 0.5.0
-Current status: Block 5 implemented locally in version 0.5.0; Block 6 Team library plan prepared; exact Ruff/Flet Windows release gate pending.
+Current version: 0.5.1
+Current status: Block 5 implemented and post-Windows correction/audit complete; packaged Flet entry-point and Ruff E731 issues fixed; Block 6 Team library plan refined; exact 0.5.1 Ruff/Flet Windows release gate pending.
 Next planned block: Block 6 - Start page and Team library.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
@@ -291,3 +291,16 @@ Exact packaged Flet verification still requires Windows Developer Mode to be ena
 - [ ] `uv run pytest` must reproduce the complete 585-test 100 percent coverage result on Windows.
 - [ ] `uv run pytest tests_flet --no-cov` must pass with Developer Mode enabled.
 - [ ] Manual Windows review must confirm visible Remove actions and native drag/drop behavior.
+
+## Block 5 post-Windows correction - version 0.5.1
+
+- Real Windows 0.5.0 normal suite passed 585 tests at 100 percent statement/branch coverage.
+- Ruff 0.16.9 formatted three files and then reported two E731 lambda-assignment findings in the dynamic Trait dialog. Both are replaced by one local named callback with no behavior change.
+- The packaged Flet/Flutter host provisioned successfully and exited with code 0, but the app page contained no `builder-team-name` control. Exact Flet 1.0.1 source confirms device-mode tests run the packaged embedded-Python app rather than the host `main` callback.
+- Root cause: `src/main.py` called `ft.run()` only under `if __name__ == "__main__"`; packaged runtime imports the configured entry module, so normal `flet run` worked while the packaged test page stayed empty. `ft.run()` now executes at module scope and a regression test runs the entry file with a non-`__main__` module name.
+- Removed one unused Champion grouping helper, cached immutable Champion/Trait lookup dictionaries once per BuilderView, and consolidated repeated occupied-source-slot validation in TeamEditor.
+- A proposed removal of BuilderView's pre-edit `deepcopy()` was rejected after an existing regression test demonstrated that it would couple change detection to undo-history internals and miss intentionally simulated state changes.
+- Normal local suite after the correction: 586 tests, 100 percent production statement and branch coverage, zero expected skips.
+- A bounded deterministic post-refactor stress audit completed 750 successful mixed add/remove/copy/dense-move edits across three Lists, validating Team invariants and Champion instance-ID uniqueness after every edit.
+- `tests_flet` patches only Flet 1.0.1's leaking temporary-port probe with an equivalent context-managed socket; normal ResourceWarning handling remains strict and no broader warning suppression is added.
+- Block 6 planning now explicitly follows undo-first deletion, clear empty/no-result states, visible search clear/filter state, concise task-oriented navigation, and separation of destructive actions from common actions.

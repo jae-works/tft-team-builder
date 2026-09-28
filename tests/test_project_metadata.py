@@ -12,8 +12,7 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
         project_version = tomllib.load(handle)["project"]["version"]
     assert payload["version"] == project_version
     assert (
-        payload["current_state"]
-        == "block_5_implemented_block_6_prepared_pending_windows_release_gate"
+        payload["current_state"] == "block_5_corrected_block_6_refined_pending_windows_release_gate"
     )
     assert payload["current_block"] == 5
     assert payload["next_block"] == 6
@@ -81,11 +80,11 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] == 585
+    assert verification["pytest_passed"] == 586
     assert verification["statement_coverage_percent"] == 100.0
     assert verification["branch_coverage_percent"] == 100.0
-    assert verification["production_statements"] == 2443
-    assert verification["production_branches"] == 742
+    assert verification["production_statements"] == 2441
+    assert verification["production_branches"] == 736
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
@@ -152,9 +151,32 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_5_dynamic_trait_editor_verified"] is True
     assert verification["block_5_keyboard_shortcuts_verified"] is True
     assert verification["block_5_local_pytest_passed"] == 585
+    assert verification["windows_0_5_0_pytest_passed"] == 585
+    assert verification["windows_0_5_0_coverage_percent"] == 100.0
+    assert verification["windows_0_5_0_ruff_format_initial_drift_files"] == 3
+    assert verification["windows_0_5_0_ruff_format_final_passed"] is True
+    assert verification["windows_0_5_0_ruff_lint_passed"] is False
+    assert verification["windows_0_5_0_ruff_e731_errors"] == 2
+    assert verification["windows_0_5_0_flet_test_host_provisioned"] is True
+    assert verification["windows_0_5_0_flet_flutter_process_exit_code"] == 0
+    assert verification["windows_0_5_0_flet_builder_key_found"] is False
+    assert verification["windows_0_5_0_normal_flet_run_passed"] is True
+    assert verification["block_5_1_packaged_entrypoint_corrected"] is True
+    assert verification["block_5_1_packaged_entrypoint_regression_tested"] is True
+    assert verification["block_5_1_ruff_e731_corrected"] is True
+    assert verification["block_5_1_redundant_catalog_helper_removed"] is True
+    assert verification["block_5_1_set_lookup_maps_cached"] is True
+    assert verification["block_5_1_source_slot_validation_consolidated"] is True
+    assert verification["block_5_1_flet_probe_socket_shim"] is True
+    assert verification["block_5_1_editor_stress_operations"] == 750
+    assert verification["block_5_1_local_pytest_passed"] == 586
+    assert verification["block_5_1_local_coverage_percent"] == 100.0
+    assert verification["block_5_1_exact_ruff_windows_pending"] is True
+    assert verification["block_5_1_packaged_flet_windows_pending"] is True
     assert verification["block_5_exact_ruff_windows_pending"] is True
     assert verification["block_5_packaged_flet_windows_pending"] is True
     assert verification["block_6_plan_prepared"] is True
+    assert verification["block_6_hci_plan_refined"] is True
 
 
 def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:

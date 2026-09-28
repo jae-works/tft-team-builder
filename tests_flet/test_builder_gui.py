@@ -9,6 +9,7 @@ async def test_builder_gui_core_flow(flet_app: ftt.FletTestApp) -> None:
     tester = flet_app.tester
     await tester.pump_and_settle()
 
+    assert (await tester.find_by_key("builder-startup-error")).count == 0
     assert (await tester.find_by_key("builder-team-name")).count == 1
     assert (await tester.find_by_key("builder-new-list")).count == 1
     assert (await tester.find_by_key("builder-champion-search")).count == 1

@@ -1,7 +1,8 @@
 # Block 5 Report - Desktop interaction, search and Builder polish
 
-Version: 0.5.0
-Status: implemented locally; exact Ruff 0.16.9 and packaged Windows Flet verification pending user release gate.
+Version: 0.5.1
+Feature scope originally implemented in: 0.5.0
+Status: Block 5 feature scope implemented; real 0.5.0 Windows findings corrected; exact 0.5.1 Ruff and packaged Flet rerun pending.
 
 ## Implemented
 
@@ -59,3 +60,17 @@ The packaged smoke covers stable-key startup, add/remove regression, search, dyn
 Block 5 does not add presenter interfaces, a command hierarchy, an event bus or a custom drag framework. `BuilderView` remains the concrete Flet boundary; mutations stay in TeamEditor; Trait semantics stay in trait_engine; persistence stays in the persistence package.
 
 The file is larger because the Builder now owns real desktop interactions. Concrete render/action helpers are separated by responsibility, but further splitting is deferred until there is a repeated independent component with a cleaner boundary than passing most Builder state/callbacks through another layer.
+
+## Real Windows 0.5.0 gate and 0.5.1 corrections
+
+The user's real 0.5.0 Windows run passed all 585 normal tests at 100 percent statement/branch coverage, plus Set/database/Builder smokes and normal `flet run`. Ruff format reported three files and Ruff lint then reported two E731 assigned-lambda findings in the dynamic Trait dialog. Version 0.5.1 replaces those assigned lambdas with a single local named callback.
+
+The packaged Flet host also provisioned and ran, but the first stable key was absent. This was a real entry-point defect rather than a Tester/key defect: pinned Flet 1.0.1 device-mode integration tests execute the packaged app with embedded Python, while `src/main.py` previously called `ft.run()` only when executed as `__main__`. The packaged runtime imports the configured module, so the page stayed empty even though normal `flet run` succeeded. `ft.run(main, assets_dir="assets")` now runs at module scope and a project-configuration regression test exercises `src/main.py` under a non-`__main__` module name.
+
+The audit also removed one unused Champion grouping helper, caches immutable Champion/Trait lookup dictionaries once per BuilderView, and consolidates repeated occupied-source-slot validation in TeamEditor. A more aggressive attempt to replace the BuilderView state snapshot used for structural change detection was deliberately reverted because an existing regression test proved it would weaken that boundary.
+
+The corrected normal suite has 586 tests at 100 percent production statement and branch coverage. The exact Windows Ruff/Flet rerun remains the final 0.5.1 release gate.
+
+A bounded deterministic post-refactor stress audit completed 750 successful mixed add/remove/copy/dense-move edits across three Lists, validating Team invariants and Champion instance-ID uniqueness after every successful edit.
+
+The failed 0.5.0 Flet run also exposed a pinned Flet 1.0.1 test-host ResourceWarning: its free-port helper opens a probe socket without closing it. `tests_flet/conftest.py` narrowly replaces that helper with the same bind-to-port-zero operation inside a context manager. This does not change production code or suppress ResourceWarning globally.

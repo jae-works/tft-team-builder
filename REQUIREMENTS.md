@@ -45,6 +45,7 @@ Legend:
 - [x] Formatting/linting uses Ruff or an equivalent current tool configured in `pyproject.toml`.
 - [x] Tests use pytest and remain easy to run locally with one documented command.
 - [x] Flet integration-test prerequisites are prepared before Block 4: `flet[test]` is pinned and pytest uses `asyncio_mode = "auto"`.
+- [x] The configured Flet entry module starts the application when imported by the packaged runtime; it must not depend on `__name__ == "__main__"`.
 - [x] Tests include statement and branch coverage, and the project now enforces a 100 percent coverage gate.
 - [x] Resource warnings are treated as test failures so leaked runtime resources cannot pass silently.
 - [x] Production source does not rely on `assert` statements for required runtime validation or recovery behavior.
@@ -216,6 +217,8 @@ Legend:
 - [ ] Champion-based similarity search.
 - [ ] Clicking a Team opens the Builder.
 - [ ] Returning from Builder preserves relevant page/search state where practical.
+- [ ] Empty library, empty Trash and zero-result search states clearly explain the state and provide the next useful/reset action.
+- [ ] Routine Team removal is immediate/recoverable soft delete without a confirmation dialog; irreversible permanent deletion, if exposed, uses a specific confirmation and is separated from common actions.
 
 ## Builder
 - [x] Desktop layout: Traits | Lists | Champion library.
@@ -300,6 +303,7 @@ Legend:
 - [ ] Import/export round-trip tests.
 - [x] Persistence and migration tests.
 - [x] Startup/developer smokes cover core blocks and Block 4 includes a packaged Flet integration smoke suite with stable control keys; packaged Flet driver coverage is disabled separately because application coverage is enforced by the normal suite.
+- [x] A regression test verifies that the configured Flet entry file starts the app when imported with a non-`__main__` module name, matching packaged device-mode execution.
 
 ## Packaging
 - [ ] Windows executable/package.

@@ -1,7 +1,7 @@
 # TFT Team Builder
 
-Current version: 0.5.0
-Current milestone: Block 5 desktop interaction/search/dynamic-Trait editing implemented in 0.5.0; Block 6 Team library is prepared; exact Windows Ruff/Flet release verification remains pending.
+Current version: 0.5.1
+Current milestone: Block 5 is implemented and re-audited after the real 0.5.0 Windows run; the packaged Flet entry point and final Ruff findings are corrected; Block 6 Team library is prepared; exact Windows Ruff/Flet verification of 0.5.1 remains pending.
 
 TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
 
@@ -57,6 +57,8 @@ The default sync installs the Windows desktop development/test toolchain. A futu
 `uv sync` creates or updates `uv.lock`. Keep `uv.lock` in Git. The committed lockfile is part of the reproducible development environment.
 
 Project handoffs are clean replacements rather than ZIP overlays. When replacing a local checkout, keep the hidden `.git` directory, remove the other project files, and copy in the complete delivered project. Do not delete `.git` unless you intentionally want to destroy the local Git repository.
+
+The pinned Flet 1.0.1 integration plugin runs the app in packaged device mode. The configured `src/main.py` therefore starts Flet at module import time as required by the packaged runtime; guarding `ft.run()` behind `if __name__ == "__main__"` would make the packaged test app render an empty page even though normal `flet run` works.
 
 Run the current quality checks:
 

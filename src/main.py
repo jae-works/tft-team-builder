@@ -1,8 +1,9 @@
-"""Flet desktop entry point."""
+"""Flet desktop and packaged-app entry point."""
 
 import flet as ft
 
 from tft_builder.app import main
 
-if __name__ == "__main__":
-    ft.run(main, assets_dir="assets")
+# Flet packaging imports the configured entry module instead of executing it as __main__.
+# Keep ft.run() at module scope so both `flet run` and packaged integration tests start UI.
+ft.run(main, assets_dir="assets")

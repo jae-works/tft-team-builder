@@ -17,6 +17,7 @@ from .persistence import AutosaveService
 from .search import normalize_search_text
 from .set_loader import LoadedSet
 from .set_schema import (
+    ChampionDefinition,
     DynamicSelectionRule,
     DynamicSelectionScope,
     DynamicTraitDefinition,
@@ -51,22 +52,7 @@ def asset_source(loaded_set: LoadedSet, assets_dir: Path, relative_path: str) ->
         ) from error
 
 
-def champion_groups(loaded_set: LoadedSet) -> tuple[tuple[int, tuple[Any, ...]], ...]:
-    """Group Champions by existing costs with deterministic ordering inside each group."""
-
-    grouped: dict[int, list[Any]] = defaultdict(list)
-    for champion in loaded_set.champions:
-        grouped[champion.cost].append(champion)
-    return tuple(
-        (
-            cost,
-            tuple(sorted(grouped[cost], key=lambda item: (item.display_order, item.id))),
-        )
-        for cost in sorted(grouped)
-    )
-
-
-def champion_trait_ids(loaded_set: LoadedSet, champion: Any) -> tuple[str, ...]:
+def champion_trait_ids(loaded_set: LoadedSet, champion: ChampionDefinition) -> tuple[str, ...]:
     """Return native and possible dynamic Trait IDs for one Champion without duplicates."""
 
     dynamic = next(
@@ -77,11 +63,12 @@ def champion_trait_ids(loaded_set: LoadedSet, champion: Any) -> tuple[str, ...]:
     return tuple(dict.fromkeys((*champion.traits, *dynamic_choices)))
 
 
-def champion_details_text(loaded_set: LoadedSet, champion: Any) -> str:
+def champion_details_text(loaded_set: LoadedSet, champion: ChampionDefinition) -> str:
     """Return compact hover details from Set data without inventing game-specific prose."""
 
+    traits_by_id = loaded_set.traits_by_id
     traits = [
-        localized_text(loaded_set, loaded_set.traits_by_id[trait_id].name_key)
+        localized_text(loaded_set, traits_by_id[trait_id].name_key)
         for trait_id in champion_trait_ids(loaded_set, champion)
     ]
     trait_text = ", ".join(traits) if traits else "No Traits"
@@ -96,12 +83,12 @@ def filtered_champion_groups(
     query: str,
     *,
     trait_filter_id: str | None = None,
-) -> tuple[tuple[int, tuple[Any, ...]], ...]:
+) -> tuple[tuple[int, tuple[ChampionDefinition, ...]], ...]:
     """Filter the catalog by Champion text, Trait text and optional clicked-Trait filter."""
 
     search_key = normalize_search_text(query)
     traits_by_id = loaded_set.traits_by_id
-    grouped: dict[int, list[Any]] = defaultdict(list)
+    grouped: dict[int, list[ChampionDefinition]] = defaultdict(list)
     for champion in loaded_set.champions:
         trait_ids = champion_trait_ids(loaded_set, champion)
         if trait_filter_id is not None and trait_filter_id not in trait_ids:
@@ -216,6 +203,8 @@ class BuilderView:
         self._open_dialog: Any | None = None
         self._text_input_focused = False
         self._text_save_revision = 0
+        self._champions_by_id = self.loaded_set.champions_by_id
+        self._traits_by_id = self.loaded_set.traits_by_id
         self._dynamic_by_champion = {
             rule.champion_id: rule for rule in self.loaded_set.dynamic_traits
         }
@@ -371,7 +360,7 @@ class BuilderView:
     def toggle_trait_filter(self, trait_id: str) -> None:
         """Toggle one Trait as a transient Champion-library filter."""
 
-        if trait_id not in self.loaded_set.traits_by_id:
+        if trait_id not in self._traits_by_id:
             raise ValueError(f"unknown Trait ID: {trait_id}")
         self.trait_filter_id = None if self.trait_filter_id == trait_id else trait_id
         self.refresh()
@@ -636,7 +625,7 @@ class BuilderView:
         return ft.ListView(expand=True, spacing=8, controls=controls)
 
     def _build_trait_row(self, ft: Any, result: TraitResult) -> Any:
-        definition = self.loaded_set.traits_by_id[result.trait_id]
+        definition = self._traits_by_id[result.trait_id]
         details = [f"Count: {result.count}"]
         if result.active_breakpoint is not None:
             details.append(
@@ -822,7 +811,7 @@ class BuilderView:
     def _build_slot(self, ft: Any, team_list: TeamList, index: int) -> Any:
         slot = team_list.slots[index]
         champion = slot.champion
-        definition = self.loaded_set.champions_by_id[champion.champion_id]
+        definition = self._champions_by_id[champion.champion_id]
         name = localized_text(self.loaded_set, definition.name_key)
         dynamic_rule = self._dynamic_by_champion.get(champion.champion_id)
         actions: list[Any] = [
@@ -977,7 +966,7 @@ class BuilderView:
     def _champion_result_controls(self, ft: Any) -> list[Any]:
         controls: list[Any] = []
         if self.trait_filter_id is not None:
-            trait = self.loaded_set.traits_by_id[self.trait_filter_id]
+            trait = self._traits_by_id[self.trait_filter_id]
             controls.append(
                 ft.Container(
                     key="builder-trait-filter",
@@ -1028,7 +1017,7 @@ class BuilderView:
         self._champion_results.controls = self._champion_result_controls(_flet())
         self.page.update()
 
-    def _build_champion_card(self, ft: Any, champion: Any) -> Any:
+    def _build_champion_card(self, ft: Any, champion: ChampionDefinition) -> Any:
         name = localized_text(self.loaded_set, champion.name_key)
         draggable = ft.Draggable(
             key=f"drag-library-{champion.id}",
@@ -1215,20 +1204,22 @@ class BuilderView:
                 refresh_validation()
                 return
 
-            if rule.selection_scope is DynamicSelectionScope.PER_CHAMPION:
-                action = lambda: self.editor.set_champion_trait_selection(
-                    list_id,
-                    champion.champion_id,
-                    selection,
-                )
-            else:
-                action = lambda: self.editor.set_trait_selection(list_id, slot_index, selection)
-            self._run_structural("Set dynamic Traits", action)
+            def save_selection() -> None:
+                if rule.selection_scope is DynamicSelectionScope.PER_CHAMPION:
+                    self.editor.set_champion_trait_selection(
+                        list_id,
+                        champion.champion_id,
+                        selection,
+                    )
+                else:
+                    self.editor.set_trait_selection(list_id, slot_index, selection)
+
+            self._run_structural("Set dynamic Traits", save_selection)
             self._close_dialog()
 
         choices: list[Any] = []
         for trait_id in rule.choices:
-            definition = self.loaded_set.traits_by_id[trait_id]
+            definition = self._traits_by_id[trait_id]
             checkbox = ft.Checkbox(
                 key=f"dynamic-choice-{champion.instance_id}-{trait_id}",
                 label=localized_text(self.loaded_set, definition.name_key),
@@ -1247,7 +1238,7 @@ class BuilderView:
         )
         name = localized_text(
             self.loaded_set,
-            self.loaded_set.champions_by_id[champion.champion_id].name_key,
+            self._champions_by_id[champion.champion_id].name_key,
         )
         dialog = ft.AlertDialog(
             modal=True,

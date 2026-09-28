@@ -113,7 +113,7 @@ The final Windows package also ships readable copies of the relevant project doc
 
 ## Current implementation position
 
-Blocks 1 through 4 are implemented and Windows-tested through the 0.4.1 desktop review. The 0.4.1 user run passed 564 normal tests at 100 percent coverage, all existing smokes and normal Flet startup; Ruff lint passed after two formatter changes. It also proved that pinned Flet 1.0.1 rejects the newer `flet test ... -- --no-cov` separator form. Version 0.5.0 implements Block 5 search, native drag/drop translation, dynamic Trait editing and shortcuts, fixes the clipped Champion action geometry, uses direct `pytest tests_flet --no-cov` for the packaged Flet plugin, and prepares `BLOCK_06_PLAN.md`.
+Blocks 1 through 5 are implemented. The real 0.5.0 Windows run passed 585 normal tests at 100 percent coverage and all existing non-Flet smokes, then exposed two Ruff E731 findings and a packaged-test-only empty page. Version 0.5.1 fixes both: dynamic-dialog callbacks are named functions, and `src/main.py` starts Flet at module import time because pinned Flet 1.0.1 device-mode tests execute the packaged embedded-Python app by importing the configured entry module. The normal desktop app already started successfully. `BLOCK_06_PLAN.md` is refined for the Start page/Team library with deterministic similarity ranking and undo-first local-library interactions.
 
 
 ## Block 2 persistence decision

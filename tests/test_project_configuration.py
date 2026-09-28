@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import re
+import runpy
+import sys
 import tomllib
 from pathlib import Path
+from types import SimpleNamespace
 
 from tft_builder.paths import build_application_paths
 
@@ -79,6 +82,22 @@ def test_flet_uses_src_app_path_and_current_entry_module(project_root: Path) -> 
     paths = build_application_paths(project_root=project_root)
     assert paths.bundled_sets_dir == bundled_sets.resolve()
     assert not (project_root / "sets").exists()
+
+
+def test_flet_entry_module_starts_when_imported_by_packaged_runtime(
+    project_root: Path, monkeypatch
+) -> None:
+    """The packaged runtime imports src/main.py with a non-__main__ module name."""
+
+    calls: list[tuple[object, str]] = []
+    fake_flet = SimpleNamespace(
+        run=lambda target, *, assets_dir: calls.append((target, assets_dir))
+    )
+    monkeypatch.setitem(sys.modules, "flet", fake_flet)
+
+    namespace = runpy.run_path(project_root / "src" / "main.py", run_name="packaged_entry")
+
+    assert calls == [(namespace["main"], "assets")]
 
 
 def test_pytest_is_configured_for_src_layout_and_coverage(project_root: Path) -> None:

@@ -35,7 +35,7 @@ class BuilderRuntime:
 
 
 class BuilderStartupError(RuntimeError):
-    """Raised when the temporary pre-library Builder bootstrap cannot continue safely."""
+    """Raised when the current pre-library Builder bootstrap cannot continue safely."""
 
 
 def startup_set_summary(sets_dir: Path) -> tuple[str, ...]:
@@ -91,7 +91,7 @@ def initialize_application(
 
 
 def initialize_builder_runtime(state: StartupState) -> BuilderRuntime:
-    """Open/create the temporary Block 4 Team and resolve its exact validated Set."""
+    """Open or create the current Builder Team and resolve its exact validated Set."""
 
     reports = validate_all_sets(state.paths.bundled_sets_dir)
     loaded_sets = [

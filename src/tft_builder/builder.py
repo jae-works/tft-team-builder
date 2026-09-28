@@ -237,11 +237,7 @@ class TeamEditor:
     ) -> bool:
         def mutate(team: Team) -> None:
             source_list = self._get_list(team, source_list_id)
-            source_slot = source_list.slots[
-                self._existing_index(source_index, len(source_list.slots))
-            ]
-            if source_slot.champion is None:
-                raise ValueError("source slot does not contain a Champion")
+            source_slot = self._occupied_slot(source_list, source_index)
 
             target_list = self._get_list(team, target_list_id)
             target = self._insert_index(target_index, len(target_list.slots))
@@ -271,11 +267,7 @@ class TeamEditor:
         def mutate(team: Team) -> None:
             source_list = self._get_list(team, source_list_id)
             source = self._existing_index(source_index, len(source_list.slots))
-            source_slot = source_list.slots[source]
-            if source_slot.champion is None:
-                raise ValueError("source slot does not contain a Champion")
-
-            champion = source_slot.champion
+            champion = self._occupied_slot(source_list, source).champion
             if source_list_id == target_list_id:
                 if source == len(source_list.slots) - 1:
                     return
@@ -304,11 +296,7 @@ class TeamEditor:
 
         def mutate(team: Team) -> None:
             source_list = self._get_list(team, source_list_id)
-            source_slot = source_list.slots[
-                self._existing_index(source_index, len(source_list.slots))
-            ]
-            if source_slot.champion is None:
-                raise ValueError("source slot does not contain a Champion")
+            source_slot = self._occupied_slot(source_list, source_index)
             copied = ChampionInstance(
                 champion_id=source_slot.champion.champion_id,
                 instance_id=copied_id,
@@ -423,6 +411,15 @@ class TeamEditor:
     @classmethod
     def _get_list(cls, team: Team, list_id: UUID) -> TeamList:
         return team.lists[cls._get_list_index(team, list_id)]
+
+    @staticmethod
+    def _occupied_slot(team_list: TeamList, index: int) -> Slot:
+        """Return one existing occupied slot with the shared source-error contract."""
+
+        slot = team_list.slots[TeamEditor._existing_index(index, len(team_list.slots))]
+        if slot.champion is None:
+            raise ValueError("source slot does not contain a Champion")
+        return slot
 
     @staticmethod
     def _existing_index(index: int, length: int) -> int:

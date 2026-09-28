@@ -511,3 +511,41 @@ Reasoning:
 Revisit when:
 - Flet exposes a documented drag gesture in its Tester API or reliable modifier state in drag events;
 - repeated independent Builder components justify extracting a smaller concrete UI component boundary.
+
+## D030 - Packaged Flet entry modules start at import time
+
+Status: accepted during version 0.5.1 after the real 0.5.0 Windows packaged-test run.
+
+Decision:
+- Keep the configured Flet entry file (`src/main.py`) minimal and call `ft.run(...)` at module scope.
+- Do not guard the packaged Flet entry call behind `if __name__ == "__main__"`.
+- Keep application bootstrap logic in `tft_builder.app.main`; the entry file only delegates to it.
+- Maintain a regression test that loads the entry file with a non-`__main__` module name and verifies that Flet is started.
+
+Reasoning:
+- Pinned Flet 1.0.1 device-mode integration tests execute the packaged embedded-Python app, not the host-side test callback.
+- The real Windows 0.5.0 packaged host started successfully but rendered no Builder controls because `src/main.py` only called `ft.run()` when executed as `__main__`.
+- Normal `flet run` still worked, so this distinction must be tested explicitly rather than inferred from manual startup.
+
+Revisit when:
+- Flet packaging semantics change in a future pinned version and the replacement behavior is verified on Windows.
+
+## D031 - Block 6 uses undo-first soft delete and explicit empty states
+
+Status: accepted during version 0.5.1 Block 6 preparation.
+
+Decision:
+- Normal Team deletion from the Start page is an immediate recoverable soft delete and does not show a routine confirmation dialog.
+- Surface Restore/Undo after soft delete and keep a discoverable Deleted/Trash view for later recovery.
+- If permanent deletion is exposed, separate it visually from common actions and require a specific consequence-focused confirmation with descriptive action labels rather than Yes/No.
+- Team search, Champion-similarity selection and Deleted/Trash mode must expose their active state and clear/reset affordances.
+- Empty library, empty Trash and zero-result states must explain what happened and provide the next useful action.
+
+Reasoning:
+- Undoable routine actions should stay fast and reversible; repeated confirmations train users to dismiss dialogs without reading them.
+- Destructive irreversible actions need stronger separation and explicit consequences.
+- Blank result surfaces are ambiguous because users cannot tell zero results from loading or failure.
+- The Team library is a navigation/search surface, so visible state and clear recovery paths matter more than dense controls.
+
+Revisit when:
+- user testing shows that soft-delete feedback is not discoverable enough or the library gains genuinely irreversible batch operations.

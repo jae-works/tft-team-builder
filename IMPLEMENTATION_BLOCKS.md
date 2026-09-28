@@ -117,7 +117,7 @@ User-test goal:
 - A real Team can be built visually and survives restart.
 - Core Builder operations work from the GUI.
 
-## Block 5 - Full desktop interaction, Drag & Drop, search and Builder polish - implemented v0.5.0
+## Block 5 - Full desktop interaction, Drag & Drop, search and Builder polish - implemented v0.5.0, corrected v0.5.1
 
 - [x] Add Champion drag/drop from the library while retaining explicit click-add.
 - [x] Add dense same-/cross-List moves to a List end.
@@ -129,6 +129,7 @@ User-test goal:
 - [x] Add relevant keyboard shortcuts and focus behavior.
 - [x] Reduce List-header clutter with a maintenance overflow menu.
 - [x] Add exhaustive boundary tests and packaged-Flet smoke coverage for supported Tester interactions.
+- [x] Correct the packaged Flet import-time entry point and exact Ruff findings discovered by the real 0.5.0 Windows gate.
 
 User-test goal:
 - The Builder behaves like the intended desktop product rather than a technical prototype.
@@ -145,6 +146,8 @@ User-test goal:
 - Implement the required ranking rules, including duplicate selected Champions.
 - Preserve useful navigation/search state when returning from the Builder.
 - Add exhaustive similarity-search tests.
+- Use explicit empty/no-result states and visible clear controls for library search/filter state.
+- Make normal delete immediately recoverable through soft delete/restore; reserve confirmation for irreversible permanent deletion and keep destructive actions separated from common actions.
 
 User-test goal:
 - Multiple Teams can be managed as a useful local library and found by name or Champion similarity.

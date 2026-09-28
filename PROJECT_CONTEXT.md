@@ -23,10 +23,10 @@ This is the first document another developer or AI instance should read before c
 
 ## Current state
 
-- Current version: 0.5.0.
+- Current version: 0.5.1.
 - Blocks 1, 2 and 3 are implemented. The user Windows-verified the 0.3.0 Block 3 runtime behavior: 529 tests at 100 percent statement/branch coverage, Set and database smoke tests, Builder smoke and Flet startup all passed.
 - That Windows run found only two Ruff lint findings in `tests/test_trait_engine.py` after Ruff formatted four files. Version 0.3.1 applies both exact lint corrections and expands the semantic/integration audit to 537 tests while retaining the 100 percent production coverage gate.
-- Blocks 4 and 5 are implemented. Version 0.5.0 adds Champion/Trait search, native drag/drop translation, dynamic Trait editing, keyboard shortcuts and the fixed Champion-card action geometry found during the real 0.4.1 desktop review. `BLOCK_06_PLAN.md` is the next-block handoff. Exact Ruff 0.16.9 and packaged Windows Flet verification remain release gates.
+- Blocks 4 and 5 are implemented. Version 0.5.1 keeps the 0.5.0 interaction feature set, fixes the two Ruff E731 findings from the real Windows run, and fixes the packaged Flet entry point that previously rendered an empty integration-test page because `ft.run()` only executed under `__main__`. `BLOCK_06_PLAN.md` is the next-block handoff. Exact Ruff 0.16.9 and packaged Windows Flet verification of 0.5.1 remain release gates.
 
 ## Source of truth
 
@@ -160,6 +160,6 @@ Version 0.4.0 introduced the first functional Builder GUI; version 0.4.1 polishe
 
 ## Block 5 handoff
 
-Version 0.5.0 adds Champion/Trait search, Trait-click filtering, native Flet drag/drop translation, dynamic Trait editing and desktop keyboard shortcuts while keeping all mutations in TeamEditor. `move_champion_to_end()` is the dense trailing-drop primitive, `set_champion_trait_selection()` is the PER_CHAMPION dynamic edit primitive, and `validate_dynamic_selection()` is the shared rule validator. The visible Champion card action row has fixed geometry so two-line names cannot clip Remove actions.
+Version 0.5.0 added Champion/Trait search, Trait-click filtering, native Flet drag/drop translation, dynamic Trait editing and desktop keyboard shortcuts while keeping all mutations in TeamEditor. Version 0.5.1 is the post-Windows correction/audit: the packaged entry module now starts Flet when imported by device-mode tests, the two real Ruff E731 findings are removed, repeated Set lookup dictionaries are cached once per BuilderView, and one unused catalog helper was removed. `move_champion_to_end()` remains the dense trailing-drop primitive, `set_champion_trait_selection()` is the PER_CHAMPION dynamic edit primitive, and `validate_dynamic_selection()` is the shared rule validator.
 
 Block 6 should implement the Start page/Team library described in `BLOCK_06_PLAN.md`, with deterministic Flet-independent multiset similarity ranking across each Team's Lists.

@@ -15,7 +15,6 @@ from tft_builder.builder_view import (
     BuilderView,
     asset_source,
     champion_details_text,
-    champion_groups,
     champion_trait_ids,
     dynamic_rule_summary,
     filtered_champion_groups,
@@ -177,9 +176,6 @@ def test_pure_builder_helpers_cover_localization_assets_groups_and_navigation(
 ) -> None:
     assert localized_text(loaded_set, "champion.sample_guardian.name") == "Sample Guardian"
     assert localized_text(loaded_set, "missing.key") == "missing.key"
-    groups = champion_groups(loaded_set)
-    assert [cost for cost, _ in groups] == [1, 3, 7]
-    assert [champion.id for champion in groups[0][1]] == ["sample_guardian"]
     source = asset_source(
         loaded_set, loaded_set.root.parents[1], "assets/champions/sample_guardian.png"
     )

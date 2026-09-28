@@ -33,6 +33,19 @@ def test_loaded_set_exposes_id_maps(valid_set_dir: Path) -> None:
     assert set(loaded.traits_by_id) == {"sample_guard", "sample_arcane", "sample_wildcard"}
 
 
+def test_loaded_set_id_maps_are_cached_and_immutable(valid_set_dir: Path) -> None:
+    loaded = load_set_directory(valid_set_dir)
+    champions = loaded.champions_by_id
+    traits = loaded.traits_by_id
+
+    assert loaded.champions_by_id is champions
+    assert loaded.traits_by_id is traits
+    with pytest.raises(TypeError):
+        champions["other"] = loaded.champions[0]
+    with pytest.raises(TypeError):
+        traits["other"] = loaded.traits[0]
+
+
 def test_loaded_set_is_sorted_by_display_order(valid_set_dir: Path) -> None:
     loaded = load_set_directory(valid_set_dir)
     assert [champion.id for champion in loaded.champions] == [

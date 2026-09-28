@@ -17,7 +17,9 @@ async def _wait_for_key(
         if finder.count:
             return finder
         await asyncio.sleep(delay_seconds)
-        await tester.pump_and_settle()
+        # Startup can show an indeterminate progress animation. Pump one frame
+        # instead of waiting for every scheduled animation to settle.
+        await tester.pump()
     return await tester.find_by_key(key)
 
 
@@ -32,7 +34,9 @@ async def _wait_for_library_or_error(
         if library.count or error.count:
             return library, error
         await asyncio.sleep(delay_seconds)
-        await tester.pump_and_settle()
+        # Startup can show an indeterminate progress animation. Pump one frame
+        # instead of waiting for every scheduled animation to settle.
+        await tester.pump()
     return await tester.find_by_key("library-team-search"), await tester.find_by_key(
         "app-startup-error"
     )
@@ -40,7 +44,7 @@ async def _wait_for_library_or_error(
 
 async def test_library_builder_core_flow(flet_app: ftt.FletTestApp) -> None:
     tester = flet_app.tester
-    await tester.pump_and_settle()
+    await tester.pump()
 
     library_search, startup_error = await _wait_for_library_or_error(tester)
     assert startup_error.count == 0

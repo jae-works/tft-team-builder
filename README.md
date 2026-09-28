@@ -1,7 +1,7 @@
 # TFT Team Builder
 
-Current version: 0.6.1
-Current milestone: Block 6 Team Library is implemented and quality-audited in v0.6.1. The Library now uses bounded batch aggregate reads, in-view search/filter caching and best-match List previews; HCI/accessibility requirements are refined for final hardening. Exact v0.6.1 Windows Ruff/Flet verification remains pending.
+Current version: 0.6.2
+Current milestone: Block 6 Team Library is implemented and corrected in v0.6.2. Startup Set validation is single-pass, validated Set lookup maps are cached once, Library Set names are user-facing/localized, similarity selection wraps cleanly, and capped results explain how to narrow them. The v0.6.1 Windows run passed the normal suite but exposed Ruff hygiene drift and a packaged Flet/Flutter integration failure; exact v0.6.2 Windows Ruff/Flet verification remains pending.
 
 TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
 
@@ -76,7 +76,7 @@ uv run tft-builder-dev validate-set src/assets/sets/sample_set
 uv run tft-builder-dev inspect-set src/assets/sets/sample_set
 uv run tft-builder-dev database-smoke .runtime-smoke
 uv run tft-builder-dev builder-smoke src/assets/sets/sample_set
-uv run pytest tests_flet --no-cov
+uv run pytest tests_flet --no-cov -vv -s
 uv run flet --version
 uv run flet run
 ```

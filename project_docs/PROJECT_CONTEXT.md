@@ -24,10 +24,10 @@ This is the first document another developer or AI instance should read before c
 
 ## Current state
 
-- Current version: 0.6.1.
+- Current version: 0.6.2.
 - Blocks 1, 2 and 3 are implemented. The user Windows-verified the 0.3.0 Block 3 runtime behavior: 529 tests at 100 percent statement/branch coverage, Set and database smoke tests, Builder smoke and Flet startup all passed.
 - That Windows run found only two Ruff lint findings in `tests/test_trait_engine.py` after Ruff formatted four files. Version 0.3.1 applies both exact lint corrections and expands the semantic/integration audit to 537 tests while retaining the 100 percent production coverage gate.
-- Blocks 4, 5 and 6 are implemented. Version 0.6.1 is the Block 6 quality/HCI audit: Team-library aggregate loading is batched and cached, similarity cards preview the actual best-matching List, exact UI-helper duplication is consolidated and the final accessibility/hardening contract is expanded. The v0.5.1 Windows run passed 586 normal tests at 100 percent coverage and exact Ruff checks; its packaged Flet test host started successfully but queried the page before a stable Builder/Library key was visible. The Block 6 packaged smoke now waits within a bounded polling window for the library-first startup flow. Exact Ruff 0.16.9 and packaged Windows Flet verification of v0.6.1 remain release gates.
+- Blocks 4, 5 and 6 are implemented. Version 0.6.2 is the post-Windows Block 6 correction: the v0.6.1 Windows run passed 623 normal tests at 100 percent coverage but exposed three Ruff F401 findings, formatter/EOF drift, and a packaged Flet/Flutter exit-code-79 failure. The correction removes those source hygiene findings, validates Sets once at startup, caches immutable `LoadedSet` ID maps, improves real-data Library naming/result-density behavior, and closes Flet 1.0.1 RemoteTester writers in the integration-test compatibility shim before upstream cleanup drops them. The normal local suite is 627 tests at 100 percent statement/branch coverage. Exact Ruff 0.16.9 and packaged Windows Flet verification of v0.6.2 remain release gates.
 
 ## Source of truth
 

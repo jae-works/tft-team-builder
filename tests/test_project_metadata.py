@@ -13,7 +13,7 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
     assert payload["version"] == project_version
     assert (
         payload["current_state"]
-        == "block_6_quality_audited_block_7_refined_pending_windows_release_gate"
+        == "block_6_corrected_block_7_ready_pending_windows_flet_gate"
     )
     assert payload["current_block"] == 6
     assert payload["next_block"] == 7
@@ -83,11 +83,11 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] == 623
+    assert verification["pytest_passed"] == 627
     assert verification["statement_coverage_percent"] == 100.0
     assert verification["branch_coverage_percent"] == 100.0
-    assert verification["production_statements"] == 2721
-    assert verification["production_branches"] == 808
+    assert verification["production_statements"] == 2736
+    assert verification["production_branches"] == 810
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
@@ -213,6 +213,29 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_6_1_local_statement_coverage_percent"] == 100.0
     assert verification["block_6_1_local_branch_coverage_percent"] == 100.0
     assert verification["block_6_1_exact_windows_pending"] is True
+    assert verification["windows_0_6_1_pytest_passed"] == 623
+    assert verification["windows_0_6_1_coverage_percent"] == 100.0
+    assert verification["windows_0_6_1_ruff_format_initial_drift_files"] == 9
+    assert verification["windows_0_6_1_ruff_format_final_passed"] is True
+    assert verification["windows_0_6_1_ruff_lint_passed"] is False
+    assert verification["windows_0_6_1_ruff_f401_errors"] == 3
+    assert verification["windows_0_6_1_git_diff_check_passed"] is False
+    assert verification["windows_0_6_1_flet_test_host_provisioned"] is True
+    assert verification["windows_0_6_1_flet_flutter_process_exit_code"] == 79
+    assert verification["windows_0_6_1_flet_integration_passed"] is False
+    assert verification["windows_0_6_1_stream_writer_warning_observed"] is True
+    assert verification["windows_0_6_1_normal_flet_run_passed"] is True
+    assert verification["block_6_2_reported_ruff_findings_corrected"] is True
+    assert verification["block_6_2_startup_set_validation_single_pass"] is True
+    assert verification["block_6_2_loaded_set_lookup_maps_cached"] is True
+    assert verification["block_6_2_library_localized_set_names"] is True
+    assert verification["block_6_2_similarity_wrap_and_cap_hint"] is True
+    assert verification["block_6_2_flet_remote_writer_cleanup_shim"] is True
+    assert verification["block_6_2_hidden_quality_workflow_restored"] is True
+    assert verification["block_6_2_local_pytest_passed"] == 627
+    assert verification["block_6_2_local_statement_coverage_percent"] == 100.0
+    assert verification["block_6_2_local_branch_coverage_percent"] == 100.0
+    assert verification["block_6_2_exact_windows_pending"] is True
 
 
 def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:

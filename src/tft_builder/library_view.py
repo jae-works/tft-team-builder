@@ -14,7 +14,7 @@ from .constants import APP_NAME
 from .flet_helpers import event_handler, flet_module, text_value_handler
 from .models import Team
 from .persistence import TeamRepository
-from .set_display import champion_matches_query, localized_text
+from .set_display import champion_matches_query, localized_text, set_display_name
 from .set_loader import LoadedSet
 from .team_library import TeamSimilarity, filter_teams_by_name, rank_teams_by_champions
 
@@ -224,13 +224,13 @@ class LibraryView:
             content=ft.Row(
                 controls=[
                     ft.Icon(ft.Icons.LAYERS),
-                    ft.Text(self.selected_set.manifest.set_id),
+                    ft.Text(set_display_name(self.selected_set)),
                     ft.Icon(ft.Icons.ARROW_DROP_DOWN),
                 ]
             ),
             items=[
                 ft.PopupMenuItem(
-                    content=loaded_set.manifest.set_id,
+                    content=set_display_name(loaded_set),
                     on_click=event_handler(self.set_selected_set, loaded_set.manifest.set_id),
                 )
                 for loaded_set in self.loaded_sets
@@ -388,9 +388,10 @@ class LibraryView:
                     ),
                 ]
             )
+        set_name = team.set_id if loaded_set is None else set_display_name(loaded_set)
         details = [
             ft.Text(team.name, size=18, weight=ft.FontWeight.BOLD),
-            ft.Text(f"Set: {team.set_id} | Lists: {len(team.lists)}"),
+            ft.Text(f"Set: {set_name} | Lists: {len(team.lists)}"),
             ft.Text(f"{preview_label}: {preview.name} | {preview_text}"),
             ft.Text(_format_updated(team.updated_at)),
         ]
@@ -414,7 +415,10 @@ class LibraryView:
             ft.Button(
                 key=f"library-selected-{champion_id}",
                 content=(
-                    f"{localized_text(self.selected_set, self.selected_set.champions_by_id[champion_id].name_key)}"
+                    localized_text(
+                        self.selected_set,
+                        self.selected_set.champions_by_id[champion_id].name_key,
+                    )
                     + (f" x{count}" if count > 1 else "")
                 ),
                 icon=ft.Icons.CLOSE,
@@ -438,12 +442,21 @@ class LibraryView:
             )
             for champion in matches[:20]
         ]
+        if len(matches) > 20:
+            champion_controls.append(
+                ft.Text(
+                    "Showing the first 20 matches. Search to narrow the list.",
+                    key="library-similarity-limit-note",
+                )
+            )
         return ft.Column(
             expand=True,
             controls=[
                 ft.Text("Find similar Teams", size=20, weight=ft.FontWeight.BOLD),
                 ft.Text("Select Champions; duplicates count."),
-                ft.Row(controls=chips) if chips else ft.Text("No Champions selected."),
+                ft.Row(controls=chips, wrap=True, spacing=6, run_spacing=6)
+                if chips
+                else ft.Text("No Champions selected."),
                 ft.TextField(
                     key="library-champion-search",
                     hint_text="Search Champions or Traits",

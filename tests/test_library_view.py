@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from dataclasses import replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
@@ -293,6 +293,59 @@ def test_similarity_panel_filters_by_trait_text_and_caps_results(
     assert "library-similarity-add-sample_mage" in keys
     assert "library-similarity-add-sample_flex" in keys
     assert "library-similarity-add-sample_guardian" not in keys
+
+
+def test_library_uses_localized_set_name_and_wraps_selected_chips(
+    fake_flet, loaded_set, tmp_path: Path
+) -> None:
+    view, page, repository, _ = make_view(loaded_set, tmp_path)
+    team = make_team("sample_set", "Localized")
+    repository.save(team)
+    view.session.desired_champion_ids.append("sample_guardian")
+    view.mount()
+    root = page.controls[0]
+
+    selector = by_key(root, "library-set-selector")
+    assert selector.content.controls[1].value == "Development Sample Set"
+    assert selector.items[0].content == "Development Sample Set"
+    card = by_key(root, f"library-team-{team.team_id}")
+    assert any(
+        getattr(item, "value", "") == "Set: Development Sample Set | Lists: 1"
+        for item in walk(card)
+    )
+    chip = by_key(root, "library-selected-sample_guardian")
+    assert any(
+        chip in getattr(item, "controls", []) and getattr(item, "wrap", False) is True
+        for item in walk(root)
+    )
+
+
+def test_similarity_panel_reports_when_results_are_capped(
+    fake_flet, loaded_set, tmp_path: Path
+) -> None:
+    template = loaded_set.champions[0]
+    champions = tuple(
+        template.model_copy(
+            update={
+                "id": f"sample_copy_{index}",
+                "name_key": f"champion.sample_copy_{index}.name",
+                "display_order": index,
+            }
+        )
+        for index in range(21)
+    )
+    large_set = replace(loaded_set, champions=champions)
+    view, page, _, _ = make_view(large_set, tmp_path)
+    view.mount()
+    root = page.controls[0]
+
+    assert by_key(root, "library-similarity-limit-note").value == (
+        "Showing the first 20 matches. Search to narrow the list."
+    )
+    assert sum(
+        str(getattr(item, "key", "")).startswith("library-similarity-add-")
+        for item in walk(root)
+    ) == 20
 
 
 def test_event_and_text_handlers_forward_values() -> None:

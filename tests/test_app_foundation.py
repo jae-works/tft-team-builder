@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import shutil
 import sys
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -15,7 +16,6 @@ from tft_builder.app import (
     startup_set_summary,
 )
 from tft_builder.models import Team
-from tft_builder.persistence import Database, TeamRepository
 
 
 def test_startup_summary_reports_no_sets_for_empty_directory(tmp_path: Path) -> None:
@@ -64,6 +64,7 @@ def test_initialize_application_creates_runtime_dirs_logging_and_set_summary(
         assert state.log_path == state.paths.user_log_dir / "app.log"
         assert state.log_path.is_file()
         assert state.set_summary == ("sample_set: valid - 3 champions, 3 traits",)
+        assert [item.manifest.set_id for item in state.loaded_sets] == ["sample_set"]
         assert state.database_schema_version == 2
         assert state.paths.database_path.is_file()
     finally:
@@ -83,6 +84,7 @@ def test_initialize_application_supports_explicit_packaged_assets(tmp_path: Path
         )
         assert state.paths.bundled_assets_dir == assets.resolve()
         assert state.set_summary == ("No bundled Sets found.",)
+        assert state.loaded_sets == ()
         assert state.database_schema_version == 2
     finally:
         close_application_logging()
@@ -124,17 +126,37 @@ def test_runtime_rejects_no_valid_sets(project_root: Path, tmp_path: Path) -> No
         close_application_logging()
 
 
-def test_runtime_rejects_duplicate_set_ids(project_root: Path, tmp_path: Path, monkeypatch) -> None:
-    import tft_builder.app as app_module
-    from tft_builder.set_loader import load_set_directory
-
+def test_runtime_rejects_duplicate_set_ids(project_root: Path, tmp_path: Path) -> None:
     try:
         state = runtime_state(project_root, tmp_path)
-        loaded = load_set_directory(state.paths.bundled_sets_dir / "sample_set")
-        report = SimpleNamespace(is_valid=True, loaded_set=loaded)
-        monkeypatch.setattr(app_module, "validate_all_sets", lambda _path: (report, report))
+        loaded = state.loaded_sets[0]
+        duplicate_state = replace(state, loaded_sets=(loaded, loaded))
         with pytest.raises(ApplicationStartupError, match="Duplicate bundled Set ID"):
-            initialize_runtime(state)
+            initialize_runtime(duplicate_state)
+    finally:
+        close_application_logging()
+
+
+def test_application_startup_validates_bundled_sets_once(
+    project_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    import tft_builder.app as app_module
+
+    original_validate = app_module.validate_all_sets
+    calls = 0
+
+    def tracked_validate(sets_dir: Path):
+        nonlocal calls
+        calls += 1
+        return original_validate(sets_dir)
+
+    monkeypatch.setattr(app_module, "validate_all_sets", tracked_validate)
+    try:
+        state = initialize_application(
+            project_root=project_root, data_dir_override=tmp_path / "runtime"
+        )
+        initialize_runtime(state)
+        assert calls == 1
     finally:
         close_application_logging()
 

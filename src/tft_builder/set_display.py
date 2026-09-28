@@ -16,6 +16,12 @@ def localized_text(loaded_set: LoadedSet, key: str) -> str:
     return locale.get(key, key)
 
 
+def set_display_name(loaded_set: LoadedSet) -> str:
+    """Return the localized user-facing name for a validated Set."""
+
+    return localized_text(loaded_set, loaded_set.manifest.display_name_key)
+
+
 def asset_source(loaded_set: LoadedSet, assets_dir: Path, relative_path: str) -> str:
     """Return a Flet asset path relative to the configured application assets root."""
 

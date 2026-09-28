@@ -220,6 +220,8 @@ Legend:
 - [x] Empty library, empty Trash and zero-result search states clearly explain the state and provide the next useful/reset action.
 - [x] Routine Team removal is immediate/recoverable soft delete without a confirmation dialog; irreversible permanent deletion, if exposed, uses a specific confirmation and is separated from common actions.
 - [x] Team-library aggregate loading uses a bounded query count independent of Team count, and in-view search/filter rerenders reuse an in-memory snapshot until repository data actually changes.
+- [x] User-facing Library Set selectors/cards use the localized Set display name when validated Set data is available; stable technical Set IDs remain internal/persistence identifiers.
+- [x] Similarity Champion selections wrap instead of overflowing, and a capped candidate list explicitly tells the user to narrow it with search.
 
 ## HCI and accessibility
 - [x] Primary task actions are directly visible; lower-frequency maintenance actions may move to labeled/tooltip overflow controls.
@@ -229,6 +231,8 @@ Legend:
 - [x] Search/filter state has visible controls and an explicit clear/reset affordance.
 - [x] Stable control keys are used for automated interaction tests instead of relying on mutable display text.
 - [x] Similarity results preview the actual best-matching List while normal Team cards continue to preview the primary List.
+- [x] User-facing Set names use localization data rather than exposing technical IDs where a validated Set is available.
+- [x] Bounded similarity result presentation communicates truncation and preserves selected-filter visibility through wrapping.
 - [ ] Every drag-dependent Builder operation has a non-drag alternative that works with click and keyboard input; dragging must never be the only way to complete a core edit.
 - [ ] Keyboard focus is restored to a logical trigger after dialogs/popovers close and focused controls are not obscured by application-owned overlays or scrolling containers.
 - [ ] Custom focus styling, when used, remains clearly visible with sufficient area and contrast instead of relying on a subtle color shift.

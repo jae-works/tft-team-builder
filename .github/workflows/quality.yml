@@ -4,67 +4,51 @@ on:
   push:
   pull_request:
 
-permissions:
-  contents: read
-
 jobs:
   quality:
-    name: ${{ matrix.os }} / Python 3.13
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Install uv and Python
+      - uses: actions/checkout@v4
+      - name: Set up uv
         uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
-          python-version: "3.13"
           version: "0.12.19"
-          enable-cache: true
-
-      - name: Verify lockfile
+          python-version: "3.13"
+      - name: Verify lock file
         run: uv lock --check
-
-      - name: Install project dependencies
+      - name: Install committed environment
         run: uv sync --frozen
-
+      - name: Check formatting
+        run: uv run ruff format --check .
+      - name: Lint
+        run: uv run ruff check .
       - name: Compile project Python
         run: uv run python -m compileall -q src tests tests_flet tools
-
-      - name: Run tests with coverage
+      - name: Run normal tests with full coverage
         run: uv run pytest
-
-      - name: Run Ruff lint checks
-        run: uv run ruff check .
-
-      - name: Run Ruff formatting check
-        run: uv run ruff format --check .
-
-      - name: Enforce project ASCII policy
+      - name: Check ASCII and path policy
         run: uv run python tools/check_ascii.py
-
-      - name: Verify project document mirrors
+      - name: Check mirrored project documents
         run: uv run python tools/sync_project_docs.py --check
-
-      - name: Validate bundled sample Set
+      - name: Validate sample Set
         run: uv run tft-builder-dev validate-set src/assets/sets/sample_set
-
-      - name: Run persistence smoke test
+      - name: Exercise persistence smoke flow
         run: uv run tft-builder-dev database-smoke .runtime-smoke
-
-      - name: Run Block 3 builder smoke test
+      - name: Exercise Builder smoke flow
         run: uv run tft-builder-dev builder-smoke src/assets/sets/sample_set
-
-      - name: Verify Flet CLI installation
-        run: uv run flet --version
-
-      - name: Run packaged Flet integration smoke
+      - name: Remove disposable smoke state
+        shell: python
+        run: |
+          from pathlib import Path
+          import shutil
+          shutil.rmtree(Path(".runtime-smoke"), ignore_errors=True)
+      - name: Confirm Flet runtime
         if: runner.os == 'Windows'
-        run: uv run pytest tests_flet --no-cov
+        run: uv run flet --version
+      - name: Run packaged Flet integration test
+        if: runner.os == 'Windows'
+        run: uv run pytest tests_flet --no-cov -vv -s

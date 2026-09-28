@@ -13,7 +13,7 @@ from .constants import APP_NAME
 from .logging_config import configure_logging
 from .paths import ApplicationPaths, build_application_paths
 from .persistence import AutosaveService, Database, TeamRepository
-from .set_loader import LoadedSet, validate_all_sets
+from .set_loader import LoadedSet, ValidationReport, validate_all_sets
 
 if TYPE_CHECKING:
     import flet as ft
@@ -24,6 +24,7 @@ class StartupState:
     paths: ApplicationPaths
     log_path: Path
     set_summary: tuple[str, ...]
+    loaded_sets: tuple[LoadedSet, ...]
     database_schema_version: int
 
 
@@ -39,8 +40,9 @@ class ApplicationStartupError(RuntimeError):
     """Raised when no safe interactive application runtime can be created."""
 
 
-def startup_set_summary(sets_dir: Path) -> tuple[str, ...]:
-    reports = validate_all_sets(sets_dir)
+def _summarize_set_reports(reports: tuple[ValidationReport, ...]) -> tuple[str, ...]:
+    """Return startup log lines without repeating Set validation work."""
+
     if not reports:
         return ("No bundled Sets found.",)
 
@@ -55,6 +57,12 @@ def startup_set_summary(sets_dir: Path) -> tuple[str, ...]:
         else:
             lines.append(f"{report.root.name}: invalid - {len(report.issues)} issue(s)")
     return tuple(lines)
+
+
+def startup_set_summary(sets_dir: Path) -> tuple[str, ...]:
+    """Validate bundled Sets once and return human-readable startup status lines."""
+
+    return _summarize_set_reports(validate_all_sets(sets_dir))
 
 
 def initialize_application(
@@ -75,7 +83,13 @@ def initialize_application(
     database_schema_version = Database(
         paths.database_path, backups_dir=paths.backups_dir
     ).initialize()
-    set_summary = startup_set_summary(paths.bundled_sets_dir)
+    reports = validate_all_sets(paths.bundled_sets_dir)
+    set_summary = _summarize_set_reports(reports)
+    loaded_sets = tuple(
+        report.loaded_set
+        for report in reports
+        if report.is_valid and report.loaded_set is not None
+    )
 
     logger = logging.getLogger("tft_builder.app")
     logger.info("Application startup initialized")
@@ -87,6 +101,7 @@ def initialize_application(
         paths=paths,
         log_path=log_path,
         set_summary=set_summary,
+        loaded_sets=loaded_sets,
         database_schema_version=database_schema_version,
     )
 
@@ -94,10 +109,7 @@ def initialize_application(
 def initialize_runtime(state: StartupState) -> ApplicationRuntime:
     """Resolve validated Sets and the shared Team repository."""
 
-    reports = validate_all_sets(state.paths.bundled_sets_dir)
-    loaded_sets = tuple(
-        report.loaded_set for report in reports if report.is_valid and report.loaded_set is not None
-    )
+    loaded_sets = state.loaded_sets
     if not loaded_sets:
         raise ApplicationStartupError("No valid bundled Set is available")
 

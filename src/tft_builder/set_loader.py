@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 from pydantic import BaseModel, ValidationError
@@ -50,14 +52,32 @@ class LoadedSet:
     team_planner: TeamPlannerData
     locales: dict[str, dict[str, str]]
     source_manifest: SourceManifest
+    _champions_by_id: Mapping[str, ChampionDefinition] = field(
+        init=False, repr=False, compare=False
+    )
+    _traits_by_id: Mapping[str, TraitDefinition] = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        """Cache immutable ID lookups once for GUI and engine hot paths."""
+
+        object.__setattr__(
+            self,
+            "_champions_by_id",
+            MappingProxyType({champion.id: champion for champion in self.champions}),
+        )
+        object.__setattr__(
+            self,
+            "_traits_by_id",
+            MappingProxyType({trait.id: trait for trait in self.traits}),
+        )
 
     @property
-    def champions_by_id(self) -> dict[str, ChampionDefinition]:
-        return {champion.id: champion for champion in self.champions}
+    def champions_by_id(self) -> Mapping[str, ChampionDefinition]:
+        return self._champions_by_id
 
     @property
-    def traits_by_id(self) -> dict[str, TraitDefinition]:
-        return {trait.id: trait for trait in self.traits}
+    def traits_by_id(self) -> Mapping[str, TraitDefinition]:
+        return self._traits_by_id
 
 
 @dataclass(frozen=True, slots=True)

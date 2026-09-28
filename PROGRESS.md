@@ -1,7 +1,7 @@
 # TFT Team Builder - Progress
 
-Current version: 0.6.1
-Current status: Block 6 Team Library implemented and quality-audited. v0.6.1 removes remaining UI-helper duplication, batches/caches Library aggregate reads, previews the actual best List during similarity search and expands HCI/accessibility requirements. Exact v0.6.1 Windows Ruff/Flet verification remains pending.
+Current version: 0.6.2
+Current status: Block 6 Team Library implemented, quality-audited and corrected in v0.6.2. The correction removes the v0.6.1 Ruff/whitespace findings, avoids duplicate startup Set validation, caches validated Set ID maps once, improves real-data Library presentation, restores the hidden CI workflow omitted by the handoff ZIP, and adds a narrow Flet 1.0.1 RemoteTester cleanup shim. Exact v0.6.2 Windows Ruff/Flet verification remains pending.
 Next planned block: Block 7 - Real TFT Set data pipeline and production Set package.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
@@ -344,3 +344,30 @@ Block 6 local verification candidate:
 - [x] Refine Block 7 acquisition requirements with HTTPS-only release sources, bounded streamed downloads and project-controlled cache names.
 - [x] 623 normal tests pass with 2721 production statements and 808 branches at 100 percent coverage in the implementation environment.
 - [x] A 300-Team aggregate benchmark completed through the new four-query batch path; exact performance acceptance remains a Block 9 real-library audit rather than a machine-specific timing requirement.
+
+
+## Version 0.6.2 post-Windows correction and Block 7 readiness
+
+User Windows 0.6.1 run:
+- [x] 623 normal tests passed with 2721 production statements and 808 branches at 100 percent coverage.
+- [x] ASCII, project-document mirror, compileall, sample Set validation/inspection, database smoke, Builder smoke and normal Flet startup passed.
+- [ ] Initial Ruff format check found nine files requiring formatting; formatting was then applied.
+- [ ] Ruff lint still found three unused imports after formatting.
+- [ ] `git diff --check` found one trailing blank line at the end of `builder_view.py`.
+- [ ] Packaged Flet/Flutter integration connected its RemoteTester but the Flutter process exited with code 79 before the Library became test-visible.
+- [ ] The failed packaged run also surfaced Flet 1.0.1 dropping a RemoteTester `StreamWriter` without closing it first, which became a strict ResourceWarning.
+
+Version 0.6.2 corrections:
+- [x] Remove all three reported unused imports and the trailing EOF whitespace.
+- [x] Keep all touched Python in the Ruff 0.16.9 formatting shape observed in the Windows run.
+- [x] Validate bundled Sets once during application initialization and reuse the validated `LoadedSet` objects when creating the runtime instead of re-reading/hashing the complete Set tree.
+- [x] Cache immutable Champion/Trait ID maps once per `LoadedSet` so Builder/Library hot paths do not rebuild dictionaries on each property access.
+- [x] Render localized Set display names in the Library while retaining stable technical Set IDs internally.
+- [x] Wrap selected similarity Champion controls and explicitly tell users when the candidate list is capped at 20 results.
+- [x] Patch only the Flet 1.0.1 integration-test host so a disconnected RemoteTester writer is closed before the upstream cleanup drops its reference; no warning suppression and no production Flet internals are modified.
+- [x] Avoid `pump_and_settle()` during the indeterminate packaged-app startup animation; readiness polling now uses single-frame `pump()` calls and keeps settled waits for completed user interactions.
+- [x] Restore `.github/workflows/quality.yml`, which was again omitted by the user-created ZIP even though project tests require the complete handoff to contain it.
+- [x] Refine Block 7 around concrete acquisition/build steps, immutable source cache records, offline runtime guarantees, long-name/real-asset HCI cases and one-pass startup validation.
+- [x] Keep the large BuilderView decomposition as a Block 9 decision gate; the current structural/duplicate-function audit does not justify a large rewrite now.
+- [x] 627 normal tests pass locally with 2736 production statements and 810 branches at 100 percent coverage.
+- [ ] Exact Ruff 0.16.9 checks and the packaged Windows Flet/Flutter integration flow must be rerun on Windows before closing the v0.6.2 release gate.

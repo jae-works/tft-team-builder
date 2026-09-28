@@ -100,7 +100,7 @@ def test_pytest_is_configured_for_src_layout_and_coverage(project_root: Path) ->
 def test_ruff_targets_python_313_and_all_project_code(project_root: Path) -> None:
     ruff = load_pyproject(project_root)["tool"]["ruff"]
     assert ruff["target-version"] == "py313"
-    assert ruff["src"] == ["src", "tests", "tools"]
+    assert ruff["src"] == ["src", "tests", "tests_flet", "tools"]
     assert ruff["format"]["line-ending"] == "lf"
     assert {"E", "F", "I", "UP", "B", "RUF", "PTH"} <= set(ruff["lint"]["select"])
 
@@ -130,7 +130,7 @@ def test_quality_workflow_runs_on_windows_and_linux_with_python_313(project_root
     assert "3.14" not in workflow
     assert "uv lock --check" in workflow
     assert "uv sync --frozen" in workflow
-    assert "uv run python -m compileall -q src tests tools" in workflow
+    assert "uv run python -m compileall -q src tests tests_flet tools" in workflow
     assert "uv run pytest" in workflow
     assert "uv run ruff check ." in workflow
     assert "uv run ruff format --check ." in workflow
@@ -139,9 +139,36 @@ def test_quality_workflow_runs_on_windows_and_linux_with_python_313(project_root
     assert "uv run tft-builder-dev validate-set src/assets/sets/sample_set" in workflow
     assert "uv run tft-builder-dev database-smoke .runtime-smoke" in workflow
     assert "uv run tft-builder-dev builder-smoke src/assets/sets/sample_set" in workflow
+    assert "uv run pytest tests_flet --no-cov" in workflow
+    assert "flet test --tests-dir tests_flet -- --no-cov" not in workflow
+    assert "if: runner.os == 'Windows'" in workflow
     assert "uv run flet --version" in workflow
+
+
+def test_documented_flet_smoke_command_matches_pinned_cli(project_root: Path) -> None:
+    readme = (project_root / "README.md").read_text(encoding="ascii")
+    context = (project_root / "PROJECT_CONTEXT.md").read_text(encoding="ascii")
+    for text in (readme, context):
+        assert "uv run pytest tests_flet --no-cov" in text
+        assert "uv run flet test --tests-dir tests_flet -- --no-cov" not in text
 
 
 def test_gitattributes_normalizes_project_text_to_lf(project_root: Path) -> None:
     attributes = (project_root / ".gitattributes").read_text(encoding="ascii")
     assert "* text=auto eol=lf" in attributes
+
+
+def test_gitignore_excludes_local_quality_and_runtime_artifacts(project_root: Path) -> None:
+    """Keep disposable local tooling output out of replacement ZIPs and commits."""
+
+    gitignore = (project_root / ".gitignore").read_text(encoding="ascii").splitlines()
+    assert {
+        "__pycache__/",
+        "*.py[cod]",
+        ".pytest_cache/",
+        ".ruff_cache/",
+        ".coverage",
+        ".venv/",
+        ".flet/",
+        "/.runtime-smoke/",
+    } <= set(gitignore)

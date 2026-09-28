@@ -447,3 +447,67 @@ Reasoning:
 
 Revisit when:
 - the concrete GUI grows enough repeated interaction/state code that extracting a focused helper clearly reduces complexity.
+
+## D027 - Dense Builder slots and fixed-width save state
+
+Status: accepted during version 0.4.1 after first real desktop review.
+
+Decision:
+- Keep gap-capable slots in the domain model and persistence layer.
+- In the normal Builder presentation, render only occupied Champion cards plus exactly one trailing empty/end position.
+- The explicit GUI remove action calls `TeamEditor.remove_slot()` so remaining positions close immediately.
+- Do not show a row of internal empty domain slots in the normal Builder UI.
+- Represent save state with a fixed-width icon and tooltip instead of variable-width toolbar text.
+- Treat transient blank text while editing Team/List names as an input state, not as a domain failure on every keystroke; enforce non-empty names when the edit is finished.
+
+Reasoning:
+- The user's first real desktop run showed that visible internal gaps read as accidental empty cards and made the central List unnecessarily wide.
+- Keeping core gap semantics preserves exact move/import/history behavior while presenting the common Builder workflow densely.
+- A fixed-width status indicator prevents Undo/Redo and adjacent toolbar controls from moving when save text changes.
+- Text fields naturally pass through an empty value while replacing text; logging a warning for that transient state creates noise without improving validation.
+
+Revisit when:
+- a future positional/board view intentionally needs visible empty cells as first-class placement targets.
+
+## D028 - Block 5 keeps click-add and adds direct Flet drag/search behavior
+
+Status: accepted during version 0.4.1 Block 5 preparation.
+
+Decision:
+- Keep the explicit add button as an accessible fallback while adding Flet `Draggable`/`DragTarget` interactions for desktop speed.
+- Add Champion search by Champion and Trait display names using the existing normalizer.
+- Use stable keys for drag targets, search and dynamic Trait controls.
+- Implement dynamic Trait selection as a focused Builder dialog that submits `TraitSelection` through `TeamEditor`.
+- Keep all domain mutation, Trait calculation and persistence in their existing layers.
+- Run packaged Flet tests with `--no-cov`; the normal pytest suite remains the 100 percent application coverage gate.
+
+Reasoning:
+- Current MetaTFT and tactics.tools builders keep Traits visible and make the unit catalog searchable with click/drag as the fast path.
+- Current Flet 1.0 provides native `Draggable` and `DragTarget` controls, so a custom drag framework is unnecessary.
+- The packaged Flet app executes separately from the host pytest driver, so applying host-process source coverage to that test produces a false zero-percent failure.
+
+Revisit when:
+- packaged test architecture changes so application-process coverage can be collected reliably without weakening the normal coverage gate.
+
+## D029 - Block 5 uses native drag identities and shared dynamic-Trait validation
+
+Status: accepted and implemented in version 0.5.0.
+
+Decision:
+- Use native Flet `Draggable` and `DragTarget` controls with minimal stable source keys instead of a custom drag framework.
+- Keep click-add as the reliable accessible path alongside drag/drop.
+- Translate every drop into a concrete TeamEditor operation; controls never mutate slots directly.
+- Add one concrete dense `move_champion_to_end()` operation because trailing-target moves should not create source gaps in the normal Builder workflow.
+- Expose Trait-engine dynamic-selection validation for GUI reuse rather than duplicating rule/cardinality logic in the dialog.
+- Use an explicit copy control rather than depending on modifier state that is not part of the documented pinned drag event contract.
+- Run packaged Flet tests for pinned 1.0.1 through `pytest tests_flet --no-cov`; keep native drag gesture verification manual until the documented Tester API provides a stable drag helper.
+
+Reasoning:
+- Current TFT builders make unit search and click/drag placement low-friction, but our multi-List/domain semantics are already stronger than a web-board clone.
+- Stable keys carry only identity; all correctness remains in the covered domain layer.
+- One shared validator prevents GUI and Trait calculation from accepting different dynamic selections.
+- Avoiding undocumented drag/test modifier APIs keeps the pinned desktop runtime deterministic.
+
+Revisit when:
+- Flet exposes a documented drag gesture in its Tester API or reliable modifier state in drag events;
+- repeated independent Builder components justify extracting a smaller concrete UI component boundary.

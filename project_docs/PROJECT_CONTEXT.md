@@ -12,18 +12,21 @@ This is the first document another developer or AI instance should read before c
 6. `DECISIONS.md`
 7. `LICENSE_REVIEW.md`
 8. `SET_DATA_PIPELINE.md`
-9. The latest completed block report, currently `BLOCK_03_REPORT.md`
+9. The latest implemented block report, currently `BLOCK_05_REPORT.md`
 10. `BLOCK_03_PLAN.md` for the implemented Block 3 behavior contract
-11. `BLOCK_04_PLAN.md` for the prepared GUI implementation contract
-12. `src/assets/sets/README.md`
-13. `set_sources/README.md`
+11. `BLOCK_04_PLAN.md` for the implemented initial GUI behavior contract
+12. `BLOCK_05_PLAN.md` for the implemented desktop interaction behavior contract
+13. `BLOCK_06_PLAN.md` for the next Team-library block
+14. `src/assets/sets/README.md`
+15. `set_sources/README.md`
+
 
 ## Current state
 
-- Current version: 0.3.1.
+- Current version: 0.5.0.
 - Blocks 1, 2 and 3 are implemented. The user Windows-verified the 0.3.0 Block 3 runtime behavior: 529 tests at 100 percent statement/branch coverage, Set and database smoke tests, Builder smoke and Flet startup all passed.
 - That Windows run found only two Ruff lint findings in `tests/test_trait_engine.py` after Ruff formatted four files. Version 0.3.1 applies both exact lint corrections and expands the semantic/integration audit to 537 tests while retaining the 100 percent production coverage gate.
-- The current application shell is intentionally minimal. `BLOCK_04_PLAN.md` now defines the first complete Builder GUI before implementation begins.
+- Blocks 4 and 5 are implemented. Version 0.5.0 adds Champion/Trait search, native drag/drop translation, dynamic Trait editing, keyboard shortcuts and the fixed Champion-card action geometry found during the real 0.4.1 desktop review. `BLOCK_06_PLAN.md` is the next-block handoff. Exact Ruff 0.16.9 and packaged Windows Flet verification remain release gates.
 
 ## Source of truth
 
@@ -38,7 +41,10 @@ This is the first document another developer or AI instance should read before c
 - `BLOCK_02_REPORT.md` records persistence implementation and hardening evidence for Block 2.
 - `BLOCK_03_PLAN.md` is the concrete behavior contract implemented by Block 3.
 - `BLOCK_03_REPORT.md` records Block 3 implementation and test evidence.
-- `BLOCK_04_PLAN.md` is the prepared concrete contract for the next GUI block.
+- `BLOCK_04_PLAN.md` is the implemented Block 4 GUI behavior contract.
+- `BLOCK_05_PLAN.md` is the implemented interaction-focused contract for Block 5.
+- `BLOCK_05_REPORT.md` records Block 5 implementation/test evidence.
+- `BLOCK_06_PLAN.md` is the prepared Team-library contract for the next block.
 
 These files are part of the project. They are not chat-only notes.
 
@@ -144,4 +150,16 @@ Persistence is implemented under `src/tft_builder/persistence/` using direct Pyt
 
 Version 0.2.2 also validates required schema tables/columns and migration history before treating an existing database as healthy.
 
-Block 3 adds `TeamEditor` in `builder.py` and the Flet-independent calculation engine in `trait_engine.py`. GUI code should call these concrete core operations rather than reimplementing slot/move/copy/history/Trait semantics in controls. `TeamEditor` owns in-memory history only; Block 4 will connect successful edits to `AutosaveService`. The active List is transient GUI-session state and is deliberately not added to the persisted Team model.
+Block 3 adds `TeamEditor` in `builder.py` and the Flet-independent calculation engine in `trait_engine.py`. GUI code should call these concrete core operations rather than reimplementing slot/move/copy/history/Trait semantics in controls. `TeamEditor` owns in-memory history only; Block 4 connects successful edits to `AutosaveService`. The active List is transient GUI-session state and is deliberately not added to the persisted Team model.
+
+## Block 4 handoff
+
+Version 0.4.0 introduced the first functional Builder GUI; version 0.4.1 polishes that boundary without changing its architecture. `src/tft_builder/builder_view.py` is the concrete Flet composition boundary; it must continue to delegate domain changes to `TeamEditor`, Trait calculation to `trait_engine`, and persistence to the existing persistence package. The active List and Trait display toggles are transient UI state. Structural edits save immediately. Text edits queue immutable snapshots and use a short async debounce, with explicit blur/submit flush.
+
+`tests_flet/` contains the packaged Flet smoke flow. With the pinned Flet 1.0.1 CLI, run the plugin directly as `uv run pytest tests_flet --no-cov`; the user Windows run proved that `flet test ... -- --no-cov` is not supported by this pinned CLI. Normal `uv run pytest` remains the 100 percent application coverage gate. Windows Developer Mode is required for Flutter plugin symlink support.
+
+## Block 5 handoff
+
+Version 0.5.0 adds Champion/Trait search, Trait-click filtering, native Flet drag/drop translation, dynamic Trait editing and desktop keyboard shortcuts while keeping all mutations in TeamEditor. `move_champion_to_end()` is the dense trailing-drop primitive, `set_champion_trait_selection()` is the PER_CHAMPION dynamic edit primitive, and `validate_dynamic_selection()` is the shared rule validator. The visible Champion card action row has fixed geometry so two-line names cannot clip Remove actions.
+
+Block 6 should implement the Start page/Team library described in `BLOCK_06_PLAN.md`, with deterministic Flet-independent multiset similarity ranking across each Team's Lists.

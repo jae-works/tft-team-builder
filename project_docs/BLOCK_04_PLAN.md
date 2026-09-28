@@ -1,7 +1,7 @@
 # Block 4 Plan - First complete functional Builder GUI
 
 Target version: 0.4.0
-Status: prepared during the 0.3.1 Block 3 release audit. Implementation has not started.
+Status: implemented in 0.4.0. Exact Windows/Flet integration release verification is pending.
 
 ## Purpose
 
@@ -114,7 +114,7 @@ The top Builder toolbar contains:
 - New List button;
 - Undo button;
 - Redo button;
-- a compact save/error status area if required by implementation.
+- a fixed-width save/error status indicator so toolbar geometry does not change with status text.
 
 ## List rendering and controls
 
@@ -148,7 +148,8 @@ Block 4 placement behavior is intentionally simple and reliable:
 
 - clicking an Add control on a Champion appends a new instance to the active List;
 - removing a placed Champion uses an explicit remove control on the slot;
-- empty gaps remain visible;
+- internal core gaps are supported but normal Builder presentation shows occupied Champion cards densely plus exactly one trailing empty/end position;
+- explicit remove deletes/reindexes that slot so the visible row closes immediately;
 - append/add and remove actions call TeamEditor and then persist immediately.
 
 Drag/drop and click-to-place are Block 5 work and must not be partially duplicated here.

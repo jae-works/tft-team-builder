@@ -11,12 +11,12 @@ Legend:
 
 ## Core
 - [ ] Python desktop application for Windows.
-- [ ] Flet GUI.
+- [x] Flet GUI.
 - [x] Windows desktop is the required first release target.
 - [x] Browser and mobile/tablet support are deferred future targets, not removed from the long-term project direction.
 - [x] Core game/build logic, Set logic and persistence boundaries must remain independent from Flet widgets so future platform/UI changes do not require a core rewrite.
 - [x] Core builder and Trait logic are independent from GUI code without unnecessary abstraction layers.
-- [ ] Local-first; no account or cloud required.
+- [x] Local-first; no account or cloud required.
 - [x] Full local test suite for all implemented Blocks.
 - [x] Clear, human-readable code and useful comments around non-obvious behavior.
 - [x] Every delivered version contains this file and PROGRESS.md.
@@ -147,7 +147,7 @@ Legend:
 - [x] Clearing a List removes Champions but preserves its current slot count and gaps until an explicit compact operation.
 - [x] The last remaining List cannot be deleted.
 - [x] Deleting the primary List automatically selects a deterministic adjacent replacement.
-- [ ] The currently active List is separate from the primary List.
+- [x] The currently active List is separate from the primary List.
 
 ## Champion instances and slots
 - [x] Lists have ordered slots and may contain gaps.
@@ -168,19 +168,19 @@ Legend:
 - [x] A target index equal to the slot count appends; larger indexes are rejected instead of silently creating unspecified gaps.
 
 ## Champion library
-- [ ] Right-side champion library.
-- [ ] Champions grouped and sorted by cost.
-- [ ] No hardcoded maximum champion cost.
-- [ ] Only cost groups that exist in the current set are shown.
-- [ ] Cost is indicated by both styling and number.
+- [x] Right-side champion library.
+- [x] Champions grouped and sorted by cost.
+- [x] No hardcoded maximum champion cost.
+- [x] Only cost groups that exist in the current set are shown.
+- [x] Cost is indicated by both styling and number.
 - [ ] Hover details include portrait, name, cost and traits.
-- [ ] Champions can be dragged to Lists.
+- [x] Champions can be dragged to Lists with native Flet drag/drop while click-add remains available.
 - [ ] Champions can also be picked up by click and placed by click.
 - [ ] Escape cancels click-to-place.
 
 ## Search
-- [ ] Search champions by champion name.
-- [ ] Search champions by trait name.
+- [x] Search champions by champion name.
+- [x] Search champions by trait name.
 - [x] Search normalization ignores case, spaces and punctuation and handles Unicode sensibly.
 - [ ] Start page can search Teams by Team name.
 - [ ] Start page can select champions to rank Teams by best matching List.
@@ -188,22 +188,24 @@ Legend:
 - [ ] Duplicate selected champions are treated as separate desired instances for similarity search.
 
 ## Traits
-- [ ] Left-side Trait panel reflects the active List only.
+- [x] Left-side Trait panel reflects the active List only.
 - [x] Zero-contribution Traits are absent from the normal core Trait result list.
 - [x] Trait result order comes from Set data with Trait ID as a deterministic tie-breaker.
 - [x] Trait breakpoints come from Set data.
 - [x] Active breakpoint style data comes from Set data.
-- [ ] Optional toggle hides Traits below the first breakpoint.
-- [ ] Optional toggle shows next-breakpoint progress such as 3/4.
+- [x] Optional toggle hides Traits below the first breakpoint.
+- [x] Optional toggle shows next-breakpoint progress such as 3/4.
 - [x] Trait calculation is independent from Flet widgets.
 - [x] Dynamic trait selection is data-driven, not hardcoded per champion.
 - [x] Supported dynamic selection rules include NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N.
-- [ ] Required but missing dynamic choices are visibly marked and do not silently count.
+- [x] Required but missing dynamic choices are visibly marked and do not silently count.
 - [x] Dynamic Trait selections are validated for NONE, EXACTLY_ONE, ZERO_OR_ONE, ANY_NUMBER and EXACTLY_N before they contribute.
 - [x] PER_INSTANCE dynamic selections are evaluated independently.
 - [x] PER_CHAMPION selections must agree as sets across duplicate instances of that Champion within one List; conflicts are reported instead of guessed.
 - [x] Trait counting supports the concrete declarative modes UNIQUE_CHAMPION and UNIQUE_INSTANCE; undefined custom counting placeholders are not accepted.
 - [x] Trait results expose current count, active breakpoint, next breakpoint/progress and invalid-dynamic-selection state in UI-independent data.
+- [x] Dynamic Trait choices can be edited from the Builder using Set-defined rule/cardinality data and the shared Trait-engine validator.
+- [x] Clicking a rendered Trait can filter the Champion library to Champions that can contribute to that Trait.
 
 ## Start page
 - [ ] Set selector.
@@ -216,14 +218,21 @@ Legend:
 - [ ] Returning from Builder preserves relevant page/search state where practical.
 
 ## Builder
-- [ ] Desktop layout: Traits | Lists | Champion library.
-- [ ] Independent scrolling for Trait panel, central List area and Champion library.
-- [ ] Each List can horizontally scroll when required.
-- [ ] Team name editable at top.
-- [ ] New List button.
-- [ ] Undo and Redo buttons.
-- [ ] Primary List star control.
-- [ ] Active List state.
+- [x] Desktop layout: Traits | Lists | Champion library.
+- [x] Independent scrolling for Trait panel, central List area and Champion library.
+- [x] Normal Builder presentation renders occupied Champion cards densely and exactly one empty/end position at the far right.
+- [x] Explicit GUI removal deletes that slot and closes the visible Champion sequence; core gap semantics remain available for move/import/history behavior.
+- [x] Save state uses a fixed-width icon/tooltip indicator so toolbar controls never shift between saved, pending and error states.
+- [x] Name fields tolerate a transient blank value while typing; blank values are rejected cleanly on edit completion without warning-log spam for each keystroke.
+- [x] Each List can horizontally scroll when required.
+- [x] Champion library supports immediate name/Trait search, click-add and drag-to-List.
+- [x] Placed Champions can be dragged to occupied slots for move/swap and to a List end for dense same-/cross-List moves.
+- [x] Low-frequency List maintenance actions use a compact overflow menu while active/primary/reorder state stays visible.
+- [x] Team name editable at top.
+- [x] New List button.
+- [x] Undo and Redo buttons.
+- [x] Primary List star control.
+- [x] Active List state.
 - [ ] Copy/Move mode control.
 
 ## Import and export
@@ -241,10 +250,10 @@ Legend:
 - [x] SQLite database.
 - [x] Database access is concentrated in the persistence package; UI controls and domain models do not issue SQL directly.
 - [x] Persistence code stays direct and concrete; do not add repository/interface hierarchies unless a real second backend or test seam requires them.
-- [ ] Autosave; no normal manual-save workflow. Block 2 provides the tested persistence/autosave primitives; GUI scheduling is deferred to the UI block.
-- [ ] Structural changes saved immediately.
-- [ ] Text edits use short debounce and save on focus loss.
-- [ ] Do not rely on application-exit handlers for the only save.
+- [x] Autosave; no normal manual-save workflow.
+- [x] Structural changes saved immediately.
+- [x] Text edits use short debounce and save on focus loss.
+- [x] Do not rely on application-exit handlers for the only save.
 - [x] Database schema version and migrations.
 - [x] Automatic pre-migration backups plus explicit validated local backup/restore primitives.
 - [x] Team deletion uses recoverable soft delete before permanent deletion at the data layer.
@@ -263,14 +272,14 @@ Legend:
 - [x] Failed core edits are atomic and leave Team state plus undo/redo history unchanged.
 - [x] Successful core edits update `Team.updated_at` once with a timezone-aware UTC timestamp; undo/redo restores historical timestamps exactly.
 - [ ] Import is a single undoable action.
-- [ ] Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z supported.
+- [x] Ctrl+Z, Ctrl+Y and Ctrl+Shift+Z supported.
 
 ## Keyboard usability
-- [ ] Ctrl+F focuses champion search.
+- [x] Ctrl+F focuses champion search.
 - [ ] Ctrl+N creates a List.
 - [ ] Ctrl+D duplicates current List.
 - [ ] Delete removes selected champion.
-- [ ] Escape cancels placement/dialog where appropriate.
+- [x] Escape closes the current Builder dialog where appropriate.
 
 ## Validation and failures
 - [ ] Missing champion images do not crash the app.
@@ -278,7 +287,7 @@ Legend:
 - [ ] Unknown champion/trait IDs are surfaced clearly.
 - [ ] Invalid Set packages do not partially load.
 - [ ] Invalid Team Planner codes do not modify data.
-- [ ] Database errors are logged and surfaced appropriately in the future GUI; persistence exceptions already propagate without silent loss.
+- [x] Database save errors are logged, surfaced in the Builder status, and retained as queued autosave snapshots for retry.
 - [x] Critical writes use transactions.
 
 ## Testing
@@ -290,7 +299,7 @@ Legend:
 - [x] Detailed core undo/redo tests.
 - [ ] Import/export round-trip tests.
 - [x] Persistence and migration tests.
-- [~] Startup/developer smoke tests exist for implemented pre-GUI blocks; real Flet Builder integration tests begin in Block 4.
+- [x] Startup/developer smokes cover core blocks and Block 4 includes a packaged Flet integration smoke suite with stable control keys; packaged Flet driver coverage is disabled separately because application coverage is enforced by the normal suite.
 
 ## Packaging
 - [ ] Windows executable/package.

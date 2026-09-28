@@ -258,6 +258,39 @@ class TeamEditor:
 
         return self._edit(mutate, when=when)
 
+    def move_champion_to_end(
+        self,
+        source_list_id: UUID,
+        source_index: int,
+        target_list_id: UUID,
+        *,
+        when: datetime | None = None,
+    ) -> bool:
+        """Move one Champion to the dense end of a List without leaving a source gap."""
+
+        def mutate(team: Team) -> None:
+            source_list = self._get_list(team, source_list_id)
+            source = self._existing_index(source_index, len(source_list.slots))
+            source_slot = source_list.slots[source]
+            if source_slot.champion is None:
+                raise ValueError("source slot does not contain a Champion")
+
+            champion = source_slot.champion
+            if source_list_id == target_list_id:
+                if source == len(source_list.slots) - 1:
+                    return
+                source_list.slots.pop(source)
+                source_list.slots.append(Slot(index=len(source_list.slots), champion=champion))
+                self._reindex(source_list)
+                return
+
+            target_list = self._get_list(team, target_list_id)
+            source_list.slots.pop(source)
+            self._reindex(source_list)
+            target_list.slots.append(Slot(index=len(target_list.slots), champion=champion))
+
+        return self._edit(mutate, when=when)
+
     def copy_champion(
         self,
         source_list_id: UUID,
@@ -304,6 +337,37 @@ class TeamEditor:
             if slot.champion is None:
                 raise ValueError("slot does not contain a Champion")
             slot.champion.trait_selection = selection
+
+        return self._edit(mutate, when=when)
+
+    def set_champion_trait_selection(
+        self,
+        list_id: UUID,
+        champion_id: str,
+        selection: TraitSelection,
+        *,
+        when: datetime | None = None,
+    ) -> bool:
+        """Apply one PER_CHAMPION dynamic selection to every matching instance atomically."""
+
+        if not isinstance(champion_id, str):
+            raise TypeError("champion_id must be a string")
+        if not champion_id.strip():
+            raise ValueError("champion_id must not be empty")
+        if not isinstance(selection, TraitSelection):
+            raise TypeError("selection must be a TraitSelection")
+
+        def mutate(team: Team) -> None:
+            team_list = self._get_list(team, list_id)
+            matches = [
+                slot.champion
+                for slot in team_list.slots
+                if slot.champion is not None and slot.champion.champion_id == champion_id
+            ]
+            if not matches:
+                raise ValueError(f"List does not contain Champion ID: {champion_id}")
+            for champion in matches:
+                champion.trait_selection = selection
 
         return self._edit(mutate, when=when)
 

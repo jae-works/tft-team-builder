@@ -113,7 +113,7 @@ The final Windows package also ships readable copies of the relevant project doc
 
 ## Current implementation position
 
-Blocks 1, 2 and 3 are implemented. The user Windows run for version 0.3.0 verified 529 tests at 100 percent statement/branch coverage, ASCII/document checks, compileall, Set validation/inspection, persistence smoke, Builder smoke and Flet startup. Ruff formatted four files and then reported two test-only lint findings (`PTH201` and `RUF043`). Version 0.3.1 applies those exact corrections, expands the local audit to 537 tests with additional semantic/integration coverage, aligns the Flet integration-test configuration, and prepares `BLOCK_04_PLAN.md`. Block 4 begins only after one clean Windows quality rerun of 0.3.1.
+Blocks 1 through 4 are implemented and Windows-tested through the 0.4.1 desktop review. The 0.4.1 user run passed 564 normal tests at 100 percent coverage, all existing smokes and normal Flet startup; Ruff lint passed after two formatter changes. It also proved that pinned Flet 1.0.1 rejects the newer `flet test ... -- --no-cov` separator form. Version 0.5.0 implements Block 5 search, native drag/drop translation, dynamic Trait editing and shortcuts, fixes the clipped Champion action geometry, uses direct `pytest tests_flet --no-cov` for the packaged Flet plugin, and prepares `BLOCK_06_PLAN.md`.
 
 
 ## Block 2 persistence decision

@@ -19,7 +19,7 @@ def test_flet_dependency_is_confined_to_ui_boundary(project_root: Path) -> None:
     package_root = project_root / "src" / "tft_builder"
     offenders = []
     for path in sorted(package_root.rglob("*.py")):
-        if path.name == "app.py":
+        if path.name in {"app.py", "builder_view.py"}:
             continue
         if "flet" in imported_top_level_modules(path):
             offenders.append(path.relative_to(project_root))

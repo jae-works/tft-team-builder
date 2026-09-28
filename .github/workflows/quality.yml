@@ -36,7 +36,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Compile project Python
-        run: uv run python -m compileall -q src tests tools
+        run: uv run python -m compileall -q src tests tests_flet tools
 
       - name: Run tests with coverage
         run: uv run pytest
@@ -64,3 +64,7 @@ jobs:
 
       - name: Verify Flet CLI installation
         run: uv run flet --version
+
+      - name: Run packaged Flet integration smoke
+        if: runner.os == 'Windows'
+        run: uv run pytest tests_flet --no-cov

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tft-team-builder"
-version = "0.3.1"
+version = "0.5.0"
 description = "Local-first team planning and library tool for Teamfight Tactics."
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
@@ -61,7 +61,7 @@ fail_under = 100
 [tool.ruff]
 target-version = "py313"
 line-length = 100
-src = ["src", "tests", "tools"]
+src = ["src", "tests", "tests_flet", "tools"]
 
 [tool.ruff.format]
 quote-style = "double"

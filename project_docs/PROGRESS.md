@@ -1,8 +1,8 @@
 # TFT Team Builder - Progress
 
-Current version: 0.3.1
-Current status: Block 3 corrected and re-audited; Block 4 behavior is prepared, pending one clean Windows quality rerun.
-Next planned block: Block 4 - first complete functional Builder GUI.
+Current version: 0.5.0
+Current status: Block 5 implemented locally in version 0.5.0; Block 6 Team library plan prepared; exact Ruff/Flet Windows release gate pending.
+Next planned block: Block 6 - Start page and Team library.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
 
@@ -208,21 +208,86 @@ No Block 2 persistence implementation is included in version 0.1.4.
 - [x] Audit all production functions for exact non-trivial body duplication; no merge-worthy copy/paste groups remain.
 - [x] Consolidate the only exact non-trivial duplicate test helper into one parametrized two-case Set-builder regression test; no exact duplicate function-body groups remain across project Python code.
 
-## Final Windows verification required before Block 4
+## Completed Windows verification before Block 4
 
-- [ ] Run `uv --version` and confirm the configured 0.12.x range is active.
-- [ ] Run `uv lock --check`.
-- [ ] Run `uv sync --frozen`.
-- [ ] Run `uv run ruff format .` once; a second/check run must report no changes.
-- [ ] Run `uv run ruff check .`.
-- [ ] Run `uv run ruff format --check .`.
-- [ ] Run `uv run pytest` on Windows and confirm the complete suite passes with no skips and 100 percent statement/branch coverage.
-- [ ] Run `uv run python tools/check_ascii.py`.
-- [ ] Run `uv run python tools/sync_project_docs.py --check`.
-- [ ] Run `uv run python -m compileall -q src tests tools`.
-- [ ] Run `uv run tft-builder-dev validate-set src/assets/sets/sample_set`.
-- [ ] Run `uv run tft-builder-dev inspect-set src/assets/sets/sample_set`.
-- [ ] Run `uv run tft-builder-dev database-smoke .runtime-smoke`.
-- [ ] Run `uv run tft-builder-dev builder-smoke src/assets/sets/sample_set`.
-- [ ] Run `uv run flet --version`.
-- [ ] Run `uv run flet run`.
+- [x] Run `uv --version` and confirm the configured 0.12.x range is active.
+- [x] Run `uv lock --check`.
+- [x] Run `uv sync --frozen`.
+- [x] Run `uv run ruff format .` once; a second/check run must report no changes.
+- [x] Run `uv run ruff check .`.
+- [x] Run `uv run ruff format --check .`.
+- [x] Run `uv run pytest` on Windows and confirm the complete suite passes with no skips and 100 percent statement/branch coverage.
+- [x] Run `uv run python tools/check_ascii.py`.
+- [x] Run `uv run python tools/sync_project_docs.py --check`.
+- [x] Run `uv run python -m compileall -q src tests tools`.
+- [x] Run `uv run tft-builder-dev validate-set src/assets/sets/sample_set`.
+- [x] Run `uv run tft-builder-dev inspect-set src/assets/sets/sample_set`.
+- [x] Run `uv run tft-builder-dev database-smoke .runtime-smoke`.
+- [x] Run `uv run tft-builder-dev builder-smoke src/assets/sets/sample_set`.
+- [x] Run `uv run flet --version`.
+- [x] Run `uv run flet run`.
+
+## Implemented in Block 4 - version 0.4.0
+
+- [x] Replace the placeholder shell with the real three-column Traits | Lists | Champion library Builder.
+- [x] Load the most recently updated Team from SQLite or create and persist a first Team when the library is empty.
+- [x] Keep active List navigation transient and separate from the persisted primary List.
+- [x] Wire Team/List rename, List create/duplicate/reorder/clear/compact/delete, primary List, Champion add/remove and undo/redo to TeamEditor.
+- [x] Save structural edits immediately and text edits through queued immutable snapshots with debounce plus blur/submit flush.
+- [x] Surface persistence failures without silently discarding the queued snapshot.
+- [x] Render active-List Trait results, invalid dynamic selections and both required Trait display toggles.
+- [x] Build Champion cost groups from Set data without a hardcoded maximum cost.
+- [x] Add stable Flet control keys and a packaged Flet integration smoke suite in `tests_flet/`.
+- [x] Add extensive GUI-boundary unit tests while retaining the 100 percent production statement/branch coverage gate.
+- [x] Restore `.github/workflows/quality.yml` to the complete handoff after the user-created Windows ZIP omitted the hidden `.github` directory.
+- [x] Exclude coverage/bytecode/cache artifacts from the delivered replacement project.
+
+## Block 4 follow-up - version 0.4.1
+
+User Windows 0.4.0 run:
+- [x] uv 0.12.19 / Python 3.13.5 environment resolved successfully.
+- [x] 561 normal tests passed with 100 percent statement and branch coverage.
+- [x] ASCII, document mirror, compileall, Set validation/inspection, database smoke, Builder smoke and normal Flet startup passed.
+- [ ] Initial Ruff format check found five files requiring formatting.
+- [ ] Ruff lint found one `I001` import-order issue in `builder_view.py`.
+- [ ] Packaged Flet integration did not reach the app because Windows Developer Mode was disabled, so Flutter could not create plugin symlinks.
+- [ ] The packaged Flet host pytest also inherited the normal application coverage arguments, which is inappropriate because the packaged app executes in another process.
+
+Version 0.4.1 corrections:
+- [x] Apply the Ruff import-order correction and align new source with Ruff 0.16.9 formatting style.
+- [x] Normal GUI removal deletes/reindexes the slot; internal empty domain gaps are not rendered as empty cards.
+- [x] Exactly one trailing empty/end position is rendered for every List.
+- [x] Replace variable-width save text with a fixed-width saved/pending/error icon and tooltip.
+- [x] Avoid transient blank-name warning spam while retaining final non-empty validation.
+- [x] Add regression tests for dense slots, trailing target, fixed-width save state and name-edit behavior.
+- [x] Separate packaged Flet driver coverage from normal application coverage; pinned Flet 1.0.1 is now invoked through `uv run pytest tests_flet --no-cov`.
+- [x] Restore the hidden GitHub workflow omitted again by the manually created Windows ZIP and update its Flet command.
+- [x] Prepare `BLOCK_05_PLAN.md` using current Flet drag/drop/testing APIs and current TFT team-builder interaction patterns.
+
+Exact packaged Flet verification still requires Windows Developer Mode to be enabled.
+
+
+- Split concrete List action composition out of the List card renderer so Block 5 can extend list interactions without growing one oversized GUI method.
+
+## Implemented in Block 5 - version 0.5.0
+
+- [x] Fixed the clipped/missing Champion remove action by separating draggable card content from a fixed compact action row; two-line names no longer push actions outside the card.
+- [x] Added Champion search by name/aliases and Trait display names while preserving cost grouping.
+- [x] Added Trait-click library filtering and clear-filter behavior.
+- [x] Kept click-add and added native Flet Draggable/DragTarget interactions for library-to-end, instance-to-end and occupied-slot move/swap.
+- [x] Added dense `TeamEditor.move_champion_to_end()` semantics with exact instance/history behavior.
+- [x] Added explicit placed-Champion copy to the active List without relying on undocumented modifier state.
+- [x] Added dynamic Trait selection dialogs for all existing rule/cardinality modes, with shared `validate_dynamic_selection()` logic from the Trait engine.
+- [x] Added atomic PER_CHAMPION selection updates through `TeamEditor.set_champion_trait_selection()`.
+- [x] Added Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z, Ctrl+F and Escape handling through existing Builder actions.
+- [x] Moved low-frequency List actions into a compact overflow menu while keeping active/primary/reorder controls visible.
+- [x] Corrected the packaged Flet command for pinned Flet 1.0.1 to `uv run pytest tests_flet --no-cov`; the user Windows run proved its `flet test` CLI rejects the newer `--` separator form.
+- [x] Expanded the normal suite to 585 tests with 2,443/2,443 production statements and 742/742 branches covered.
+- [x] Added `BLOCK_05_REPORT.md` and prepared deterministic Team-library/similarity behavior in `BLOCK_06_PLAN.md`.
+
+## Version 0.5.0 release gate still requiring the exact Windows toolchain
+
+- [ ] `uv run ruff format --check .` and `uv run ruff check .` must pass on Ruff 0.16.9.
+- [ ] `uv run pytest` must reproduce the complete 585-test 100 percent coverage result on Windows.
+- [ ] `uv run pytest tests_flet --no-cov` must pass with Developer Mode enabled.
+- [ ] Manual Windows review must confirm visible Remove actions and native drag/drop behavior.

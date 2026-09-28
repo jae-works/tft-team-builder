@@ -18,7 +18,7 @@ from tft_builder.set_schema import (
     TraitCountingMode,
     TraitDefinition,
 )
-from tft_builder.trait_engine import calculate_traits
+from tft_builder.trait_engine import calculate_traits, validate_dynamic_selection
 
 
 def trait(
@@ -519,3 +519,24 @@ def test_any_number_still_rejects_traits_outside_allowed_choices() -> None:
     assert result.traits == ()
     assert result.dynamic_issues[0].code == "invalid_choice"
     assert result.dynamic_issues[0].selected_trait_ids == ("other",)
+
+
+def test_public_dynamic_selection_validation_matches_engine_rules() -> None:
+    rule = dynamic("a", DynamicSelectionRule.EXACTLY_ONE, ("x", "y"))
+    assert validate_dynamic_selection(rule, TraitSelection(("x",))) is None
+    issue = validate_dynamic_selection(rule, TraitSelection())
+    assert issue is not None
+    assert issue.code == "missing_selection"
+    assert issue.instance_ids == ()
+
+
+def test_public_dynamic_selection_validation_rejects_wrong_types() -> None:
+    rule = dynamic("a", DynamicSelectionRule.EXACTLY_ONE, ("x",))
+    with pytest.raises(TypeError, match="rule"):
+        validate_dynamic_selection(object(), TraitSelection())
+    with pytest.raises(TypeError, match="selection"):
+        validate_dynamic_selection(rule, object())
+    with pytest.raises(TypeError, match="instance_ids"):
+        validate_dynamic_selection(rule, TraitSelection(), [ChampionInstance("a").instance_id])
+    with pytest.raises(TypeError, match="instance_ids"):
+        validate_dynamic_selection(rule, TraitSelection(), ("not-a-uuid",))

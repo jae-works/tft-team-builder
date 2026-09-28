@@ -1,9 +1,4 @@
-"""Minimal pre-Builder application shell and startup integration.
-
-The complete Builder UI starts in Block 4. The current shell keeps runtime directories,
-logging, database initialization, and bundled Set validation outside Flet controls so the
-startup path remains independently testable.
-"""
+"""Application startup, Builder bootstrap and Flet composition boundary."""
 
 from __future__ import annotations
 
@@ -12,11 +7,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from .builder import TeamEditor
 from .constants import APP_NAME
 from .logging_config import configure_logging
+from .models import Team
 from .paths import ApplicationPaths, build_application_paths
-from .persistence import Database
-from .set_loader import validate_all_sets
+from .persistence import AutosaveService, Database, TeamRepository
+from .set_loader import LoadedSet, validate_all_sets
 
 if TYPE_CHECKING:
     import flet as ft
@@ -28,6 +25,17 @@ class StartupState:
     log_path: Path
     set_summary: tuple[str, ...]
     database_schema_version: int
+
+
+@dataclass(frozen=True, slots=True)
+class BuilderRuntime:
+    loaded_set: LoadedSet
+    editor: TeamEditor
+    autosave: AutosaveService
+
+
+class BuilderStartupError(RuntimeError):
+    """Raised when the temporary pre-library Builder bootstrap cannot continue safely."""
 
 
 def startup_set_summary(sets_dir: Path) -> tuple[str, ...]:
@@ -82,23 +90,77 @@ def initialize_application(
     )
 
 
+def initialize_builder_runtime(state: StartupState) -> BuilderRuntime:
+    """Open/create the temporary Block 4 Team and resolve its exact validated Set."""
+
+    reports = validate_all_sets(state.paths.bundled_sets_dir)
+    loaded_sets = [
+        report.loaded_set for report in reports if report.is_valid and report.loaded_set is not None
+    ]
+    if not loaded_sets:
+        raise BuilderStartupError("No valid bundled Set is available for the Builder")
+
+    sets_by_id: dict[str, LoadedSet] = {}
+    for loaded_set in loaded_sets:
+        set_id = loaded_set.manifest.set_id
+        if set_id in sets_by_id:
+            raise BuilderStartupError(f"Duplicate bundled Set ID: {set_id}")
+        sets_by_id[set_id] = loaded_set
+
+    repository = TeamRepository(
+        Database(state.paths.database_path, backups_dir=state.paths.backups_dir)
+    )
+    team_ids = repository.list_ids()
+    if team_ids:
+        team = repository.load(team_ids[0])
+    else:
+        first_set = min(loaded_sets, key=lambda item: item.manifest.set_id)
+        team = Team.create(set_id=first_set.manifest.set_id, name="Untitled Team")
+        repository.save(team)
+
+    loaded_set = sets_by_id.get(team.set_id)
+    if loaded_set is None:
+        raise BuilderStartupError(
+            f"Team requires Set '{team.set_id}', but that Set is not available and valid"
+        )
+    return BuilderRuntime(
+        loaded_set=loaded_set,
+        editor=TeamEditor(team),
+        autosave=AutosaveService(repository),
+    )
+
+
 def main(page: ft.Page) -> None:
-    """Render the small pre-Builder smoke-test shell."""
+    """Initialize the application and render the first complete functional Builder screen."""
 
     import flet as ft
 
+    from .builder_view import BuilderView
+
     state = initialize_application()
     page.title = APP_NAME
-    page.add(
-        ft.SafeArea(
-            content=ft.Column(
-                controls=[
-                    ft.Text(APP_NAME, size=28, weight=ft.FontWeight.BOLD),
-                    ft.Text("Block 3 core is ready; Block 4 GUI is prepared."),
-                    ft.Text(f"Database schema: {state.database_schema_version}"),
-                    ft.Text("Bundled Set validation:"),
-                    *[ft.Text(line) for line in state.set_summary],
-                ]
+    try:
+        runtime = initialize_builder_runtime(state)
+    except BuilderStartupError as error:
+        logging.getLogger("tft_builder.app").error("Builder startup blocked: %s", error)
+        page.add(
+            ft.SafeArea(
+                expand=True,
+                content=ft.Column(
+                    controls=[
+                        ft.Text(APP_NAME, size=28, weight=ft.FontWeight.BOLD),
+                        ft.Text("Builder startup failed", weight=ft.FontWeight.BOLD),
+                        ft.Text(str(error), key="builder-startup-error"),
+                    ]
+                ),
             )
         )
-    )
+        return
+
+    BuilderView(
+        page,
+        runtime.loaded_set,
+        runtime.editor,
+        runtime.autosave,
+        assets_dir=state.paths.bundled_assets_dir,
+    ).mount()

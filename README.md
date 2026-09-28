@@ -1,7 +1,7 @@
 # TFT Team Builder
 
-Current version: 0.3.1
-Current milestone: Block 3 corrected and re-audited; Block 4 GUI behavior is prepared in BLOCK_04_PLAN.md pending one clean Windows quality rerun.
+Current version: 0.5.0
+Current milestone: Block 5 desktop interaction/search/dynamic-Trait editing implemented in 0.5.0; Block 6 Team library is prepared; exact Windows Ruff/Flet release verification remains pending.
 
 TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
 
@@ -69,14 +69,18 @@ uv run ruff format --check .
 uv run pytest
 uv run python tools/check_ascii.py
 uv run python tools/sync_project_docs.py --check
-uv run python -m compileall -q src tests tools
+uv run python -m compileall -q src tests tests_flet tools
 uv run tft-builder-dev validate-set src/assets/sets/sample_set
 uv run tft-builder-dev inspect-set src/assets/sets/sample_set
 uv run tft-builder-dev database-smoke .runtime-smoke
 uv run tft-builder-dev builder-smoke src/assets/sets/sample_set
+uv run pytest tests_flet --no-cov
 uv run flet --version
 uv run flet run
 ```
+
+
+Windows note: packaged Flet desktop integration tests build a Flutter Windows host. Windows Developer Mode must be enabled so Flutter can create plugin symlinks. The packaged Flet app runs in a separate process, so this integration-driver test intentionally disables pytest-cov with `--no-cov`; the normal `uv run pytest` suite remains the mandatory 100 percent statement/branch coverage gate.
 
 ## Persistence development command
 
@@ -167,5 +171,9 @@ Read these in order before changing the project:
 10. `BLOCK_02_REPORT.md`
 11. `BLOCK_03_PLAN.md`
 12. `BLOCK_04_PLAN.md`
+13. `BLOCK_04_REPORT.md`
+14. `BLOCK_05_PLAN.md`
+15. `BLOCK_05_REPORT.md`
+16. `BLOCK_06_PLAN.md`
 
 Every delivered project ZIP must contain the complete current project and a SHA-256 checksum calculated after the final ZIP is created.

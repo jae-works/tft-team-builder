@@ -11,9 +11,12 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
     with (project_root / "pyproject.toml").open("rb") as handle:
         project_version = tomllib.load(handle)["project"]["version"]
     assert payload["version"] == project_version
-    assert payload["current_state"] == "block_3_corrected_block_4_prepared_pending_windows_recheck"
-    assert payload["current_block"] == 3
-    assert payload["next_block"] == 4
+    assert (
+        payload["current_state"]
+        == "block_5_implemented_block_6_prepared_pending_windows_release_gate"
+    )
+    assert payload["current_block"] == 5
+    assert payload["next_block"] == 6
 
 
 def test_release_documents_match_package_version(project_root: Path) -> None:
@@ -25,7 +28,7 @@ def test_release_documents_match_package_version(project_root: Path) -> None:
         "PROGRESS.md": f"Current version: {version}",
         "PROJECT_CONTEXT.md": f"Current version: {version}",
         "LICENSE_REVIEW.md": f"Project version: {version}",
-        "BLOCK_03_REPORT.md": f"Version: {version}",
+        "BLOCK_05_REPORT.md": f"Version: {version}",
     }
     for relative, expected in expected_fragments.items():
         text = (project_root / relative).read_text(encoding="ascii")
@@ -34,7 +37,15 @@ def test_release_documents_match_package_version(project_root: Path) -> None:
 
 def test_manifest_includes_current_block_plans_and_report(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="ascii"))
-    for filename in ("BLOCK_03_PLAN.md", "BLOCK_03_REPORT.md", "BLOCK_04_PLAN.md"):
+    for filename in (
+        "BLOCK_03_PLAN.md",
+        "BLOCK_03_REPORT.md",
+        "BLOCK_04_PLAN.md",
+        "BLOCK_04_REPORT.md",
+        "BLOCK_05_PLAN.md",
+        "BLOCK_05_REPORT.md",
+        "BLOCK_06_PLAN.md",
+    ):
         assert filename in payload["required_project_documents"]
         assert filename in payload["mirrored_project_documents"]
 
@@ -70,11 +81,11 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] == 537
+    assert verification["pytest_passed"] == 585
     assert verification["statement_coverage_percent"] == 100.0
     assert verification["branch_coverage_percent"] == 100.0
-    assert verification["production_statements"] == 1797
-    assert verification["production_branches"] == 564
+    assert verification["production_statements"] == 2443
+    assert verification["production_branches"] == 742
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
@@ -105,7 +116,45 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_3_trait_oracle_generated_lists"] == 2500
     assert verification["production_duplicate_function_groups"] == 0
     assert verification["all_python_duplicate_function_groups"] == 0
-    assert verification["static_python_files_audited"] == 52
+    assert verification["static_python_files_audited"] == 56
+    assert verification["windows_0_3_1_pytest_passed"] == 537
+    assert verification["windows_0_3_1_ruff_lint_passed"] is True
+    assert verification["windows_0_3_1_ruff_format_final_passed"] is True
+    assert verification["block_4_gui_implemented"] is True
+    assert verification["block_4_flet_integration_suite_added"] is True
+    assert (
+        verification["block_4_exact_flet_integration_verified_in_implementation_sandbox"] is False
+    )
+    assert verification["windows_0_4_0_pytest_passed"] == 561
+    assert verification["windows_0_4_0_ruff_format_initial_drift_files"] == 5
+    assert verification["windows_0_4_0_ruff_i001_errors"] == 1
+    assert verification["windows_0_4_0_flet_integration_blocked_by_developer_mode"] is True
+    assert verification["windows_0_4_0_flet_integration_coverage_configuration_conflict"] is True
+    assert verification["block_4_dense_slot_presentation_verified"] is True
+    assert verification["block_4_fixed_width_save_indicator_verified"] is True
+    assert verification["block_4_transient_blank_name_edit_handled"] is True
+    assert verification["block_5_plan_prepared"] is True
+    assert verification["block_4_1_local_pytest_passed"] == 564
+    assert verification["block_4_1_local_coverage_percent"] == 100.0
+    assert verification["block_4_1_local_smokes_passed"] is True
+    assert verification["block_4_1_static_audit_passed"] is True
+    assert verification["block_4_1_exact_ruff_windows_pending"] is False
+    assert verification["block_4_1_flet_integration_windows_pending"] is True
+
+    assert verification["windows_0_4_1_pytest_passed"] == 564
+    assert verification["windows_0_4_1_ruff_format_initial_drift_files"] == 2
+    assert verification["windows_0_4_1_ruff_format_final_passed"] is True
+    assert verification["windows_0_4_1_ruff_lint_passed"] is True
+    assert verification["windows_0_4_1_flet_cli_separator_rejected"] is True
+    assert verification["block_5_remove_geometry_regression_fixed"] is True
+    assert verification["block_5_search_verified"] is True
+    assert verification["block_5_drag_translation_verified"] is True
+    assert verification["block_5_dynamic_trait_editor_verified"] is True
+    assert verification["block_5_keyboard_shortcuts_verified"] is True
+    assert verification["block_5_local_pytest_passed"] == 585
+    assert verification["block_5_exact_ruff_windows_pending"] is True
+    assert verification["block_5_packaged_flet_windows_pending"] is True
+    assert verification["block_6_plan_prepared"] is True
 
 
 def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:

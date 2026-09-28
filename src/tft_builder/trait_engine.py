@@ -144,7 +144,7 @@ def _apply_per_instance_rule(
     issues: list[DynamicSelectionIssue],
 ) -> None:
     for champion in instances:
-        issue = _selection_issue(rule, champion.trait_selection, (champion.instance_id,))
+        issue = validate_dynamic_selection(rule, champion.trait_selection, (champion.instance_id,))
         if issue is not None:
             issues.append(issue)
             continue
@@ -161,7 +161,11 @@ def _apply_per_champion_rule(
     individual_issues = [
         issue
         for champion in instances
-        if (issue := _selection_issue(rule, champion.trait_selection, (champion.instance_id,)))
+        if (
+            issue := validate_dynamic_selection(
+                rule, champion.trait_selection, (champion.instance_id,)
+            )
+        )
         is not None
     ]
     if individual_issues:
@@ -180,7 +184,9 @@ def _apply_per_champion_rule(
                 instance_ids=tuple(champion.instance_id for champion in instances),
                 selected_trait_ids=selected,
                 affected_trait_ids=tuple(rule.choices),
-                message="PER_CHAMPION dynamic Trait selections must match across duplicate Champions",
+                message=(
+                    "PER_CHAMPION dynamic Trait selections must match across duplicate Champions"
+                ),
             )
         )
         return
@@ -191,11 +197,21 @@ def _apply_per_champion_rule(
             _add_contribution(contributors[trait_id], champion)
 
 
-def _selection_issue(
+def validate_dynamic_selection(
     rule: DynamicTraitDefinition,
     selection: TraitSelection,
-    instance_ids: tuple[UUID, ...],
+    instance_ids: tuple[UUID, ...] = (),
 ) -> DynamicSelectionIssue | None:
+    """Validate one dynamic Trait selection using the same rules as Trait calculation."""
+
+    if not isinstance(rule, DynamicTraitDefinition):
+        raise TypeError("rule must be a DynamicTraitDefinition")
+    if not isinstance(selection, TraitSelection):
+        raise TypeError("selection must be a TraitSelection")
+    if not isinstance(instance_ids, tuple) or any(
+        not isinstance(item, UUID) for item in instance_ids
+    ):
+        raise TypeError("instance_ids must be a tuple of UUID values")
     selected = selection.trait_ids
     count = len(selected)
     if rule.selection_rule is DynamicSelectionRule.NONE:

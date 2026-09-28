@@ -92,12 +92,12 @@ Verification summary:
 - ASCII policy, project-document mirror, compileall, sample Set validation/inspection, persistence smoke, Builder smoke and Flet startup all passed on Windows.
 - Ruff formatted four files and then reported two test-only lint findings (`PTH201` and `RUF043`); version 0.3.1 fixes both exact findings and adds extra semantic regression coverage.
 - The 0.3.1 audit suite expands to 537 tests while retaining 100 percent production statement/branch coverage; one pinned Windows rerun remains the final quality gate.
-- One clean pinned Windows Ruff/pytest rerun of 0.3.1 remains the release gate before Block 4 implementation starts.
+- The user completed the pinned Windows 0.3.1 gate: Ruff lint/format, 537 tests at 100 percent coverage, all smokes and Flet startup passed.
 
 User-test goal:
 - The Windows verification run demonstrates exact slot behavior, duplicate counting, dynamic Trait validation, moves, swaps, copies, List operations, Trait results and full-state undo/redo restoration.
 
-## Block 4 - First complete functional Builder GUI - prepared, planned v0.4
+## Block 4 - First complete functional Builder GUI - implemented v0.4.0, polished v0.4.1
 
 Detailed behavior, persistence wiring and Flet integration-test scope are defined in `BLOCK_04_PLAN.md`.
 
@@ -117,18 +117,18 @@ User-test goal:
 - A real Team can be built visually and survives restart.
 - Core Builder operations work from the GUI.
 
-## Block 5 - Full desktop interaction, Drag & Drop, search and Builder polish - planned v0.5
+## Block 5 - Full desktop interaction, Drag & Drop, search and Builder polish - implemented v0.5.0
 
-- Add Champion drag/drop from the library.
-- Add moving/reordering within Lists.
-- Add occupied-slot swaps.
-- Add cross-List Copy/Move mode.
-- Add click-to-place interaction.
-- Add Champion and Trait search using the normalizer.
-- Add hover/details information.
-- Add dynamic Trait selection dialogs.
-- Add relevant keyboard shortcuts and focus behavior.
-- Add tests for the new interaction logic where it can be tested below the GUI layer.
+- [x] Add Champion drag/drop from the library while retaining explicit click-add.
+- [x] Add dense same-/cross-List moves to a List end.
+- [x] Add occupied-slot move/swap behavior.
+- [x] Keep explicit copy-to-active behavior without undocumented drag modifiers.
+- [x] Add Champion and Trait search using the normalizer.
+- [x] Add compact Champion details/tooltips and stable interaction keys.
+- [x] Add dynamic Trait selection dialogs for existing rule/scope modes.
+- [x] Add relevant keyboard shortcuts and focus behavior.
+- [x] Reduce List-header clutter with a maintenance overflow menu.
+- [x] Add exhaustive boundary tests and packaged-Flet smoke coverage for supported Tester interactions.
 
 User-test goal:
 - The Builder behaves like the intended desktop product rather than a technical prototype.
@@ -210,8 +210,8 @@ User-test goal:
 - [x] Block 1 - Foundation, Set system and core models
 - [x] Block 2 - SQLite persistence, migrations, autosave primitives and backups
 - [x] Block 3 - Core builder logic, Trait engine and undo/redo
-- [ ] Block 4 - First complete functional Builder GUI
-- [ ] Block 5 - Full desktop interaction, search and Builder polish
+- [x] Block 4 - First complete functional Builder GUI
+- [x] Block 5 - Full desktop interaction, search and Builder polish
 - [ ] Block 6 - Start page and Team library
 - [ ] Block 7 - Real TFT Set data pipeline and production Set package
 - [ ] Block 8 - TFT Team Planner codes and native import/export

@@ -757,3 +757,97 @@ def test_complete_builder_workflow_round_trips_every_snapshot() -> None:
         assert editor.redo() is True
         assert editor.team == expected
     assert editor.can_redo is False
+
+
+def test_move_champion_to_end_is_dense_for_same_and_cross_list() -> None:
+    source = make_list("Source", "a", "b", "c")
+    target = make_list("Target", "x")
+    source_b_id = source.slots[1].champion.instance_id
+    editor = TeamEditor(make_team(source, target))
+
+    assert editor.move_champion_to_end(
+        source.list_id,
+        1,
+        source.list_id,
+        when=BASE + timedelta(seconds=1),
+    )
+    assert ids(editor.team.lists[0]) == ["a", "c", "b"]
+    assert [slot.index for slot in editor.team.lists[0].slots] == [0, 1, 2]
+    assert editor.team.lists[0].slots[-1].champion.instance_id == source_b_id
+
+    assert editor.move_champion_to_end(
+        source.list_id,
+        0,
+        target.list_id,
+        when=BASE + timedelta(seconds=2),
+    )
+    assert ids(editor.team.lists[0]) == ["c", "b"]
+    assert ids(editor.team.lists[1]) == ["x", "a"]
+    assert [slot.index for slot in editor.team.lists[0].slots] == [0, 1]
+    assert [slot.index for slot in editor.team.lists[1].slots] == [0, 1]
+
+
+def test_move_champion_to_end_noop_and_empty_source_are_safe() -> None:
+    team_list = make_list("Main", "a", "b")
+    editor = TeamEditor(make_team(team_list))
+    assert (
+        editor.move_champion_to_end(
+            team_list.list_id,
+            1,
+            team_list.list_id,
+            when=BASE,
+        )
+        is False
+    )
+    assert editor.undo_depth == 0
+
+    editor.clear_slot(team_list.list_id, 0, when=BASE + timedelta(seconds=1))
+    before = deepcopy(editor.team)
+    with pytest.raises(ValueError, match="does not contain"):
+        editor.move_champion_to_end(
+            team_list.list_id,
+            0,
+            team_list.list_id,
+            when=BASE + timedelta(seconds=2),
+        )
+    assert editor.team == before
+
+
+def test_set_champion_trait_selection_updates_all_matching_instances_atomically() -> None:
+    team_list = make_list("Main", "flex", "other", "flex")
+    editor = TeamEditor(make_team(team_list))
+    selection = TraitSelection(("trait_a", "trait_b"))
+
+    assert editor.set_champion_trait_selection(
+        team_list.list_id,
+        "flex",
+        selection,
+        when=BASE + timedelta(seconds=1),
+    )
+    assert [
+        slot.champion.trait_selection
+        for slot in editor.team.lists[0].slots
+        if slot.champion.champion_id == "flex"
+    ] == [selection, selection]
+    assert editor.undo_depth == 1
+    assert editor.undo()
+    assert all(
+        slot.champion.trait_selection == TraitSelection()
+        for slot in editor.team.lists[0].slots
+        if slot.champion.champion_id == "flex"
+    )
+
+
+def test_set_champion_trait_selection_validates_arguments_and_presence() -> None:
+    team_list = make_list("Main", "a")
+    editor = TeamEditor(make_team(team_list))
+    selection = TraitSelection(("x",))
+
+    with pytest.raises(TypeError, match="champion_id"):
+        editor.set_champion_trait_selection(team_list.list_id, 1, selection)
+    with pytest.raises(ValueError, match="must not be empty"):
+        editor.set_champion_trait_selection(team_list.list_id, "  ", selection)
+    with pytest.raises(TypeError, match="selection"):
+        editor.set_champion_trait_selection(team_list.list_id, "a", object())
+    with pytest.raises(ValueError, match="does not contain"):
+        editor.set_champion_trait_selection(team_list.list_id, "missing", selection)

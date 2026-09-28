@@ -3,6 +3,7 @@
     "assets/champions/sample_flex.png": "assets/champions/sample_flex.png",
     "assets/champions/sample_guardian.png": "assets/champions/sample_guardian.png",
     "assets/champions/sample_mage.png": "assets/champions/sample_mage.png",
+    "assets/items/sample_blade.png": "assets/items/sample_blade.png",
     "assets/traits/sample_arcane.png": "assets/traits/sample_arcane.png",
     "assets/traits/sample_guard.png": "assets/traits/sample_guard.png",
     "assets/traits/sample_wildcard.png": "assets/traits/sample_wildcard.png"
@@ -60,11 +61,28 @@
       "selection_scope": "PER_INSTANCE"
     }
   ],
+  "items": [
+    {
+      "associated_traits": [],
+      "category": "COMPONENT",
+      "composition": [],
+      "description_key": "item.sample_blade.description",
+      "display_order": 10,
+      "icon": "assets/items/sample_blade.png",
+      "id": "sample_blade",
+      "name_key": "item.sample_blade.name",
+      "tags": [
+        "sample"
+      ]
+    }
+  ],
   "locales": {
     "en": {
       "champion.sample_flex.name": "Sample Flex",
       "champion.sample_guardian.name": "Sample Guardian",
       "champion.sample_mage.name": "Sample Mage",
+      "item.sample_blade.description": "Development-only sample item.",
+      "item.sample_blade.name": "Sample Blade",
       "set.sample_set.name": "Development Sample Set",
       "trait.sample_arcane.name": "Sample Arcane",
       "trait.sample_guard.name": "Sample Guard",
@@ -77,10 +95,13 @@
     "default_locale": "en",
     "display_name_key": "set.sample_set.name",
     "dynamic_traits_file": "data/dynamic_traits.json",
+    "items_file": "data/items.json",
     "locales_dir": "locales",
+    "overview_file": "SET_OVERVIEW.md",
     "revision": "0.1.0",
-    "schema_version": 1,
+    "schema_version": 3,
     "set_id": "sample_set",
+    "source_inventory_file": "reports/source_inventory.json",
     "source_manifest_file": "source_manifest.json",
     "supported_locales": [
       "en"
@@ -89,7 +110,9 @@
     "team_planner_supported": false,
     "traits_file": "data/traits.json"
   },
-  "schema_version": 1,
+  "schema_version": 3,
+  "source_inventory": [],
+  "sources": [],
   "team_planner": {
     "champion_ids": {},
     "codec": null

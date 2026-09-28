@@ -470,7 +470,7 @@ def test_empty_trait_catalog_is_rejected(copied_valid_set: Path, save_json) -> N
 
 def test_duplicate_json_object_key_is_reported(copied_valid_set: Path) -> None:
     path = copied_valid_set / "manifest.json"
-    path.write_text('{"schema_version": 1, "schema_version": 1}\n', encoding="utf-8")
+    path.write_text('{"schema_version": 3, "schema_version": 3}\n', encoding="utf-8")
     assert "duplicate_json_key" in issue_codes(copied_valid_set)
 
 
@@ -760,3 +760,93 @@ def test_validator_reports_internal_error_if_parser_breaks_without_issue(
     report = set_loader.validate_set_directory(valid_set_dir)
     assert not report.is_valid
     assert [issue.code for issue in report.issues] == ["internal_validation_error"]
+
+
+def test_extended_set_files_and_cross_references_are_validated(
+    copied_valid_set: Path, load_json, save_json
+) -> None:
+    loaded = load_set_directory(copied_valid_set)
+    assert set(loaded.items_by_id) == {"sample_blade"}
+    assert loaded.items_by_id is loaded.items_by_id
+
+    items_path = copied_valid_set / "data/items.json"
+    items = load_json(items_path)
+    items[0]["composition"] = ["missing_item"]
+    items[0]["associated_traits"] = ["missing_trait"]
+    items[0]["icon"] = "outside.png"
+    save_json(items_path, items)
+    (copied_valid_set / "outside.png").write_bytes(
+        (copied_valid_set / "assets/items/sample_blade.png").read_bytes()
+    )
+
+    codes = issue_codes(copied_valid_set)
+    assert {"unknown_item", "unknown_trait", "asset_outside_assets_dir"} <= codes
+
+
+def test_missing_generated_overview_is_reported(copied_valid_set: Path) -> None:
+    (copied_valid_set / "SET_OVERVIEW.md").unlink()
+    assert "missing_file" in issue_codes(copied_valid_set)
+
+
+def test_extended_set_cross_reference_success_paths(
+    copied_valid_set: Path, load_json, save_json
+) -> None:
+    items_path = copied_valid_set / "data/items.json"
+    items = load_json(items_path)
+    items[0]["composition"] = ["sample_blade"]
+    items[0]["associated_traits"] = ["sample_guard"]
+    save_json(items_path, items)
+    codes = issue_codes(copied_valid_set)
+    assert not ({"unknown_item", "unknown_trait"} & codes)
+
+
+def test_missing_items_file_is_reported(copied_valid_set: Path) -> None:
+    (copied_valid_set / "data/items.json").unlink()
+    assert "missing_file" in issue_codes(copied_valid_set)
+
+
+def test_champion_cannot_directly_provide_derived_trait(
+    copied_valid_set: Path, load_json, save_json
+) -> None:
+    traits_path = copied_valid_set / "data/traits.json"
+    traits = load_json(traits_path)
+    traits[2]["derived_requirements"] = {"sample_guard": 1}
+    save_json(traits_path, traits)
+
+    champions_path = copied_valid_set / "data/champions.json"
+    champions = load_json(champions_path)
+    champions[0]["traits"].append("sample_wildcard")
+    save_json(champions_path, champions)
+
+    assert "invalid_derived_trait" in issue_codes(copied_valid_set)
+
+
+def test_derived_trait_requires_existing_non_derived_traits(
+    copied_valid_set: Path, load_json, save_json
+) -> None:
+    path = copied_valid_set / "data/traits.json"
+    payload = load_json(path)
+    payload[2]["derived_requirements"] = {"missing_trait": 1}
+    save_json(path, payload)
+    assert "unknown_trait" in issue_codes(copied_valid_set)
+
+    payload = load_json(path)
+    payload[2]["derived_requirements"] = {"sample_wildcard": 1}
+    save_json(path, payload)
+    assert "invalid_derived_trait" in issue_codes(copied_valid_set)
+
+
+def test_dynamic_rule_cannot_directly_grant_derived_trait(
+    copied_valid_set: Path, load_json, save_json
+) -> None:
+    traits_path = copied_valid_set / "data/traits.json"
+    traits = load_json(traits_path)
+    traits[2]["derived_requirements"] = {"sample_guard": 1}
+    save_json(traits_path, traits)
+
+    dynamic_path = copied_valid_set / "data/dynamic_traits.json"
+    dynamic = load_json(dynamic_path)
+    dynamic[0]["choices"] = ["sample_wildcard"]
+    save_json(dynamic_path, dynamic)
+
+    assert "invalid_derived_trait" in issue_codes(copied_valid_set)

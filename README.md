@@ -1,7 +1,7 @@
 # TFT Team Builder
 
-Current version: 0.6.2
-Current milestone: Block 6 Team Library is implemented and corrected in v0.6.2. Startup Set validation is single-pass, validated Set lookup maps are cached once, Library Set names are user-facing/localized, similarity selection wraps cleanly, and capped results explain how to narrow them. The v0.6.1 Windows run passed the normal suite but exposed Ruff hygiene drift and a packaged Flet/Flutter integration failure; exact v0.6.2 Windows Ruff/Flet verification remains pending.
+Current version: 0.7.0
+Current milestone: Block 6 Team Library is implemented and corrected in v0.7.0. Startup Set validation is single-pass, validated Set lookup maps are cached once, Library Set names are user-facing/localized, similarity selection wraps cleanly, and capped results explain how to narrow them. The v0.6.1 Windows run passed the normal suite but exposed Ruff hygiene drift and a packaged Flet/Flutter integration failure; exact v0.7.0 Windows Ruff/Flet verification remains pending.
 
 TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
 

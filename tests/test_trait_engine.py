@@ -14,6 +14,7 @@ from tft_builder.set_schema import (
     SetManifest,
     SourceManifest,
     TeamPlannerData,
+    TraitActivationMode,
     TraitBreakpoint,
     TraitCountingMode,
     TraitDefinition,
@@ -26,7 +27,9 @@ def trait(
     *,
     order: int,
     mode: TraitCountingMode = TraitCountingMode.UNIQUE_CHAMPION,
+    activation: TraitActivationMode = TraitActivationMode.AT_LEAST,
     breakpoints: tuple[int, ...] = (1, 2, 4),
+    derived_requirements: dict[str, int] | None = None,
 ) -> TraitDefinition:
     return TraitDefinition(
         id=trait_id,
@@ -34,6 +37,8 @@ def trait(
         icon=f"assets/traits/{trait_id}.png",
         display_order=order,
         counting_mode=mode,
+        activation_mode=activation,
+        derived_requirements={} if derived_requirements is None else derived_requirements,
         breakpoints=[TraitBreakpoint(count=count, style=f"tier_{count}") for count in breakpoints],
     )
 
@@ -75,7 +80,7 @@ def loaded_set(
     return LoadedSet(
         root=Path(),
         manifest=SetManifest(
-            schema_version=1,
+            schema_version=3,
             set_id="test_set",
             display_name_key="set.name",
             revision="1.0.0",
@@ -85,10 +90,12 @@ def loaded_set(
         champions=champions,
         traits=traits,
         dynamic_traits=dynamic_traits,
+        items=(),
+        source_inventory=(),
         team_planner=TeamPlannerData(),
         locales={"en_US": {}},
         source_manifest=SourceManifest(
-            schema_version=1,
+            schema_version=2,
             source_type="test",
             source_sha256="0" * 64,
             generated_file_sha256={},
@@ -540,3 +547,79 @@ def test_public_dynamic_selection_validation_rejects_wrong_types() -> None:
         validate_dynamic_selection(rule, TraitSelection(), [ChampionInstance("a").instance_id])
     with pytest.raises(TypeError, match="instance_ids"):
         validate_dynamic_selection(rule, TraitSelection(), ("not-a-uuid",))
+
+
+def test_exact_activation_trait_deactivates_above_its_only_breakpoint() -> None:
+    set_data = loaded_set(
+        champions=(champion("a", "rival"), champion("b", "rival")),
+        traits=(
+            trait(
+                "rival",
+                order=0,
+                activation=TraitActivationMode.EXACT,
+                breakpoints=(1,),
+            ),
+        ),
+    )
+    one = result_by_id(calculate_traits(set_data, team_list(("a", ()))))
+    assert one["rival"].active_breakpoint is not None
+
+    two = result_by_id(calculate_traits(set_data, team_list(("a", ()), ("b", ()))))
+    assert two["rival"].count == 2
+    assert two["rival"].active_breakpoint is None
+    assert two["rival"].next_breakpoint is None
+
+
+def test_derived_trait_activates_from_required_trait_counts() -> None:
+    champions = tuple(
+        champion(f"solar_{index}", "solar", order=index) for index in range(3)
+    ) + tuple(
+        champion(f"lunar_{index}", "lunar", order=index + 3) for index in range(3)
+    )
+    set_data = loaded_set(
+        champions=champions,
+        traits=(
+            trait("solar", order=0, breakpoints=(3,)),
+            trait("lunar", order=1, breakpoints=(3,)),
+            trait(
+                "eclipse",
+                order=2,
+                breakpoints=(1,),
+                derived_requirements={"solar": 3, "lunar": 3},
+            ),
+        ),
+    )
+    incomplete = team_list(
+        ("solar_0", ()), ("solar_1", ()), ("solar_2", ()),
+        ("lunar_0", ()), ("lunar_1", ()),
+    )
+    assert "eclipse" not in result_by_id(calculate_traits(set_data, incomplete))
+
+    complete = team_list(
+        ("solar_0", ()), ("solar_1", ()), ("solar_2", ()),
+        ("lunar_0", ()), ("lunar_1", ()), ("lunar_2", ()),
+    )
+    eclipse = result_by_id(calculate_traits(set_data, complete))["eclipse"]
+    assert eclipse.count == 1
+    assert eclipse.active_breakpoint is not None
+
+
+def test_exact_activation_reports_a_future_exact_breakpoint() -> None:
+    set_data = loaded_set(
+        champions=(champion("a", "rival"), champion("b", "rival")),
+        traits=(
+            trait(
+                "rival",
+                order=0,
+                activation=TraitActivationMode.EXACT,
+                breakpoints=(1, 3),
+            ),
+        ),
+    )
+    result = result_by_id(
+        calculate_traits(set_data, team_list(("a", ()), ("b", ())))
+    )["rival"]
+    assert result.active_breakpoint is None
+    assert result.next_breakpoint is not None
+    assert result.next_breakpoint.count == 3
+    assert result.needed_for_next_breakpoint == 1

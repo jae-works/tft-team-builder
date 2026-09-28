@@ -850,7 +850,7 @@ wheels = [
 
 [[package]]
 name = "tft-team-builder"
-version = "0.6.2"
+version = "0.7.0"
 source = { editable = "." }
 dependencies = [
     { name = "flet" },
@@ -863,6 +863,7 @@ dev = [
     { name = "flet", extra = ["test"] },
     { name = "flet-cli" },
     { name = "flet-desktop" },
+    { name = "httpx" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "ruff" },
@@ -883,6 +884,7 @@ dev = [
     { name = "flet", extras = ["test"], specifier = "==1.0.1" },
     { name = "flet-cli", specifier = "==1.0.1" },
     { name = "flet-desktop", specifier = "==1.0.1" },
+    { name = "httpx", specifier = "==0.28.1" },
     { name = "pytest", specifier = "==9.1.1" },
     { name = "pytest-cov", specifier = "==7.1.0" },
     { name = "ruff", specifier = "==0.16.9" },

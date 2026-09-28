@@ -52,9 +52,12 @@ def refresh_generated_hashes(load_json, save_json):
         generated = {
             "manifest.json",
             manifest.get("champions_file", "data/champions.json"),
+            manifest.get("items_file", "data/items.json"),
             manifest.get("traits_file", "data/traits.json"),
             manifest.get("dynamic_traits_file", "data/dynamic_traits.json"),
             manifest.get("team_planner_file", "data/team_planner.json"),
+            manifest.get("source_inventory_file", "reports/source_inventory.json"),
+            manifest.get("overview_file", "SET_OVERVIEW.md"),
         }
         locales_dir = manifest.get("locales_dir", "locales")
         generated.update(

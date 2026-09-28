@@ -90,21 +90,24 @@ Legend:
 - [x] Invalid/incomplete sets fail with understandable validation errors instead of partially loading.
 - [x] Runtime Set validation rejects empty Champion or Trait catalogs.
 - [x] Set data contains no executable Python code.
+- [x] Set packages may carry complete Item reference inventories without enabling Item equipping in the Builder UI.
+- [x] Current-Set Item acquisition must not filter by craftability; Set-declared non-craftable, Artifact, Radiant, Support, Emblem, consumable/temporary and other valid entries are retained, with referenced base components added recursively.
+- [x] Builder-relevant exceptional Champion/Trait semantics are declarative and executable; descriptive generic mechanic metadata is not a second source of truth.
 
 ## Set data acquisition and generation
 - [x] Runtime Set packages are generated local data; the normal app has no network dependency on Riot Data Dragon or CommunityDragon.
-- [ ] Riot Data Dragon is the preferred official source for supported localized TFT data and shipped visible assets.
-- [ ] CommunityDragon may be used only as a pinned build-time supplemental/cross-check source for TFT metadata not exposed adequately by Data Dragon.
+- [x] Riot Data Dragon is the preferred official source for supported localized TFT data and shipped visible assets.
+- [x] CommunityDragon may be used only as a pinned build-time supplemental/cross-check source for TFT metadata not exposed adequately by Data Dragon.
 - [ ] Public-release compliance is rechecked for any CommunityDragon-derived fields/assets that are shipped.
-- [ ] Release Set generation uses pinned/recorded source versions; unrecorded `latest` data is not accepted as a reproducible release input.
-- [ ] Generated Set packages record source provenance, locale, retrieval metadata and source payload hashes.
+- [x] Release Set generation uses pinned/recorded source versions; unrecorded `latest` data is not accepted as a reproducible release input.
+- [x] Generated Set packages record source provenance, locale, retrieval metadata and source payload hashes.
 - [ ] Source ownership is defined per field; source disagreements fail with a readable conflict instead of silently overwriting values.
 - [ ] Manual Set overrides are small, explicit, version-controlled and require a human-readable reason.
-- [ ] Raw downloaded source payloads are cached outside Git and are not required at runtime.
+- [x] Raw downloaded source payloads are cached outside Git and are not required at runtime.
 - [x] Generated Set packages contain local champion/Trait assets; runtime UI does not hotlink these assets.
-- [ ] Set generation produces a source inventory/completeness report.
-- [ ] Every source candidate is either included, explicitly excluded with a reason, or causes validation to fail.
-- [ ] Completeness checks account for debug/summoned/alternate/legacy source records rather than assuming every raw record is a player-selectable champion.
+- [x] Set generation produces a source inventory/completeness report.
+- [x] Every source candidate is either included, explicitly excluded with a reason, or causes validation to fail.
+- [x] Completeness checks account for debug/summoned/alternate/legacy source records rather than assuming every raw record is a player-selectable champion.
 - [x] Normal unit tests for the importer/validator run offline against committed fixtures.
 - [x] Generated output from identical pinned inputs and overrides is deterministic.
 - [x] Block 1 local source specs record a SHA-256 source hash plus hashes for every generated runtime JSON/locale file and every required runtime asset.
@@ -193,6 +196,8 @@ Legend:
 - [x] Zero-contribution Traits are absent from the normal core Trait result list.
 - [x] Trait result order comes from Set data with Trait ID as a deterministic tie-breaker.
 - [x] Trait breakpoints come from Set data.
+- [x] Trait activation supports exact-count semantics when >= would be wrong (for example the normal one-Rival state).
+- [x] Traits may be derived from other Trait counts (for example Eclipse from 3 Solar plus 3 Lunar) without fake Champion membership.
 - [x] Active breakpoint style data comes from Set data.
 - [x] Optional toggle hides Traits below the first breakpoint.
 - [x] Optional toggle shows next-breakpoint progress such as 3/4.
@@ -349,8 +354,8 @@ Legend:
 - Browser deployment is deferred.
 - Mobile/tablet deployment is deferred.
 - Hex board view.
-- Items.
-- Trait items / emblems.
+- Item equipping/editing in the Builder UI (Set packages may still carry complete Item reference data).
+- Trait-item/emblem equipping in the Builder UI.
 - Notes.
 - In-game overlay.
 - Live match analysis.

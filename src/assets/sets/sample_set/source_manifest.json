@@ -3,19 +3,24 @@
     "assets/champions/sample_flex.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/champions/sample_guardian.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/champions/sample_mage.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+    "assets/items/sample_blade.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/traits/sample_arcane.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/traits/sample_guard.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/traits/sample_wildcard.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
   },
   "generated_file_sha256": {
-    "data/champions.json": "10a3d26d95d11d02ef73582921c81cdae4888ef101a65c360a361890593c6653",
-    "data/dynamic_traits.json": "b98bd1dbce94c1257210c5abdbd8b387b61697df1778ca553704978ebe05aea7",
+    "SET_OVERVIEW.md": "d6ef78351a6d298d592ca57a2eabeebbf44881b7674ad0e3392cee80f3adda80",
+    "data/champions.json": "829a0426036bf5165ed2707f0af1bf23e6803bc340d60deed78cef96273b3035",
+    "data/dynamic_traits.json": "a666cb33667153e76617752dc3f40e47b1a737377fa2151267a1320649b6eb28",
+    "data/items.json": "d6046ff7ebd26daa9730f0c3403f5c88bba8277002ec9a1b3f9c353b3ca7e7a8",
     "data/team_planner.json": "5b9bfcc73a7ce60b079371c92bfd7459ac884e9254ba715304345724ab234fa6",
-    "data/traits.json": "633c5282fa7ad920b7f3fbda43e1954104e5e49221db6932aa9c091f19eb6a5e",
-    "locales/en.json": "c43d4f085bf110c40dfca96e6af8e93f99927a1ec5818ed62a8e4c1ee21e19dc",
-    "manifest.json": "f445e1ec05b9bd3d729cd98245862ade936207fc9d0bf06c4a6c2cec3a78c9c1"
+    "data/traits.json": "61bfd9dcb50f20acde49250c07a793baff6310a5bac7f88248f5e952ba84f4bc",
+    "locales/en.json": "e45c4547baa5c5a4a30e33fb77fd725704ec1bd7a01b8613f674dfe38d7b0072",
+    "manifest.json": "e10183df1416f6e42e4057b080ed59d6d288f8572baeda29098b8bb7db4702d9",
+    "reports/source_inventory.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
   },
-  "schema_version": 1,
-  "source_sha256": "dae0d4eb20ccc82f54eef6ef9bded6f63cc997e96a20a2162898c40eb5244280",
-  "source_type": "local_spec"
+  "schema_version": 2,
+  "source_sha256": "73b5b9d340dfc452af941099752cdbd3b4b9719070482e3b3705d29ec83f1e44",
+  "source_type": "local_spec",
+  "sources": []
 }

@@ -1,0 +1,15 @@
+[
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.sample_blade.description",
+    "display_order": 10,
+    "icon": "assets/items/sample_blade.png",
+    "id": "sample_blade",
+    "name_key": "item.sample_blade.name",
+    "tags": [
+      "sample"
+    ]
+  }
+]

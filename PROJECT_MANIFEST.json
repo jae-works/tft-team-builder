@@ -1,8 +1,8 @@
 {
   "project": "TFT Team Builder",
-  "version": "0.6.2",
-  "current_state": "block_6_corrected_block_7_ready_pending_windows_flet_gate",
-  "current_block": 6,
+  "version": "0.7.0",
+  "current_state": "block_7_corrected_pipeline_pending_live_set_18_generation_and_windows_gate",
+  "current_block": 7,
   "next_block": 7,
   "handoff_document": "PROJECT_CONTEXT.md",
   "required_project_documents": [
@@ -27,7 +27,8 @@
     "BLOCK_05_REPORT.md",
     "BLOCK_06_PLAN.md",
     "BLOCK_06_REPORT.md",
-    "BLOCK_07_PLAN.md"
+    "BLOCK_07_PLAN.md",
+    "SET_18_ENCHANTED_WILDS_CHECKLIST.md"
   ],
   "toolchain": {
     "python": ">=3.13,<3.14",
@@ -47,7 +48,7 @@
     "core_must_remain_ui_independent": true
   },
   "verification": {
-    "pytest_passed": 627,
+    "pytest_passed": 652,
     "branch_coverage_minimum_percent": 100,
     "compileall_passed": true,
     "ascii_policy_passed": true,
@@ -339,6 +340,9 @@
     "BLOCK_05_REPORT.md",
     "BLOCK_06_PLAN.md",
     "BLOCK_06_REPORT.md",
-    "BLOCK_07_PLAN.md"
+    "BLOCK_07_PLAN.md",
+    "SET_AUTHORING_GUIDE.md",
+    "BLOCK_07_REPORT.md",
+    "SET_18_ENCHANTED_WILDS_CHECKLIST.md"
   ]
 }

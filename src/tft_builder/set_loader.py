@@ -17,7 +17,9 @@ from .json_utils import DuplicateJsonKeyError, loads_json
 from .set_schema import (
     ChampionDefinition,
     DynamicTraitDefinition,
+    ItemDefinition,
     SetManifest,
+    SourceCandidate,
     SourceManifest,
     TeamPlannerData,
     TraitDefinition,
@@ -47,14 +49,17 @@ class LoadedSet:
     root: Path
     manifest: SetManifest
     champions: tuple[ChampionDefinition, ...]
+    items: tuple[ItemDefinition, ...]
     traits: tuple[TraitDefinition, ...]
     dynamic_traits: tuple[DynamicTraitDefinition, ...]
     team_planner: TeamPlannerData
+    source_inventory: tuple[SourceCandidate, ...]
     locales: dict[str, dict[str, str]]
     source_manifest: SourceManifest
     _champions_by_id: Mapping[str, ChampionDefinition] = field(
         init=False, repr=False, compare=False
     )
+    _items_by_id: Mapping[str, ItemDefinition] = field(init=False, repr=False, compare=False)
     _traits_by_id: Mapping[str, TraitDefinition] = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
@@ -67,6 +72,11 @@ class LoadedSet:
         )
         object.__setattr__(
             self,
+            "_items_by_id",
+            MappingProxyType({item.id: item for item in self.items}),
+        )
+        object.__setattr__(
+            self,
             "_traits_by_id",
             MappingProxyType({trait.id: trait for trait in self.traits}),
         )
@@ -74,6 +84,10 @@ class LoadedSet:
     @property
     def champions_by_id(self) -> Mapping[str, ChampionDefinition]:
         return self._champions_by_id
+
+    @property
+    def items_by_id(self) -> Mapping[str, ItemDefinition]:
+        return self._items_by_id
 
     @property
     def traits_by_id(self) -> Mapping[str, TraitDefinition]:
@@ -406,6 +420,7 @@ def validate_set_directory(root: Path) -> ValidationReport:
         "champions": _safe_package_path(
             root, manifest.champions_file, issues, "manifest.champions_file"
         ),
+        "items": _safe_package_path(root, manifest.items_file, issues, "manifest.items_file"),
         "traits": _safe_package_path(root, manifest.traits_file, issues, "manifest.traits_file"),
         "dynamic_traits": _safe_package_path(
             root,
@@ -419,6 +434,12 @@ def validate_set_directory(root: Path) -> ValidationReport:
             issues,
             "manifest.team_planner_file",
         ),
+        "source_inventory": _safe_package_path(
+            root, manifest.source_inventory_file, issues, "manifest.source_inventory_file"
+        ),
+        "overview": _safe_package_path(
+            root, manifest.overview_file, issues, "manifest.overview_file"
+        ),
         "source_manifest": _safe_package_path(
             root,
             manifest.source_manifest_file,
@@ -430,6 +451,11 @@ def validate_set_directory(root: Path) -> ValidationReport:
     champion_payload = (
         _json_load(paths["champions"], issues, manifest.champions_file)
         if paths["champions"] is not None
+        else None
+    )
+    item_payload = (
+        _json_load(paths["items"], issues, manifest.items_file)
+        if paths["items"] is not None
         else None
     )
     trait_payload = (
@@ -447,6 +473,14 @@ def validate_set_directory(root: Path) -> ValidationReport:
         if paths["team_planner"] is not None
         else None
     )
+    source_inventory_payload = (
+        _json_load(paths["source_inventory"], issues, manifest.source_inventory_file)
+        if paths["source_inventory"] is not None
+        else None
+    )
+    if paths["overview"] is not None and not paths["overview"].is_file():
+        issues.append(ValidationIssue("missing_file", "required file does not exist", manifest.overview_file))
+
     source_manifest_payload = (
         _json_load(paths["source_manifest"], issues, manifest.source_manifest_file)
         if paths["source_manifest"] is not None
@@ -456,6 +490,11 @@ def validate_set_directory(root: Path) -> ValidationReport:
     champions = (
         _parse_model_list(ChampionDefinition, champion_payload, issues, "champions")
         if champion_payload is not None
+        else None
+    )
+    items = (
+        _parse_model_list(ItemDefinition, item_payload, issues, "items")
+        if item_payload is not None
         else None
     )
     traits = (
@@ -471,6 +510,11 @@ def validate_set_directory(root: Path) -> ValidationReport:
     team_planner = (
         _parse_model(TeamPlannerData, team_planner_payload, issues, "team_planner")
         if team_planner_payload is not None
+        else None
+    )
+    source_inventory = (
+        _parse_model_list(SourceCandidate, source_inventory_payload, issues, "source_inventory")
+        if source_inventory_payload is not None
         else None
     )
     source_manifest = (
@@ -490,6 +534,10 @@ def validate_set_directory(root: Path) -> ValidationReport:
             )
         _check_unique_ids(champions, "champion", issues)
         _check_unique_display_orders(champions, "champion", issues)
+
+    if items is not None:
+        _check_unique_ids(items, "item", issues)
+        _check_unique_display_orders(items, "item", issues)
 
     if traits is not None:
         if not traits:
@@ -511,7 +559,9 @@ def validate_set_directory(root: Path) -> ValidationReport:
             )
 
     champion_ids = {champion.id for champion in champions or []}
+    item_ids = {item.id for item in items or []}
     trait_ids = {trait.id for trait in traits or []}
+    derived_trait_ids = {trait.id for trait in traits or [] if trait.derived_requirements}
     required_assets: set[str] = set()
 
     for champion in champions or []:
@@ -521,6 +571,14 @@ def validate_set_directory(root: Path) -> ValidationReport:
                     ValidationIssue(
                         "unknown_trait",
                         f"Champion '{champion.id}' references unknown Trait '{trait_id}'",
+                        f"champions.{champion.id}.traits",
+                    )
+                )
+            elif trait_id in derived_trait_ids:
+                issues.append(
+                    ValidationIssue(
+                        "invalid_derived_trait",
+                        f"Champion '{champion.id}' may not directly provide derived Trait '{trait_id}'",
                         f"champions.{champion.id}.traits",
                     )
                 )
@@ -535,7 +593,55 @@ def validate_set_directory(root: Path) -> ValidationReport:
         required_assets.add(champion.image)
         _validate_asset(root, champion.image, issues, f"champions.{champion.id}.image")
 
+    for item in items or []:
+        for component_id in item.composition:
+            if component_id not in item_ids:
+                issues.append(
+                    ValidationIssue(
+                        "unknown_item",
+                        f"Item '{item.id}' references unknown component '{component_id}'",
+                        f"items.{item.id}.composition",
+                    )
+                )
+        for trait_id in item.associated_traits:
+            if trait_id not in trait_ids:
+                issues.append(
+                    ValidationIssue(
+                        "unknown_trait",
+                        f"Item '{item.id}' references unknown Trait '{trait_id}'",
+                        f"items.{item.id}.associated_traits",
+                    )
+                )
+        if not item.icon.startswith(f"{manifest.assets_dir}/"):
+            issues.append(
+                ValidationIssue(
+                    "asset_outside_assets_dir",
+                    "Item icon must be stored under manifest.assets_dir",
+                    f"items.{item.id}.icon",
+                )
+            )
+        required_assets.add(item.icon)
+        _validate_asset(root, item.icon, issues, f"items.{item.id}.icon")
+
+
     for trait in traits or []:
+        for required_trait_id in trait.derived_requirements:
+            if required_trait_id not in trait_ids:
+                issues.append(
+                    ValidationIssue(
+                        "unknown_trait",
+                        f"Trait '{trait.id}' derives from unknown Trait '{required_trait_id}'",
+                        f"traits.{trait.id}.derived_requirements",
+                    )
+                )
+            elif required_trait_id == trait.id or required_trait_id in derived_trait_ids:
+                issues.append(
+                    ValidationIssue(
+                        "invalid_derived_trait",
+                        "derived Traits may depend only on non-derived Traits",
+                        f"traits.{trait.id}.derived_requirements",
+                    )
+                )
         if not trait.icon.startswith(f"{manifest.assets_dir}/"):
             issues.append(
                 ValidationIssue(
@@ -565,11 +671,28 @@ def validate_set_directory(root: Path) -> ValidationReport:
                         f"dynamic_traits.{dynamic_trait.champion_id}.choices",
                     )
                 )
+            elif trait_id in derived_trait_ids:
+                issues.append(
+                    ValidationIssue(
+                        "invalid_derived_trait",
+                        f"dynamic Trait rule may not directly grant derived Trait '{trait_id}'",
+                        f"dynamic_traits.{dynamic_trait.champion_id}.choices",
+                    )
+                )
 
     locales: dict[str, dict[str, str]] = {}
     required_name_keys = {manifest.display_name_key}
     required_name_keys.update(champion.name_key for champion in champions or [])
+    required_name_keys.update(item.name_key for item in items or [])
     required_name_keys.update(trait.name_key for trait in traits or [])
+    required_name_keys.update(
+        key
+        for key in (
+            *(item.description_key for item in items or []),
+            *(trait.description_key for trait in traits or []),
+        )
+        if key is not None
+    )
 
     locales_dir = _safe_package_path(root, manifest.locales_dir, issues, "manifest.locales_dir")
     if locales_dir is not None:
@@ -631,9 +754,12 @@ def validate_set_directory(root: Path) -> ValidationReport:
     required_generated_files = {
         "manifest.json",
         manifest.champions_file,
+        manifest.items_file,
         manifest.traits_file,
         manifest.dynamic_traits_file,
         manifest.team_planner_file,
+        manifest.source_inventory_file,
+        manifest.overview_file,
         *(f"{manifest.locales_dir}/{locale}.json" for locale in manifest.supported_locales),
     }
 
@@ -672,9 +798,11 @@ def validate_set_directory(root: Path) -> ValidationReport:
 
     if (
         champions is None
+        or items is None
         or traits is None
         or dynamic_traits is None
         or team_planner is None
+        or source_inventory is None
         or source_manifest is None
     ):
         return ValidationReport(
@@ -692,9 +820,11 @@ def validate_set_directory(root: Path) -> ValidationReport:
         root=root,
         manifest=manifest,
         champions=tuple(sorted(champions, key=lambda item: (item.display_order, item.id))),
+        items=tuple(sorted(items, key=lambda item: (item.display_order, item.id))),
         traits=tuple(sorted(traits, key=lambda item: (item.display_order, item.id))),
         dynamic_traits=tuple(sorted(dynamic_traits, key=lambda item: item.champion_id)),
         team_planner=team_planner,
+        source_inventory=tuple(source_inventory),
         locales=locales,
         source_manifest=source_manifest,
     )

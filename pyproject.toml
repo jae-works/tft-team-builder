@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tft-team-builder"
-version = "0.6.2"
+version = "0.7.0"
 description = "Local-first team planning and library tool for Teamfight Tactics."
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
@@ -22,6 +22,7 @@ dev = [
     "flet-cli==1.0.1",
     "flet-desktop==1.0.1",
     "flet[test]==1.0.1",
+    "httpx==0.28.1",
     "pytest==9.1.1",
     "pytest-cov==7.1.0",
     "ruff==0.16.9",

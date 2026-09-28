@@ -128,9 +128,35 @@ def main(argv: list[str] | None = None) -> int:
         loaded = load_set_directory(args.path)
         print(f"Set ID: {loaded.manifest.set_id}")
         print(f"Revision: {loaded.manifest.revision}")
+        catalog = loaded.locales[loaded.manifest.default_locale]
         print(f"Champions: {len(loaded.champions)}")
+        for champion in loaded.champions:
+            traits = ", ".join(champion.traits) or "-"
+            print(
+                f"  {catalog[champion.name_key]} [{champion.id}] | "
+                f"cost={champion.cost} | traits={traits} | image={champion.image}"
+            )
         print(f"Traits: {len(loaded.traits)}")
+        for trait in loaded.traits:
+            breakpoints = ", ".join(str(item.count) for item in trait.breakpoints)
+            derived = ", ".join(
+                f"{trait_id}>={count}"
+                for trait_id, count in sorted(trait.derived_requirements.items())
+            ) or "-"
+            print(
+                f"  {catalog[trait.name_key]} [{trait.id}] | "
+                f"breakpoints={breakpoints} | activation={trait.activation_mode.value} | "
+                f"derived={derived} | icon={trait.icon}"
+            )
+        print(f"Items: {len(loaded.items)}")
+        for item in loaded.items:
+            components = ", ".join(item.composition) or "-"
+            print(
+                f"  {catalog[item.name_key]} [{item.id}] | category={item.category.value} | "
+                f"components={components} | icon={item.icon}"
+            )
         print(f"Dynamic rules: {len(loaded.dynamic_traits)}")
+        print(f"Overview: {loaded.manifest.overview_file}")
         return 0
 
     # The subparser is required and only defines the known commands above. Reaching this

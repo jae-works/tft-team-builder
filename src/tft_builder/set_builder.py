@@ -67,6 +67,98 @@ def _resolve_source_asset(spec_dir: Path, relative: str) -> Path:
     return resolved
 
 
+def _markdown_cell(value: str) -> str:
+    """Keep generated overview tables readable without embedding arbitrary Markdown."""
+
+    return value.replace("|", "\\|").replace("\n", " ").strip()
+
+
+def _render_set_overview(spec: LocalSetSpec) -> str:
+    """Render a deterministic human-reviewable inventory beside the runtime data."""
+
+    catalog = spec.locales[spec.manifest.default_locale]
+    lines = [
+        f"# {catalog[spec.manifest.display_name_key]} - Set package overview",
+        "",
+        "Generated from the validated Set source specification. Images use local package paths.",
+        "",
+        f"- Champions: {len(spec.champions)}",
+        f"- Traits: {len(spec.traits)}",
+        f"- Items: {len(spec.items)}",
+        "",
+        "## Champions",
+        "",
+        "| Image | Champion | Cost | Traits | Trait points | Slots |",
+        "| --- | --- | ---: | --- | --- | ---: |",
+    ]
+    for champion in sorted(spec.champions, key=lambda item: (item.display_order, item.id)):
+        trait_names = {trait.id: catalog[trait.name_key] for trait in spec.traits}
+        traits = ", ".join(trait_names[trait_id] for trait_id in champion.traits)
+        points = ", ".join(
+            f"{trait_id}={champion.trait_points.get(trait_id, 1)}" for trait_id in champion.traits
+        )
+        lines.append(
+            "| "
+            f"![{_markdown_cell(catalog[champion.name_key])}]({champion.image}) | "
+            f"{_markdown_cell(catalog[champion.name_key])} | {champion.cost} | "
+            f"{_markdown_cell(traits)} | {_markdown_cell(points)} | {champion.board_slots} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Traits",
+            "",
+            "| Icon | Trait | Breakpoints | Activation | Derived from | Description |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for trait in sorted(spec.traits, key=lambda item: (item.display_order, item.id)):
+        breakpoints = ", ".join(
+            f"{breakpoint.count} ({breakpoint.style})" for breakpoint in trait.breakpoints
+        )
+        description = catalog.get(trait.description_key, "-") if trait.description_key else "-"
+        derived = ", ".join(
+            f"{trait_id}>={count}"
+            for trait_id, count in sorted(trait.derived_requirements.items())
+        ) or "-"
+        lines.append(
+            f"| ![{_markdown_cell(catalog[trait.name_key])}]({trait.icon}) | "
+            f"{_markdown_cell(catalog[trait.name_key])} | {_markdown_cell(breakpoints)} | "
+            f"{trait.activation_mode.value} | {_markdown_cell(derived)} | "
+            f"{_markdown_cell(description)} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Items",
+            "",
+            "| Icon | Item | Category | Components | Associated Traits | Description |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for item in sorted(spec.items, key=lambda value: (value.display_order, value.id)):
+        description = catalog.get(item.description_key, "-") if item.description_key else "-"
+        lines.append(
+            f"| ![{_markdown_cell(catalog[item.name_key])}]({item.icon}) | "
+            f"{_markdown_cell(catalog[item.name_key])} | {item.category.value} | "
+            f"{_markdown_cell(', '.join(item.composition) or '-')} | "
+            f"{_markdown_cell(', '.join(item.associated_traits) or '-')} | "
+            f"{_markdown_cell(description)} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Source candidate accounting",
+            "",
+            f"Included/excluded source candidates: {len(spec.source_inventory)}",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
 def _populate_staging_directory(spec_dir: Path, staging_dir: Path) -> None:
     """Write a complete candidate package into an isolated staging directory."""
 
@@ -76,6 +168,10 @@ def _populate_staging_directory(spec_dir: Path, staging_dir: Path) -> None:
     _write_json(
         staging_dir / spec.manifest.champions_file,
         [value.model_dump(mode="json") for value in spec.champions],
+    )
+    _write_json(
+        staging_dir / spec.manifest.items_file,
+        [value.model_dump(mode="json") for value in spec.items],
     )
     _write_json(
         staging_dir / spec.manifest.traits_file,
@@ -89,6 +185,13 @@ def _populate_staging_directory(spec_dir: Path, staging_dir: Path) -> None:
         staging_dir / spec.manifest.team_planner_file,
         spec.team_planner.model_dump(mode="json"),
     )
+    _write_json(
+        staging_dir / spec.manifest.source_inventory_file,
+        [value.model_dump(mode="json") for value in spec.source_inventory],
+    )
+    overview_path = staging_dir / spec.manifest.overview_file
+    overview_path.parent.mkdir(parents=True, exist_ok=True)
+    overview_path.write_text(_render_set_overview(spec), encoding="utf-8", newline="\n")
 
     for locale, catalog in sorted(spec.locales.items()):
         _write_json(staging_dir / spec.manifest.locales_dir / f"{locale}.json", catalog)
@@ -104,9 +207,12 @@ def _populate_staging_directory(spec_dir: Path, staging_dir: Path) -> None:
     generated_paths = {
         "manifest.json",
         spec.manifest.champions_file,
+        spec.manifest.items_file,
         spec.manifest.traits_file,
         spec.manifest.dynamic_traits_file,
         spec.manifest.team_planner_file,
+        spec.manifest.source_inventory_file,
+        spec.manifest.overview_file,
         *(
             f"{spec.manifest.locales_dir}/{locale}.json"
             for locale in spec.manifest.supported_locales
@@ -123,6 +229,7 @@ def _populate_staging_directory(spec_dir: Path, staging_dir: Path) -> None:
         "source_sha256": sha256_bytes(raw_spec),
         "generated_file_sha256": generated_file_hashes,
         "asset_sha256": asset_hashes,
+        "sources": [value.model_dump(mode="json") for value in spec.sources],
     }
     _write_json(staging_dir / spec.manifest.source_manifest_file, source_manifest)
 

@@ -1,0 +1,70 @@
+{
+  "set_id": "enchanted_wilds",
+  "set_number": 18,
+  "mutator": "TFTSet18",
+  "display_name": "Enchanted Wilds",
+  "revision": "18.3",
+  "ddragon_version": "16.19.1",
+  "cdragon_version": "16.19",
+  "default_locale": "en_US",
+  "locales": ["en_US", "de_DE"],
+  "exclude_champions": {},
+  "variant_groups": [
+    {
+      "target_id": "TFT18_Lux",
+      "display_name": "Lux",
+      "localized_names": {"en_US": "Lux", "de_DE": "Lux"},
+      "source_ids": [
+        "TFT18_LuxBlossom",
+        "TFT18_LuxCoven",
+        "TFT18_LuxElderwood",
+        "TFT18_LuxEldritch",
+        "TFT18_LuxFae",
+        "TFT18_LuxInferno",
+        "TFT18_LuxLunar",
+        "TFT18_LuxPrimal",
+        "TFT18_LuxSolar"
+      ],
+      "image_source_id": "TFT18_LuxBlossom",
+      "selection_rule": "EXACTLY_ONE",
+      "selection_scope": "PER_INSTANCE",
+      "choice_points": 2,
+      "search_aliases": ["avatar"]
+    }
+  ],
+  "champion_adjustments": {
+    "TFT18_ElderDragon": {
+      "board_slots": 2,
+      "trait_points_by_name": {"Riftbeast": 2}
+    }
+  },
+  "dynamic_traits": [
+    {
+      "champion_id": "TFT18_KhaZix",
+      "selection_rule": "ZERO_OR_ONE",
+      "selection_scope": "PER_CHAMPION",
+      "choice_trait_names": ["Executioner", "Rapidfire", "Ravager", "Spellweaver"],
+      "choice_points": 1
+    }
+  ],
+  "trait_adjustments_by_name": {
+    "Rival": {
+      "activation_mode": "EXACT",
+      "breakpoints": [{"count": 1, "style": "tier_1"}]
+    },
+    "Eclipse": {
+      "breakpoints": [{"count": 1, "style": "tier_1"}],
+      "derived_requirements_by_name": {"Solar": 3, "Lunar": 3}
+    }
+  },
+  "required_item_categories": [
+    "COMPONENT",
+    "CRAFTABLE",
+    "EMBLEM",
+    "ARTIFACT",
+    "RADIANT",
+    "SUPPORT",
+    "CONSUMABLE",
+    "OTHER"
+  ]
+}

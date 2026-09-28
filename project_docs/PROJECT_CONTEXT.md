@@ -24,10 +24,10 @@ This is the first document another developer or AI instance should read before c
 
 ## Current state
 
-- Current version: 0.6.2.
+- Current version: 0.7.0.
 - Blocks 1, 2 and 3 are implemented. The user Windows-verified the 0.3.0 Block 3 runtime behavior: 529 tests at 100 percent statement/branch coverage, Set and database smoke tests, Builder smoke and Flet startup all passed.
 - That Windows run found only two Ruff lint findings in `tests/test_trait_engine.py` after Ruff formatted four files. Version 0.3.1 applies both exact lint corrections and expands the semantic/integration audit to 537 tests while retaining the 100 percent production coverage gate.
-- Blocks 4, 5 and 6 are implemented. Version 0.6.2 is the post-Windows Block 6 correction: the v0.6.1 Windows run passed 623 normal tests at 100 percent coverage but exposed three Ruff F401 findings, formatter/EOF drift, and a packaged Flet/Flutter exit-code-79 failure. The correction removes those source hygiene findings, validates Sets once at startup, caches immutable `LoadedSet` ID maps, improves real-data Library naming/result-density behavior, and closes Flet 1.0.1 RemoteTester writers in the integration-test compatibility shim before upstream cleanup drops them. The normal local suite is 627 tests at 100 percent statement/branch coverage. Exact Ruff 0.16.9 and packaged Windows Flet verification of v0.6.2 remain release gates.
+- Blocks 4, 5 and 6 are implemented. Version 0.7.0 is the post-Windows Block 6 correction: the v0.6.1 Windows run passed 623 normal tests at 100 percent coverage but exposed three Ruff F401 findings, formatter/EOF drift, and a packaged Flet/Flutter exit-code-79 failure. The correction removes those source hygiene findings, validates Sets once at startup, caches immutable `LoadedSet` ID maps, improves real-data Library naming/result-density behavior, and closes Flet 1.0.1 RemoteTester writers in the integration-test compatibility shim before upstream cleanup drops them. The normal local suite is 627 tests at 100 percent statement/branch coverage. Exact Ruff 0.16.9 and packaged Windows Flet verification of v0.7.0 remain release gates.
 
 ## Source of truth
 
@@ -140,7 +140,7 @@ Runtime Set packages must validate completely before use. Block 1 currently vali
 
 The committed `sample_set` is generated from `set_sources/specs/sample_set` and is not intended to represent a real Riot TFT Set.
 
-Real Riot/CommunityDragon source acquisition remains Block 7 work. Do not add ad-hoc runtime downloads before then.
+Block 7 implements pinned developer-only Riot Data Dragon/CommunityDragon acquisition. Runtime downloads remain prohibited; the app consumes only validated local packages.
 
 ## Riot compliance rule
 
@@ -166,3 +166,7 @@ Version 0.4.0 introduced the first functional Builder GUI; version 0.4.1 polishe
 Version 0.5.0 added Champion/Trait search, Trait-click filtering, native Flet drag/drop translation, dynamic Trait editing and desktop keyboard shortcuts while keeping all mutations in TeamEditor. Version 0.5.1 is the post-Windows correction/audit: the packaged entry module now starts Flet when imported by device-mode tests, the two real Ruff E731 findings are removed, repeated Set lookup dictionaries are cached once per BuilderView, and one unused catalog helper was removed. `move_champion_to_end()` remains the dense trailing-drop primitive, `set_champion_trait_selection()` is the PER_CHAMPION dynamic edit primitive, and `validate_dynamic_selection()` is the shared rule validator.
 
 Block 6 is implemented and audited. Library search/ranking remains Flet-independent, Library aggregate reads are bounded/cached, and Block 7 is the next implementation target described in `BLOCK_07_PLAN.md`.
+
+## Block 7 corrected Set 18 semantics
+
+The Set 18 pipeline uses schema v3. Elder Dragon consumes 2 board slots and contributes 2 Riftbeast points. Lux uses a data-driven +2 selected-origin rule; Kha'Zix has an optional Rival evolution Trait choice; Rengar has no separate Builder state. Rival uses exact-count activation at one unit, and Eclipse is derived from 3 Solar plus 3 Lunar instead of fake Champion membership. The importer retains every Set-declared Item regardless of craftability and recursively adds components, with required-family guards for component/craftable/emblem/artifact/radiant/support/consumable/other data. See `SET_18_ENCHANTED_WILDS_CHECKLIST.md`.

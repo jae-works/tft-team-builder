@@ -106,7 +106,7 @@ def test_source_manifest_contains_spec_hash_and_all_asset_hashes(
     output = tmp_path / "built"
     build_set_from_local_spec(spec, output)
     payload = json.loads((output / "source_manifest.json").read_text(encoding="utf-8"))
-    assert payload["schema_version"] == 1
+    assert payload["schema_version"] == 2
     assert payload["source_type"] == "local_spec"
     assert len(payload["source_sha256"]) == 64
     assert set(payload["generated_file_sha256"]) == {
@@ -114,7 +114,10 @@ def test_source_manifest_contains_spec_hash_and_all_asset_hashes(
         "data/champions.json",
         "data/traits.json",
         "data/dynamic_traits.json",
+        "data/items.json",
         "data/team_planner.json",
+        "reports/source_inventory.json",
+        "SET_OVERVIEW.md",
         "locales/en.json",
     }
     assert all(len(value) == 64 for value in payload["generated_file_sha256"].values())
@@ -122,6 +125,7 @@ def test_source_manifest_contains_spec_hash_and_all_asset_hashes(
         "assets/champions/sample_flex.png",
         "assets/champions/sample_guardian.png",
         "assets/champions/sample_mage.png",
+        "assets/items/sample_blade.png",
         "assets/traits/sample_arcane.png",
         "assets/traits/sample_guard.png",
         "assets/traits/sample_wildcard.png",
@@ -238,7 +242,7 @@ def test_builder_rejects_duplicate_json_key_in_source_spec(
     path = spec / "set_spec.json"
     original = path.read_text(encoding="utf-8").rstrip()
     assert original.endswith("}")
-    broken = original[:-1] + ', "schema_version": 1}\n'
+    broken = original[:-1] + ', "schema_version": 3}\n'
     path.write_text(broken, encoding="utf-8")
 
     with pytest.raises(ValueError, match="duplicate JSON object key"):

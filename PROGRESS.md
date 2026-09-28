@@ -1,8 +1,8 @@
 # TFT Team Builder - Progress
 
-Current version: 0.6.2
-Current status: Block 6 Team Library implemented, quality-audited and corrected in v0.6.2. The correction removes the v0.6.1 Ruff/whitespace findings, avoids duplicate startup Set validation, caches validated Set ID maps once, improves real-data Library presentation, restores the hidden CI workflow omitted by the handoff ZIP, and adds a narrow Flet 1.0.1 RemoteTester cleanup shim. Exact v0.6.2 Windows Ruff/Flet verification remains pending.
-Next planned block: Block 7 - Real TFT Set data pipeline and production Set package.
+Current version: 0.7.0
+Current status: Block 7 pipeline implementation is corrected in v0.7.0. Schema v3, complete Set-declared Item reference data, weighted/dynamic Trait contributions, exact/derived Trait activation, source provenance/inventory, Set overview generation, automatic folder discovery and the pinned Set 18 importer are implemented. Elder Dragon is 2 slots/+2 Riftbeast; Rengar has no separate Builder state. Live Set 18 asset acquisition and the Windows release gate remain pending because the implementation container cannot bulk-download the upstream binary assets.
+Next planned block: Finish the live Set 18 import/verification gate, then Block 8.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
 
@@ -346,7 +346,7 @@ Block 6 local verification candidate:
 - [x] A 300-Team aggregate benchmark completed through the new four-query batch path; exact performance acceptance remains a Block 9 real-library audit rather than a machine-specific timing requirement.
 
 
-## Version 0.6.2 post-Windows correction and Block 7 readiness
+## Version 0.7.0 post-Windows correction and Block 7 readiness
 
 User Windows 0.6.1 run:
 - [x] 623 normal tests passed with 2721 production statements and 808 branches at 100 percent coverage.
@@ -357,7 +357,7 @@ User Windows 0.6.1 run:
 - [ ] Packaged Flet/Flutter integration connected its RemoteTester but the Flutter process exited with code 79 before the Library became test-visible.
 - [ ] The failed packaged run also surfaced Flet 1.0.1 dropping a RemoteTester `StreamWriter` without closing it first, which became a strict ResourceWarning.
 
-Version 0.6.2 corrections:
+Version 0.7.0 corrections:
 - [x] Remove all three reported unused imports and the trailing EOF whitespace.
 - [x] Keep all touched Python in the Ruff 0.16.9 formatting shape observed in the Windows run.
 - [x] Validate bundled Sets once during application initialization and reuse the validated `LoadedSet` objects when creating the runtime instead of re-reading/hashing the complete Set tree.
@@ -370,4 +370,19 @@ Version 0.6.2 corrections:
 - [x] Refine Block 7 around concrete acquisition/build steps, immutable source cache records, offline runtime guarantees, long-name/real-asset HCI cases and one-pass startup validation.
 - [x] Keep the large BuilderView decomposition as a Block 9 decision gate; the current structural/duplicate-function audit does not justify a large rewrite now.
 - [x] 627 normal tests pass locally with 2736 production statements and 810 branches at 100 percent coverage.
-- [ ] Exact Ruff 0.16.9 checks and the packaged Windows Flet/Flutter integration flow must be rerun on Windows before closing the v0.6.2 release gate.
+- [ ] Exact Ruff 0.16.9 checks and the packaged Windows Flet/Flutter integration flow must be rerun on Windows before closing the v0.7.0 release gate.
+
+
+## Block 7 implementation
+
+- [x] Runtime schema v3 supports complete Set-declared Item reference data plus executable Builder-relevant exceptional semantics without a generic mechanics metadata layer.
+- [x] Weighted/dynamic Trait contributions support Lux, Kha'Zix and Elder-Dragon-style data without runtime Champion branches; Elder Dragon is verified as 2 slots/+2 Riftbeast.
+- [x] Developer importer is pinned to exact Data Dragon/CommunityDragon revisions and uses bounded HTTPS downloads plus local cache.
+- [x] Generated packages contain source candidate accounting, provenance hashes and `SET_OVERVIEW.md`.
+- [x] `inspect-set` prints Champion/Trait/Item inventories.
+- [x] Adding a Set requires a valid folder only; no second activation registry exists.
+- [x] Rival exact-count activation and Eclipse derived activation are modeled generically instead of being forced through ordinary >= breakpoints.
+- [x] Set Item acquisition keeps every Set-declared entry, recursively adds components, and guards component/craftable/emblem/artifact/radiant/support/consumable/other families.
+- [x] Corrected audit suite passes 652 normal tests with 2907 production statements and 872 branches at 100 percent coverage.
+- [ ] Run the pinned Set 18 import on a networked machine and review the first generated `source_lock.json`.
+- [ ] Validate the generated `src/assets/sets/enchanted_wilds` package and run the Windows/Flet release gate.

@@ -2,7 +2,7 @@
 
 This document defines how TFT Set data and assets are collected, normalized, validated and shipped.
 
-Current implementation status: Block 1 implements the local runtime schema, deterministic local-spec builder, strict Set loader/validator, local asset copying, and source/asset hashing. Network acquisition from pinned Riot Data Dragon and CommunityDragon inputs, source-candidate inventory generation, conflict reconciliation, and production Set generation remain Block 7 work.
+Current implementation status: Block 7 implements schema v3, the pinned Riot Data Dragon + CommunityDragon acquisition path, source-candidate inventory/provenance, complete Set-declared Item reference data, executable declarative Trait/Champion exceptions, generated human review reports, and the deterministic offline runtime package boundary. Live binary acquisition remains a developer command and never runs in the application.
 
 ## Decision
 
@@ -12,7 +12,7 @@ The build-time data pipeline uses three layers:
 
 1. Riot Data Dragon as the preferred official source for supported localized TFT data and visible assets such as champion portraits and Trait icons.
 2. CommunityDragon as a supplemental, build-time source and cross-check for TFT client metadata that Data Dragon does not expose conveniently or completely, including Set membership/relationships, Team Planner metadata and richer Trait metadata where needed.
-3. Small, explicit project-owned overrides for mechanics or mappings that cannot be derived reliably from the source data.
+3. Small, explicit project-owned overrides only for Builder semantics or mappings that cannot be derived reliably from the source data.
 
 CommunityDragon is a community project and is not a Riot-supported API. It must never become a runtime dependency. Before a public release, any CommunityDragon-derived fields or assets that are shipped must be reviewed against the then-current Riot rules. Prefer Riot-hosted assets whenever they are available.
 
@@ -37,7 +37,8 @@ Examples of intended ownership:
 - Set membership and champion-to-Trait relationships when not adequately represented by Data Dragon: derive from the pinned supplemental TFT client metadata.
 - Trait breakpoints/styles: derive from the richest pinned source that exposes them, then validate them structurally.
 - Team Planner identifiers/mappings: derive from the pinned Team Planner metadata and verify with round-trip fixtures later.
-- Special selectable/dynamic Trait behavior: explicit project override unless a source exposes an unambiguous rule that we have tested.
+- Special selectable/dynamic Trait behavior, exact-count activation and derived Trait requirements: explicit project override unless a source exposes an unambiguous rule that we have tested.
+- Current-Set Item membership: the pinned CommunityDragon Set ItemLists; keep every declared entry regardless of craftability and recursively add referenced components. Riot Data Dragon may supply preferred localized fields/assets but is not used as an unfiltered Set-membership list.
 
 If two trusted inputs disagree on a field that should agree, generation must stop with a readable conflict report. Overrides may resolve a conflict only when the override contains a human-readable reason.
 
@@ -147,7 +148,7 @@ Implemented in Block 1:
 - readable stable validation errors;
 - deterministic generation tests.
 
-Block 7 extends this boundary with:
+Block 7 extends this boundary with the following implemented capabilities:
 
 - pinned remote source configuration;
 - download/cache with hashes;

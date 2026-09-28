@@ -1,6 +1,7 @@
 [
   {
     "champion_id": "sample_flex",
+    "choice_points": {},
     "choices": [
       "sample_arcane",
       "sample_wildcard"

@@ -91,8 +91,8 @@ Status: accepted in Block 1.
 
 Decision:
 - Block 1 implements deterministic generation from a committed offline local source spec.
-- Riot Data Dragon and CommunityDragon acquisition are deferred to Block 7.
-- Future upstream adapters must normalize into this stable builder boundary instead of being coupled directly to runtime models.
+- Block 7 implements Riot Data Dragon and CommunityDragon acquisition as developer-only tooling.
+- Upstream importers normalize into this stable builder boundary instead of coupling remote formats to runtime models.
 
 Reasoning:
 - Core application development should not be blocked by changing remote source formats.
@@ -613,3 +613,18 @@ Reasoning:
 
 Revisit when:
 - the pinned Flet version changes or platform-specific accessibility behavior requires a different control strategy.
+
+
+## D0B - Runtime Set discovery uses the filesystem as the registry
+
+Status: accepted in Block 7.
+
+Decision:
+- A valid direct child under `src/assets/sets/` is an installed Set; there is no second Python activation list.
+- Set packages carry complete Set-declared Item reference data, source provenance and review inventory even when the current Builder UI does not expose Item equipping. Builder-relevant special semantics use executable fields (`trait_points`, `board_slots`, dynamic Trait rules, exact activation and derived requirements) rather than a generic mechanics metadata layer.
+- Special Champion behavior is represented through generic weighted Trait contributions, board-slot costs, dynamic Trait selections and mechanic metadata rather than Champion-specific engine branches.
+
+Reasoning:
+- One authoritative installation mechanism avoids registry/folder drift.
+- Complete reference data makes Set review and future features possible without forcing those features into the current UI.
+- Data-driven mechanics keep future unusual Champions addable without rewriting the core Trait engine.

@@ -11,6 +11,7 @@ from .set_schema import (
     DynamicSelectionRule,
     DynamicSelectionScope,
     DynamicTraitDefinition,
+    TraitActivationMode,
     TraitBreakpoint,
     TraitCountingMode,
 )
@@ -50,8 +51,8 @@ class TraitCalculationResult:
 
 @dataclass(slots=True)
 class _TraitContributors:
-    champion_ids: set[str]
-    instance_ids: set[UUID]
+    champion_points: dict[str, int]
+    instance_points: dict[UUID, int]
 
 
 def calculate_traits(loaded_set: LoadedSet, team_list: TeamList) -> TraitCalculationResult:
@@ -66,7 +67,7 @@ def calculate_traits(loaded_set: LoadedSet, team_list: TeamList) -> TraitCalcula
     champions_by_id = loaded_set.champions_by_id
     dynamic_by_champion = {item.champion_id: item for item in loaded_set.dynamic_traits}
     contributors = {
-        trait.id: _TraitContributors(champion_ids=set(), instance_ids=set())
+        trait.id: _TraitContributors(champion_points={}, instance_points={})
         for trait in loaded_set.traits
     }
     placed_by_champion: dict[str, list[ChampionInstance]] = {}
@@ -80,7 +81,9 @@ def calculate_traits(loaded_set: LoadedSet, team_list: TeamList) -> TraitCalcula
             raise ValueError(f"unknown Champion ID in List: {champion.champion_id}")
         placed_by_champion.setdefault(champion.champion_id, []).append(champion)
         for trait_id in definition.traits:
-            _add_contribution(contributors[trait_id], champion)
+            _add_contribution(
+                contributors[trait_id], champion, definition.trait_points.get(trait_id, 1)
+            )
 
     issues: list[DynamicSelectionIssue] = []
     for champion_id, instances in placed_by_champion.items():
@@ -98,20 +101,36 @@ def calculate_traits(loaded_set: LoadedSet, team_list: TeamList) -> TraitCalcula
         for trait_id in issue.affected_trait_ids
         if trait_id in contributors
     }
-    results: list[TraitResult] = []
-    for trait in sorted(loaded_set.traits, key=lambda item: (item.display_order, item.id)):
+    base_counts: dict[str, int] = {}
+    for trait in loaded_set.traits:
         trait_contributors = contributors[trait.id]
         if trait.counting_mode is TraitCountingMode.UNIQUE_CHAMPION:
-            count = len(trait_contributors.champion_ids)
+            base_counts[trait.id] = sum(trait_contributors.champion_points.values())
         else:
-            count = len(trait_contributors.instance_ids)
+            base_counts[trait.id] = sum(trait_contributors.instance_points.values())
+
+    results: list[TraitResult] = []
+    for trait in sorted(loaded_set.traits, key=lambda item: (item.display_order, item.id)):
+        count = base_counts[trait.id]
+        if trait.derived_requirements:
+            count = int(
+                all(
+                    base_counts.get(required_trait_id, 0) >= required_count
+                    for required_trait_id, required_count in trait.derived_requirements.items()
+                )
+            )
         if count == 0:
             continue
 
         active = None
         next_breakpoint = None
         for breakpoint in trait.breakpoints:
-            if breakpoint.count <= count:
+            if trait.activation_mode is TraitActivationMode.EXACT:
+                if breakpoint.count == count:
+                    active = breakpoint
+                elif breakpoint.count > count and next_breakpoint is None:
+                    next_breakpoint = breakpoint
+            elif breakpoint.count <= count:
                 active = breakpoint
             elif next_breakpoint is None:
                 next_breakpoint = breakpoint
@@ -132,9 +151,14 @@ def calculate_traits(loaded_set: LoadedSet, team_list: TeamList) -> TraitCalcula
     return TraitCalculationResult(traits=tuple(results), dynamic_issues=tuple(issues))
 
 
-def _add_contribution(contributors: _TraitContributors, champion: ChampionInstance) -> None:
-    contributors.champion_ids.add(champion.champion_id)
-    contributors.instance_ids.add(champion.instance_id)
+def _add_contribution(
+    contributors: _TraitContributors, champion: ChampionInstance, points: int = 1
+) -> None:
+    # UNIQUE_CHAMPION semantics use the strongest contribution for duplicate copies of one unit.
+    contributors.champion_points[champion.champion_id] = max(
+        points, contributors.champion_points.get(champion.champion_id, 0)
+    )
+    contributors.instance_points[champion.instance_id] = points
 
 
 def _apply_per_instance_rule(
@@ -149,7 +173,9 @@ def _apply_per_instance_rule(
             issues.append(issue)
             continue
         for trait_id in champion.trait_selection.trait_ids:
-            _add_contribution(contributors[trait_id], champion)
+            _add_contribution(
+                contributors[trait_id], champion, rule.choice_points.get(trait_id, 1)
+            )
 
 
 def _apply_per_champion_rule(
@@ -194,7 +220,9 @@ def _apply_per_champion_rule(
     selected = next(iter(selections))
     for champion in instances:
         for trait_id in selected:
-            _add_contribution(contributors[trait_id], champion)
+            _add_contribution(
+                contributors[trait_id], champion, rule.choice_points.get(trait_id, 1)
+            )
 
 
 def validate_dynamic_selection(

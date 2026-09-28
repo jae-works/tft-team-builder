@@ -1,5 +1,6 @@
 [
   {
+    "board_slots": 1,
     "cost": 1,
     "display_order": 10,
     "id": "sample_guardian",
@@ -8,11 +9,13 @@
     "search_aliases": [
       "guardian"
     ],
+    "trait_points": {},
     "traits": [
       "sample_guard"
     ]
   },
   {
+    "board_slots": 1,
     "cost": 3,
     "display_order": 20,
     "id": "sample_mage",
@@ -21,11 +24,13 @@
     "search_aliases": [
       "mage"
     ],
+    "trait_points": {},
     "traits": [
       "sample_arcane"
     ]
   },
   {
+    "board_slots": 1,
     "cost": 7,
     "display_order": 30,
     "id": "sample_flex",
@@ -34,6 +39,7 @@
     "search_aliases": [
       "flex"
     ],
+    "trait_points": {},
     "traits": [
       "sample_guard"
     ]

@@ -19,7 +19,7 @@ from tft_builder.set_schema import (
 
 def valid_manifest_payload() -> dict[str, object]:
     return {
-        "schema_version": 1,
+        "schema_version": 3,
         "set_id": "sample_set",
         "display_name_key": "set.sample.name",
         "revision": "1.0.0",
@@ -95,7 +95,7 @@ def test_manifest_rejects_unknown_fields() -> None:
 
 def test_manifest_rejects_unsupported_schema_version() -> None:
     payload = valid_manifest_payload()
-    payload["schema_version"] = 2
+    payload["schema_version"] = 999
     with pytest.raises(ValidationError):
         SetManifest.model_validate(payload)
 
@@ -293,7 +293,7 @@ def test_team_planner_with_codec_accepts_mapping() -> None:
 def test_source_manifest_rejects_invalid_sha256() -> None:
     with pytest.raises(ValidationError):
         SourceManifest(
-            schema_version=1,
+            schema_version=2,
             source_type="local_spec",
             source_sha256="abc",
             generated_file_sha256={},
@@ -363,7 +363,7 @@ def test_manifest_rejects_metadata_file_inside_assets_directory() -> None:
 
 def test_local_set_spec_requires_exact_supported_locale_inventory() -> None:
     payload = {
-        "schema_version": 1,
+        "schema_version": 3,
         "manifest": valid_manifest_payload(),
         "champions": [],
         "traits": [],
@@ -394,7 +394,7 @@ def test_manifest_rejects_metadata_file_inside_locales_directory() -> None:
 
 def valid_local_spec_payload() -> dict[str, object]:
     return {
-        "schema_version": 1,
+        "schema_version": 3,
         "manifest": valid_manifest_payload(),
         "champions": [
             {
@@ -547,3 +547,53 @@ def test_local_set_spec_rejects_unexpected_locale() -> None:
     payload["locales"]["de"] = dict(payload["locales"]["en"])
     with pytest.raises(ValidationError, match="locale inventory"):
         LocalSetSpec.model_validate(payload)
+
+
+def test_extended_set_schema_rejects_invalid_weighted_and_inventory_values() -> None:
+    from tft_builder.set_schema import (
+        CandidateKind,
+        CandidateStatus,
+        ItemCategory,
+        ItemDefinition,
+        SourceCandidate,
+    )
+
+    with pytest.raises(ValidationError, match="trait_points"):
+        ChampionDefinition(
+            id="a", name_key="a.name", cost=1, traits=["x"],
+            trait_points={"y": 2}, image="assets/a.png", display_order=0,
+        )
+    with pytest.raises(ValidationError, match="composition"):
+        ItemDefinition(
+            id="i", name_key="i.name", icon="assets/i.png",
+            category=ItemCategory.COMPONENT, composition=["a", "a"], display_order=0,
+        )
+    with pytest.raises(ValidationError, match="choice_points"):
+        DynamicTraitDefinition(
+            champion_id="a", selection_rule=DynamicSelectionRule.ZERO_OR_ONE,
+            choices=["x"], choice_points={"y": 2},
+        )
+    with pytest.raises(ValidationError, match="INCLUDED"):
+        SourceCandidate(
+            kind=CandidateKind.CHAMPION, source_id="raw", status=CandidateStatus.INCLUDED,
+        )
+    with pytest.raises(ValidationError, match="EXCLUDED"):
+        SourceCandidate(
+            kind=CandidateKind.ITEM, source_id="raw", status=CandidateStatus.EXCLUDED,
+            target_id="target",
+        )
+
+
+def test_source_candidate_accepts_valid_included_and_excluded_shapes() -> None:
+    from tft_builder.set_schema import CandidateKind, CandidateStatus, SourceCandidate
+
+    included = SourceCandidate(
+        kind=CandidateKind.TRAIT, source_id="raw_trait",
+        status=CandidateStatus.INCLUDED, target_id="trait_a",
+    )
+    excluded = SourceCandidate(
+        kind=CandidateKind.ITEM, source_id="raw_item",
+        status=CandidateStatus.EXCLUDED, reason="not a Set item",
+    )
+    assert included.target_id == "trait_a"
+    assert excluded.reason == "not a Set item"

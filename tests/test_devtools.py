@@ -31,7 +31,11 @@ def test_inspect_set_command_prints_counts(valid_set_dir: Path, capsys) -> None:
     assert "Set ID: sample_set" in captured.out
     assert "Champions: 3" in captured.out
     assert "Traits: 3" in captured.out
+    assert "Items: 1" in captured.out
+    assert "Sample Guardian [sample_guardian]" in captured.out
+    assert "Sample Blade [sample_blade]" in captured.out
     assert "Dynamic rules: 1" in captured.out
+    assert "Overview: SET_OVERVIEW.md" in captured.out
 
 
 def test_build_set_command_builds_valid_output(project_root: Path, tmp_path: Path, capsys) -> None:

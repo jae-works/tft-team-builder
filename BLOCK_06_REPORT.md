@@ -1,7 +1,7 @@
 # Block 6 Implementation Report
 
-Version: 0.6.2
-Status: implemented, quality-audited and post-Windows corrected locally; exact v0.6.2 Windows Ruff/Flet release gate pending
+Version: 0.7.0
+Status: implemented, quality-audited and post-Windows corrected locally; exact v0.7.0 Windows Ruff/Flet release gate pending
 
 ## Implemented
 
@@ -56,15 +56,15 @@ The normal production suite retains the mandatory 100 percent statement and bran
 - Exact Ruff 0.16.9 and packaged Windows Flet/Flutter verification remain external release gates.
 
 
-## Version 0.6.2 post-Windows correction
+## Version 0.7.0 post-Windows correction
 
 The user-side v0.6.1 Windows run confirmed the complete normal suite at 623 tests and 100 percent coverage, but found nine formatter changes, three F401 unused imports, one EOF-whitespace finding and a packaged Flet/Flutter integration failure with exit code 79. The normal application itself still started successfully.
 
-The v0.6.2 correction removes the reported source hygiene findings and makes two production optimizations that matter before real Block 7 data arrives: application startup validates/hashes bundled Sets once rather than twice, and each validated `LoadedSet` builds immutable Champion/Trait ID maps once rather than rebuilding them on every lookup. The Library now shows localized Set names, wraps selected similarity controls, and explicitly reports when its 20-result candidate view is capped.
+The v0.7.0 correction removes the reported source hygiene findings and makes two production optimizations that matter before real Block 7 data arrives: application startup validates/hashes bundled Sets once rather than twice, and each validated `LoadedSet` builds immutable Champion/Trait ID maps once rather than rebuilding them on every lookup. The Library now shows localized Set names, wraps selected similarity controls, and explicitly reports when its 20-result candidate view is capped.
 
 Flet 1.0.1's RemoteTester disconnect path clears its StreamWriter reference without closing it first. The integration-test host now closes that writer before calling the original cleanup path. This remains a narrow version-specific test compatibility shim: ResourceWarning remains an error and production code does not patch Flet.
 The packaged smoke also no longer calls `pump_and_settle()` while the indeterminate startup progress animation may still be active. Startup readiness polling advances one frame at a time with `pump()`; settled waits remain after normal user interactions.
 
 The handoff ZIP again omitted the hidden `.github` directory, so the required Windows/Linux quality workflow is restored in the complete replacement package. Block 7 planning is refined rather than creating a redundant new GUI block; the larger keyboard/semantics/contrast/scaling/density audit remains Block 9 after real data/assets exist.
 
-Local v0.6.2 normal verification: 627 tests passed with 2736/2736 production statements and 810/810 branches covered. Exact Ruff 0.16.9 and packaged Flet/Flutter execution remain the Windows release gate.
+Local v0.7.0 normal verification: 627 tests passed with 2736/2736 production statements and 810/810 branches covered. Exact Ruff 0.16.9 and packaged Flet/Flutter execution remain the Windows release gate.

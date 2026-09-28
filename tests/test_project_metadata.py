@@ -13,9 +13,9 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
     assert payload["version"] == project_version
     assert (
         payload["current_state"]
-        == "block_6_corrected_block_7_ready_pending_windows_flet_gate"
+        == "block_7_corrected_pipeline_pending_live_set_18_generation_and_windows_gate"
     )
-    assert payload["current_block"] == 6
+    assert payload["current_block"] == 7
     assert payload["next_block"] == 7
 
 
@@ -83,7 +83,7 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] == 627
+    assert verification["pytest_passed"] == 652
     assert verification["statement_coverage_percent"] == 100.0
     assert verification["branch_coverage_percent"] == 100.0
     assert verification["production_statements"] == 2736

@@ -53,6 +53,7 @@ def test_development_tools_use_standard_dependency_group(project_root: Path) -> 
         "flet-cli==1.0.1",
         "flet-desktop==1.0.1",
         "flet[test]==1.0.1",
+        "httpx==0.28.1",
         "pytest==9.1.1",
         "pytest-cov==7.1.0",
         "ruff==0.16.9",

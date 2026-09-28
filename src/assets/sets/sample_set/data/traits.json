@@ -1,5 +1,6 @@
 [
   {
+    "activation_mode": "AT_LEAST",
     "breakpoints": [
       {
         "count": 2,
@@ -11,12 +12,15 @@
       }
     ],
     "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": null,
     "display_order": 10,
     "icon": "assets/traits/sample_guard.png",
     "id": "sample_guard",
     "name_key": "trait.sample_guard.name"
   },
   {
+    "activation_mode": "AT_LEAST",
     "breakpoints": [
       {
         "count": 2,
@@ -28,12 +32,15 @@
       }
     ],
     "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": null,
     "display_order": 20,
     "icon": "assets/traits/sample_arcane.png",
     "id": "sample_arcane",
     "name_key": "trait.sample_arcane.name"
   },
   {
+    "activation_mode": "AT_LEAST",
     "breakpoints": [
       {
         "count": 1,
@@ -41,6 +48,8 @@
       }
     ],
     "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": null,
     "display_order": 30,
     "icon": "assets/traits/sample_wildcard.png",
     "id": "sample_wildcard",

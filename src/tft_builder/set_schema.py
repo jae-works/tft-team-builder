@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from enum import StrEnum
 from pathlib import PurePosixPath
-from typing import Annotated, Literal
+from typing import Annotated, Literal, TypeAlias
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -32,6 +32,7 @@ Identifier = Annotated[str, Field(min_length=1, pattern=ID_PATTERN)]
 LocaleCode = Annotated[str, Field(min_length=2, pattern=LOCALE_PATTERN)]
 NonEmptyText = Annotated[str, Field(min_length=1)]
 Sha256 = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+ScalarValue: TypeAlias = str | int | float | bool | None
 
 
 def validate_relative_path(value: str) -> str:
@@ -84,6 +85,11 @@ class TraitCountingMode(StrEnum):
     UNIQUE_INSTANCE = "UNIQUE_INSTANCE"
 
 
+class TraitActivationMode(StrEnum):
+    AT_LEAST = "AT_LEAST"
+    EXACT = "EXACT"
+
+
 class DynamicSelectionRule(StrEnum):
     NONE = "NONE"
     EXACTLY_ONE = "EXACTLY_ONE"
@@ -97,6 +103,28 @@ class DynamicSelectionScope(StrEnum):
     PER_INSTANCE = "PER_INSTANCE"
 
 
+class ItemCategory(StrEnum):
+    COMPONENT = "COMPONENT"
+    CRAFTABLE = "CRAFTABLE"
+    EMBLEM = "EMBLEM"
+    ARTIFACT = "ARTIFACT"
+    RADIANT = "RADIANT"
+    SUPPORT = "SUPPORT"
+    CONSUMABLE = "CONSUMABLE"
+    OTHER = "OTHER"
+
+
+class CandidateKind(StrEnum):
+    CHAMPION = "CHAMPION"
+    TRAIT = "TRAIT"
+    ITEM = "ITEM"
+
+
+class CandidateStatus(StrEnum):
+    INCLUDED = "INCLUDED"
+    EXCLUDED = "EXCLUDED"
+
+
 class SetManifest(StrictModel):
     schema_version: Literal[SET_SCHEMA_VERSION]
     set_id: Identifier
@@ -105,18 +133,24 @@ class SetManifest(StrictModel):
     default_locale: LocaleCode
     supported_locales: Annotated[list[LocaleCode], Field(min_length=1)]
     champions_file: str = "data/champions.json"
+    items_file: str = "data/items.json"
     traits_file: str = "data/traits.json"
     dynamic_traits_file: str = "data/dynamic_traits.json"
     team_planner_file: str = "data/team_planner.json"
+    source_inventory_file: str = "reports/source_inventory.json"
+    overview_file: str = "SET_OVERVIEW.md"
     source_manifest_file: str = "source_manifest.json"
     locales_dir: str = "locales"
     assets_dir: str = "assets"
     team_planner_supported: Annotated[bool, Field(strict=True)] = False
 
     _validate_champions_file = field_validator("champions_file")(validate_relative_path)
+    _validate_items_file = field_validator("items_file")(validate_relative_path)
     _validate_traits_file = field_validator("traits_file")(validate_relative_path)
     _validate_dynamic_traits_file = field_validator("dynamic_traits_file")(validate_relative_path)
     _validate_team_planner_file = field_validator("team_planner_file")(validate_relative_path)
+    _validate_source_inventory_file = field_validator("source_inventory_file")(validate_relative_path)
+    _validate_overview_file = field_validator("overview_file")(validate_relative_path)
     _validate_source_manifest_file = field_validator("source_manifest_file")(validate_relative_path)
     _validate_locales_dir = field_validator("locales_dir")(validate_relative_path)
     _validate_assets_dir = field_validator("assets_dir")(validate_relative_path)
@@ -131,9 +165,12 @@ class SetManifest(StrictModel):
         metadata_files = (
             "manifest.json",
             self.champions_file,
+            self.items_file,
             self.traits_file,
             self.dynamic_traits_file,
             self.team_planner_file,
+            self.source_inventory_file,
+            self.overview_file,
             self.source_manifest_file,
         )
         for index, first in enumerate(metadata_files):
@@ -159,10 +196,15 @@ class TraitBreakpoint(StrictModel):
 class TraitDefinition(StrictModel):
     id: Identifier
     name_key: Identifier
+    description_key: Identifier | None = None
     icon: str
     display_order: Annotated[int, Field(ge=0, strict=True)]
     breakpoints: Annotated[list[TraitBreakpoint], Field(min_length=1)]
     counting_mode: TraitCountingMode = TraitCountingMode.UNIQUE_CHAMPION
+    activation_mode: TraitActivationMode = TraitActivationMode.AT_LEAST
+    derived_requirements: dict[Identifier, Annotated[int, Field(ge=1, strict=True)]] = Field(
+        default_factory=dict
+    )
 
     _validate_icon = field_validator("icon")(validate_relative_path)
 
@@ -179,6 +221,10 @@ class ChampionDefinition(StrictModel):
     name_key: Identifier
     cost: Annotated[int, Field(ge=0, strict=True)]
     traits: list[Identifier]
+    trait_points: dict[Identifier, Annotated[int, Field(ge=1, strict=True)]] = Field(
+        default_factory=dict
+    )
+    board_slots: Annotated[int, Field(ge=1, strict=True)] = 1
     image: str
     display_order: Annotated[int, Field(ge=0, strict=True)]
     search_aliases: list[str] = Field(default_factory=list)
@@ -189,10 +235,37 @@ class ChampionDefinition(StrictModel):
     def validate_unique_values(self) -> ChampionDefinition:
         if len(self.traits) != len(set(self.traits)):
             raise ValueError("Champion traits must not contain duplicates")
+        if set(self.trait_points) - set(self.traits):
+            raise ValueError("trait_points keys must also be present in traits")
         if any(not alias.strip() for alias in self.search_aliases):
             raise ValueError("search_aliases must not contain empty values")
         if len(self.search_aliases) != len(set(self.search_aliases)):
             raise ValueError("search_aliases must not contain duplicates")
+        return self
+
+
+class ItemDefinition(StrictModel):
+    id: Identifier
+    name_key: Identifier
+    description_key: Identifier | None = None
+    icon: str
+    category: ItemCategory
+    composition: list[Identifier] = Field(default_factory=list)
+    associated_traits: list[Identifier] = Field(default_factory=list)
+    display_order: Annotated[int, Field(ge=0, strict=True)]
+    tags: list[Identifier] = Field(default_factory=list)
+
+    _validate_icon = field_validator("icon")(validate_relative_path)
+
+    @model_validator(mode="after")
+    def validate_unique_values(self) -> ItemDefinition:
+        for field_name, values in (
+            ("composition", self.composition),
+            ("associated_traits", self.associated_traits),
+            ("tags", self.tags),
+        ):
+            if len(values) != len(set(values)):
+                raise ValueError(f"{field_name} must not contain duplicates")
         return self
 
 
@@ -202,14 +275,19 @@ class DynamicTraitDefinition(StrictModel):
     choices: list[Identifier] = Field(default_factory=list)
     selection_scope: DynamicSelectionScope = DynamicSelectionScope.PER_INSTANCE
     exact_count: Annotated[int, Field(strict=True)] | None = None
+    choice_points: dict[Identifier, Annotated[int, Field(ge=1, strict=True)]] = Field(
+        default_factory=dict
+    )
 
     @model_validator(mode="after")
     def validate_rule(self) -> DynamicTraitDefinition:
         if len(self.choices) != len(set(self.choices)):
             raise ValueError("dynamic Trait choices must not contain duplicates")
+        if set(self.choice_points) - set(self.choices):
+            raise ValueError("choice_points keys must also be present in choices")
 
         if self.selection_rule is DynamicSelectionRule.NONE:
-            if self.choices or self.exact_count is not None:
+            if self.choices or self.exact_count is not None or self.choice_points:
                 raise ValueError("NONE selection must not define choices or exact_count")
             return self
 
@@ -241,12 +319,39 @@ class TeamPlannerData(StrictModel):
         return self
 
 
+class SourceRecord(StrictModel):
+    id: Identifier
+    url: NonEmptyText
+    revision: NonEmptyText
+    locale: LocaleCode | None = None
+    sha256: Sha256
+    byte_length: Annotated[int, Field(ge=1, strict=True)]
+
+
+class SourceCandidate(StrictModel):
+    kind: CandidateKind
+    source_id: NonEmptyText
+    status: CandidateStatus
+    target_id: Identifier | None = None
+    reason: NonEmptyText | None = None
+
+    @model_validator(mode="after")
+    def validate_status(self) -> SourceCandidate:
+        if self.status is CandidateStatus.INCLUDED:
+            if self.target_id is None or self.reason is not None:
+                raise ValueError("INCLUDED candidates require target_id and no reason")
+        elif self.target_id is not None or self.reason is None:
+            raise ValueError("EXCLUDED candidates require reason and no target_id")
+        return self
+
+
 class SourceManifest(StrictModel):
     schema_version: Literal[SOURCE_MANIFEST_SCHEMA_VERSION]
     source_type: Identifier
     source_sha256: Sha256
     generated_file_sha256: dict[str, Sha256]
     asset_sha256: dict[str, Sha256]
+    sources: list[SourceRecord] = Field(default_factory=list)
 
     @field_validator("generated_file_sha256", "asset_sha256")
     @classmethod
@@ -262,9 +367,12 @@ class LocalSetSpec(StrictModel):
     schema_version: Literal[SOURCE_SPEC_SCHEMA_VERSION]
     manifest: SetManifest
     champions: list[ChampionDefinition]
+    items: list[ItemDefinition] = Field(default_factory=list)
     traits: list[TraitDefinition]
     dynamic_traits: list[DynamicTraitDefinition] = Field(default_factory=list)
     team_planner: TeamPlannerData = Field(default_factory=TeamPlannerData)
+    source_inventory: list[SourceCandidate] = Field(default_factory=list)
+    sources: list[SourceRecord] = Field(default_factory=list)
     locales: dict[LocaleCode, dict[Identifier, NonEmptyText]]
     assets: dict[str, str]
 
@@ -290,7 +398,16 @@ class LocalSetSpec(StrictModel):
 
         required_name_keys = {self.manifest.display_name_key}
         required_name_keys.update(champion.name_key for champion in self.champions)
+        required_name_keys.update(item.name_key for item in self.items)
         required_name_keys.update(trait.name_key for trait in self.traits)
+        required_name_keys.update(
+            key
+            for key in (
+                *(item.description_key for item in self.items),
+                *(trait.description_key for trait in self.traits),
+            )
+            if key is not None
+        )
         for locale, catalog in self.locales.items():
             missing_keys = sorted(required_name_keys - catalog.keys())
             if missing_keys:
@@ -310,6 +427,7 @@ class LocalSetSpec(StrictModel):
                     raise ValueError("generated asset file paths must not overlap")
 
         referenced_assets = {champion.image for champion in self.champions}
+        referenced_assets.update(item.icon for item in self.items)
         referenced_assets.update(trait.icon for trait in self.traits)
         mapped_assets = set(self.assets)
         missing_assets = sorted(referenced_assets - mapped_assets)

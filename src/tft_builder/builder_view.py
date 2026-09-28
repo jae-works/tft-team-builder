@@ -12,9 +12,17 @@ from typing import Any
 from uuid import UUID
 
 from .builder import TeamEditor
+from .flet_helpers import event_handler, flet_module, text_value_handler
 from .models import Team, TeamList, TraitSelection
 from .persistence import AutosaveService
 from .search import normalize_search_text
+from .set_display import (
+    asset_source,
+    champion_details_text,
+    champion_matches_query,
+    champion_trait_ids,
+    localized_text,
+)
 from .set_loader import LoadedSet
 from .set_schema import (
     ChampionDefinition,
@@ -33,51 +41,6 @@ _TEXT_SAVE_DELAY_SECONDS = 0.45
 _DRAG_GROUP = "builder-champion"
 
 
-def localized_text(loaded_set: LoadedSet, key: str) -> str:
-    """Return default-locale text, falling back to the stable localization key."""
-
-    locale = loaded_set.locales.get(loaded_set.manifest.default_locale, {})
-    return locale.get(key, key)
-
-
-def asset_source(loaded_set: LoadedSet, assets_dir: Path, relative_path: str) -> str:
-    """Return a Flet asset path relative to the configured application assets root."""
-
-    absolute = (loaded_set.root / relative_path).resolve()
-    try:
-        return absolute.relative_to(assets_dir.resolve()).as_posix()
-    except ValueError as error:
-        raise ValueError(
-            "Set asset is outside the configured application assets directory"
-        ) from error
-
-
-def champion_trait_ids(loaded_set: LoadedSet, champion: ChampionDefinition) -> tuple[str, ...]:
-    """Return native and possible dynamic Trait IDs for one Champion without duplicates."""
-
-    dynamic = next(
-        (rule for rule in loaded_set.dynamic_traits if rule.champion_id == champion.id),
-        None,
-    )
-    dynamic_choices = () if dynamic is None else tuple(dynamic.choices)
-    return tuple(dict.fromkeys((*champion.traits, *dynamic_choices)))
-
-
-def champion_details_text(loaded_set: LoadedSet, champion: ChampionDefinition) -> str:
-    """Return compact hover details from Set data without inventing game-specific prose."""
-
-    traits_by_id = loaded_set.traits_by_id
-    traits = [
-        localized_text(loaded_set, traits_by_id[trait_id].name_key)
-        for trait_id in champion_trait_ids(loaded_set, champion)
-    ]
-    trait_text = ", ".join(traits) if traits else "No Traits"
-    return (
-        f"{localized_text(loaded_set, champion.name_key)} | "
-        f"Cost {champion.cost} | Traits: {trait_text}"
-    )
-
-
 def filtered_champion_groups(
     loaded_set: LoadedSet,
     query: str,
@@ -87,21 +50,12 @@ def filtered_champion_groups(
     """Filter the catalog by Champion text, Trait text and optional clicked-Trait filter."""
 
     search_key = normalize_search_text(query)
-    traits_by_id = loaded_set.traits_by_id
     grouped: dict[int, list[ChampionDefinition]] = defaultdict(list)
     for champion in loaded_set.champions:
         trait_ids = champion_trait_ids(loaded_set, champion)
         if trait_filter_id is not None and trait_filter_id not in trait_ids:
             continue
-        terms = [
-            localized_text(loaded_set, champion.name_key),
-            *champion.search_aliases,
-            *(
-                localized_text(loaded_set, traits_by_id[trait_id].name_key)
-                for trait_id in trait_ids
-            ),
-        ]
-        if search_key and not any(search_key in normalize_search_text(term) for term in terms):
+        if search_key and not champion_matches_query(loaded_set, champion, query):
             continue
         grouped[champion.cost].append(champion)
 
@@ -174,6 +128,7 @@ class BuilderView:
         autosave: AutosaveService,
         *,
         assets_dir: Path,
+        on_back: Callable[[], None] | None = None,
     ) -> None:
         if not isinstance(loaded_set, LoadedSet):
             raise TypeError("loaded_set must be a LoadedSet")
@@ -186,6 +141,7 @@ class BuilderView:
         self.editor = editor
         self.autosave = autosave
         self.assets_dir = Path(assets_dir).resolve()
+        self.on_back = on_back
         self.active_list_id = editor.team.primary_list_id
         self.hide_below_first_breakpoint = False
         self.show_next_breakpoint_progress = True
@@ -224,7 +180,7 @@ class BuilderView:
     def mount(self) -> None:
         """Attach the complete Builder screen to its Page."""
 
-        ft = _flet()
+        ft = flet_module()
         self.page.title = "TFT Team Builder"
         self.page.on_keyboard_event = self._handle_keyboard_event
         self._root = ft.SafeArea(expand=True, content=self._build_layout())
@@ -332,7 +288,7 @@ class BuilderView:
     def rename_list(self, list_id: UUID, name: str) -> bool:
         return self._run_text_edit("Rename List", lambda: self.editor.rename_list(list_id, name))
 
-    def flush_text(self) -> None:
+    def flush_text(self) -> bool:
         """Invalidate pending debounce tasks and synchronously persist queued text state."""
 
         self._text_save_revision += 1
@@ -340,8 +296,15 @@ class BuilderView:
             self.autosave.flush(self.team.team_id)
         except Exception as error:
             self._save_failed("text flush", error)
-        else:
-            self._set_status("Saved")
+            return False
+        self._set_status("Saved")
+        return True
+
+    def back_to_library(self) -> None:
+        """Flush queued edits before leaving the Builder; stay put if persistence fails."""
+
+        if self.on_back is not None and self.flush_text():
+            self.on_back()
 
     def set_hide_below_first_breakpoint(self, value: bool) -> None:
         self.hide_below_first_breakpoint = bool(value)
@@ -453,7 +416,7 @@ class BuilderView:
         self.status_is_error = error
         self.status_is_pending = pending and not error
         if self._status_indicator is not None:
-            ft = _flet()
+            ft = flet_module()
             self._status_indicator.tooltip = message
             self._status_indicator.content.icon = self._status_icon(ft)
             self._status_indicator.content.color = self._status_color(ft)
@@ -494,7 +457,7 @@ class BuilderView:
         raise ValueError(f"unknown Champion instance ID: {instance_id}")
 
     def _build_layout(self) -> Any:
-        ft = _flet()
+        ft = flet_module()
         toolbar = self._build_toolbar(ft)
         body = ft.Row(
             expand=True,
@@ -535,14 +498,14 @@ class BuilderView:
             content="Undo",
             icon=ft.Icons.UNDO,
             disabled=not self.editor.can_undo,
-            on_click=self._event_handler(self.undo),
+            on_click=event_handler(self.undo),
         )
         self._redo_button = ft.Button(
             key="builder-redo",
             content="Redo",
             icon=ft.Icons.REDO,
             disabled=not self.editor.can_redo,
-            on_click=self._event_handler(self.redo),
+            on_click=event_handler(self.redo),
         )
         self._status_indicator = ft.Container(
             key="builder-save-status",
@@ -558,12 +521,24 @@ class BuilderView:
             border_radius=10,
             content=ft.Row(
                 controls=[
+                    *(
+                        [
+                            ft.IconButton(
+                                key="builder-back",
+                                icon=ft.Icons.ARROW_BACK,
+                                tooltip="Back to Team Library",
+                                on_click=event_handler(self.back_to_library),
+                            )
+                        ]
+                        if self.on_back is not None
+                        else []
+                    ),
                     team_name,
                     ft.Button(
                         key="builder-new-list",
                         content="New List",
                         icon=ft.Icons.ADD,
-                        on_click=self._event_handler(self.create_list),
+                        on_click=event_handler(self.create_list),
                     ),
                     self._undo_button,
                     self._redo_button,
@@ -600,7 +575,7 @@ class BuilderView:
                     key="builder-fix-dynamic",
                     content="Choose Traits",
                     icon=ft.Icons.TUNE,
-                    on_click=self._event_handler(
+                    on_click=event_handler(
                         self.open_dynamic_selection_by_instance,
                         first_issue.instance_ids[0],
                     ),
@@ -642,7 +617,7 @@ class BuilderView:
             key=f"trait-{result.trait_id}",
             padding=8,
             tooltip="Filter Champion Library by this Trait",
-            on_click=self._event_handler(self.toggle_trait_filter, result.trait_id),
+            on_click=event_handler(self.toggle_trait_filter, result.trait_id),
             bgcolor=ft.Colors.SECONDARY_CONTAINER if selected else None,
             border=ft.Border.all(
                 2 if selected else 1,
@@ -752,26 +727,26 @@ class BuilderView:
                     key=f"list-duplicate-{team_list.list_id}",
                     content="Duplicate",
                     icon=ft.Icons.CONTENT_COPY,
-                    on_click=self._event_handler(self.duplicate_list, team_list.list_id),
+                    on_click=event_handler(self.duplicate_list, team_list.list_id),
                 ),
                 ft.PopupMenuItem(
                     key=f"list-compact-{team_list.list_id}",
                     content="Compact gaps",
                     icon=ft.Icons.COMPRESS,
-                    on_click=self._event_handler(self.compact_list, team_list.list_id),
+                    on_click=event_handler(self.compact_list, team_list.list_id),
                 ),
                 ft.PopupMenuItem(
                     key=f"list-clear-{team_list.list_id}",
                     content="Clear Champions",
                     icon=ft.Icons.CLEAR_ALL,
-                    on_click=self._event_handler(self._confirm_clear_list, team_list.list_id),
+                    on_click=event_handler(self._confirm_clear_list, team_list.list_id),
                 ),
                 ft.PopupMenuItem(
                     key=f"list-delete-{team_list.list_id}",
                     content="Delete List",
                     icon=ft.Icons.DELETE_OUTLINE,
                     disabled=len(self.team.lists) == 1,
-                    on_click=self._event_handler(self._confirm_delete_list, team_list.list_id),
+                    on_click=event_handler(self._confirm_delete_list, team_list.list_id),
                 ),
             ],
         )
@@ -782,27 +757,27 @@ class BuilderView:
                     content="Active" if is_active else "Open",
                     key=f"list-open-{team_list.list_id}",
                     disabled=is_active,
-                    on_click=self._event_handler(self.select_list, team_list.list_id),
+                    on_click=event_handler(self.select_list, team_list.list_id),
                 ),
                 ft.IconButton(
                     key=f"list-primary-{team_list.list_id}",
                     icon=ft.Icons.STAR if is_primary else ft.Icons.STAR_OUTLINE,
                     tooltip="Primary List",
-                    on_click=self._event_handler(self.set_primary_list, team_list.list_id),
+                    on_click=event_handler(self.set_primary_list, team_list.list_id),
                 ),
                 ft.IconButton(
                     key=f"list-up-{team_list.list_id}",
                     icon=ft.Icons.ARROW_UPWARD,
                     disabled=index == 0,
                     tooltip="Move List up",
-                    on_click=self._event_handler(self.reorder_list, team_list.list_id, index - 1),
+                    on_click=event_handler(self.reorder_list, team_list.list_id, index - 1),
                 ),
                 ft.IconButton(
                     key=f"list-down-{team_list.list_id}",
                     icon=ft.Icons.ARROW_DOWNWARD,
                     disabled=index == len(self.team.lists) - 1,
                     tooltip="Move List down",
-                    on_click=self._event_handler(self.reorder_list, team_list.list_id, index + 1),
+                    on_click=event_handler(self.reorder_list, team_list.list_id, index + 1),
                 ),
                 more,
             ],
@@ -823,9 +798,7 @@ class BuilderView:
                 height=30,
                 padding=0,
                 tooltip="Copy to active List",
-                on_click=self._event_handler(
-                    self.copy_champion_to_active, team_list.list_id, index
-                ),
+                on_click=event_handler(self.copy_champion_to_active, team_list.list_id, index),
             )
         ]
         if (
@@ -841,9 +814,7 @@ class BuilderView:
                     height=30,
                     padding=0,
                     tooltip="Choose dynamic Traits",
-                    on_click=self._event_handler(
-                        self.open_dynamic_selection, team_list.list_id, index
-                    ),
+                    on_click=event_handler(self.open_dynamic_selection, team_list.list_id, index),
                 )
             )
         actions.append(
@@ -855,7 +826,7 @@ class BuilderView:
                 height=30,
                 padding=0,
                 tooltip="Remove Champion",
-                on_click=self._event_handler(self.remove_champion, team_list.list_id, index),
+                on_click=event_handler(self.remove_champion, team_list.list_id, index),
             )
         )
         card = ft.Container(
@@ -945,7 +916,7 @@ class BuilderView:
             key="builder-champion-search",
             value=self.champion_search_query,
             label="Search Champions or Traits",
-            on_change=self._text_value_handler(self.set_champion_search),
+            on_change=text_value_handler(self.set_champion_search),
             on_focus=self._focus_handler(True),
             on_blur=self._focus_handler(False),
         )
@@ -984,7 +955,7 @@ class BuilderView:
                                 icon=ft.Icons.CLOSE,
                                 icon_size=18,
                                 tooltip="Clear Trait filter",
-                                on_click=self._event_handler(self.clear_trait_filter),
+                                on_click=event_handler(self.clear_trait_filter),
                             ),
                         ]
                     ),
@@ -1014,7 +985,7 @@ class BuilderView:
     def _refresh_champion_results(self) -> None:
         if self._champion_results is None:
             return
-        self._champion_results.controls = self._champion_result_controls(_flet())
+        self._champion_results.controls = self._champion_result_controls(flet_module())
         self.page.update()
 
     def _build_champion_card(self, ft: Any, champion: ChampionDefinition) -> Any:
@@ -1060,7 +1031,7 @@ class BuilderView:
                         key=f"champion-add-{champion.id}",
                         icon=ft.Icons.ADD_CIRCLE_OUTLINE,
                         tooltip="Add to active List",
-                        on_click=self._event_handler(self.add_champion, champion.id),
+                        on_click=event_handler(self.add_champion, champion.id),
                     ),
                 ]
             ),
@@ -1105,7 +1076,7 @@ class BuilderView:
         )
 
     def _drag_will_accept(self, event: Any) -> None:
-        ft = _flet()
+        ft = flet_module()
         color = ft.Colors.PRIMARY if bool(event.accept) else ft.Colors.ERROR
         event.control.content.border = ft.Border.all(2, color)
         event.control.update()
@@ -1115,7 +1086,7 @@ class BuilderView:
 
     @staticmethod
     def _reset_drop_target(event: Any) -> None:
-        ft = _flet()
+        ft = flet_module()
         event.control.content.border = ft.Border.all(1, ft.Colors.OUTLINE_VARIANT)
         event.control.update()
 
@@ -1134,7 +1105,7 @@ class BuilderView:
         )
 
     def _show_confirmation(self, title: str, message: str, action: Callable[[], None]) -> None:
-        ft = _flet()
+        ft = flet_module()
 
         def confirm(_event: Any) -> None:
             self._close_dialog()
@@ -1145,7 +1116,7 @@ class BuilderView:
             title=ft.Text(title),
             content=ft.Text(message),
             actions=[
-                ft.TextButton(content="Cancel", on_click=self._event_handler(self._close_dialog)),
+                ft.TextButton(content="Cancel", on_click=event_handler(self._close_dialog)),
                 ft.TextButton(content="Confirm", on_click=confirm),
             ],
         )
@@ -1157,7 +1128,7 @@ class BuilderView:
         slot_index: int,
         rule: DynamicTraitDefinition,
     ) -> None:
-        ft = _flet()
+        ft = flet_module()
         champion = self._list(list_id).slots[slot_index].champion
         selected = set(champion.trait_selection.trait_ids)
         choice_controls: dict[str, Any] = {}
@@ -1234,7 +1205,7 @@ class BuilderView:
         cancel = ft.TextButton(
             key=f"dynamic-cancel-{champion.instance_id}",
             content="Cancel",
-            on_click=self._event_handler(self._close_dialog),
+            on_click=event_handler(self._close_dialog),
         )
         name = localized_text(
             self.loaded_set,
@@ -1287,23 +1258,9 @@ class BuilderView:
             self.redo()
 
     @staticmethod
-    def _event_handler(callback: Callable[..., Any], *args: Any) -> Callable[[Any], Any]:
-        def handle(_event: Any) -> Any:
-            return callback(*args)
-
-        return handle
-
-    @staticmethod
     def _drop_handler(callback: Callable[..., Any], *args: Any) -> Callable[[Any], Any]:
         def handle(event: Any) -> Any:
             return callback(event, *args)
-
-        return handle
-
-    @staticmethod
-    def _text_value_handler(callback: Callable[[str], Any]) -> Callable[[Any], Any]:
-        def handle(event: Any) -> Any:
-            return callback(str(event.control.value or ""))
 
         return handle
 
@@ -1345,9 +1302,3 @@ class BuilderView:
             return callback(bool(event.control.value))
 
         return handle
-
-
-def _flet() -> Any:
-    import flet as ft
-
-    return ft

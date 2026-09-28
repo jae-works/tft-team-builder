@@ -134,20 +134,20 @@ User-test goal:
 User-test goal:
 - The Builder behaves like the intended desktop product rather than a technical prototype.
 
-## Block 6 - Start page and Team library - planned v0.6
+## Block 6 - Start page and Team library - implemented v0.6.0
 
-- Build the Start page.
-- Add Set selection.
-- Add Team creation/opening/deletion/restoration flow.
-- Show Team cards using the primary List preview.
-- Add Team-name search.
-- Add Champion mini-selection for similarity search.
-- Implement best-matching List calculation per Team.
-- Implement the required ranking rules, including duplicate selected Champions.
-- Preserve useful navigation/search state when returning from the Builder.
-- Add exhaustive similarity-search tests.
-- Use explicit empty/no-result states and visible clear controls for library search/filter state.
-- Make normal delete immediately recoverable through soft delete/restore; reserve confirmation for irreversible permanent deletion and keep destructive actions separated from common actions.
+- [x] Build the Start page.
+- [x] Add Set selection.
+- [x] Add Team creation/opening/deletion/restoration flow.
+- [x] Show Team cards using the primary List preview.
+- [x] Add Team-name search.
+- [x] Add Champion mini-selection for similarity search.
+- [x] Implement best-matching List calculation per Team.
+- [x] Implement the required ranking rules, including duplicate selected Champions.
+- [x] Preserve useful navigation/search state when returning from the Builder.
+- [x] Add exhaustive similarity-search tests.
+- [x] Use explicit empty/no-result states and visible clear controls for library search/filter state.
+- [x] Make normal delete immediately recoverable through soft delete/restore; reserve confirmation for irreversible permanent deletion and keep destructive actions separated from common actions.
 
 User-test goal:
 - Multiple Teams can be managed as a useful local library and found by name or Champion similarity.
@@ -196,6 +196,10 @@ Browser and mobile/tablet support are not part of the current nine-block desktop
 - Test large synthetic libraries and large Lists.
 - Optimize obvious bottlenecks without unnecessary architectural complexity.
 - Polish keyboard/focus/long-name behavior.
+- Add non-drag click/keyboard placement for every drag-dependent Builder edit and verify focus restoration after dialogs/menus.
+- Run Flet semantics-debugger/screen-reader-oriented checks for icon actions and status announcements.
+- Run WCAG/Windows target-size, contrast, high-contrast, dark-theme and 200/400-percent scaling audits using real Set assets.
+- Re-evaluate `BuilderView` after Blocks 7-8; if it remains materially overgrown, extract only coherent concrete rendering/dialog regions while keeping state/action coordination in one place and avoiding presenter/base-view hierarchies.
 - Finalize logging and diagnostics.
 - Run the full end-to-end regression suite.
 - Build the Windows executable/package.
@@ -215,7 +219,7 @@ User-test goal:
 - [x] Block 3 - Core builder logic, Trait engine and undo/redo
 - [x] Block 4 - First complete functional Builder GUI
 - [x] Block 5 - Full desktop interaction, search and Builder polish
-- [ ] Block 6 - Start page and Team library
+- [x] Block 6 - Start page and Team library
 - [ ] Block 7 - Real TFT Set data pipeline and production Set package
 - [ ] Block 8 - TFT Team Planner codes and native import/export
 - [ ] Block 9 - Hardening, Windows packaging and v1.0 release candidate

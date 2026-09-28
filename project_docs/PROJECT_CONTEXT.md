@@ -12,21 +12,22 @@ This is the first document another developer or AI instance should read before c
 6. `DECISIONS.md`
 7. `LICENSE_REVIEW.md`
 8. `SET_DATA_PIPELINE.md`
-9. The latest implemented block report, currently `BLOCK_05_REPORT.md`
+9. The latest implemented block report, currently `BLOCK_06_REPORT.md`
 10. `BLOCK_03_PLAN.md` for the implemented Block 3 behavior contract
 11. `BLOCK_04_PLAN.md` for the implemented initial GUI behavior contract
 12. `BLOCK_05_PLAN.md` for the implemented desktop interaction behavior contract
-13. `BLOCK_06_PLAN.md` for the next Team-library block
-14. `src/assets/sets/README.md`
-15. `set_sources/README.md`
+13. `BLOCK_06_PLAN.md` for the implemented Team-library behavior contract
+14. `BLOCK_07_PLAN.md` for the next real-Set-data block
+15. `src/assets/sets/README.md`
+16. `set_sources/README.md`
 
 
 ## Current state
 
-- Current version: 0.5.1.
+- Current version: 0.6.1.
 - Blocks 1, 2 and 3 are implemented. The user Windows-verified the 0.3.0 Block 3 runtime behavior: 529 tests at 100 percent statement/branch coverage, Set and database smoke tests, Builder smoke and Flet startup all passed.
 - That Windows run found only two Ruff lint findings in `tests/test_trait_engine.py` after Ruff formatted four files. Version 0.3.1 applies both exact lint corrections and expands the semantic/integration audit to 537 tests while retaining the 100 percent production coverage gate.
-- Blocks 4 and 5 are implemented. Version 0.5.1 keeps the 0.5.0 interaction feature set, fixes the two Ruff E731 findings from the real Windows run, and fixes the packaged Flet entry point that previously rendered an empty integration-test page because `ft.run()` only executed under `__main__`. `BLOCK_06_PLAN.md` is the next-block handoff. Exact Ruff 0.16.9 and packaged Windows Flet verification of 0.5.1 remain release gates.
+- Blocks 4, 5 and 6 are implemented. Version 0.6.1 is the Block 6 quality/HCI audit: Team-library aggregate loading is batched and cached, similarity cards preview the actual best-matching List, exact UI-helper duplication is consolidated and the final accessibility/hardening contract is expanded. The v0.5.1 Windows run passed 586 normal tests at 100 percent coverage and exact Ruff checks; its packaged Flet test host started successfully but queried the page before a stable Builder/Library key was visible. The Block 6 packaged smoke now waits within a bounded polling window for the library-first startup flow. Exact Ruff 0.16.9 and packaged Windows Flet verification of v0.6.1 remain release gates.
 
 ## Source of truth
 
@@ -44,7 +45,9 @@ This is the first document another developer or AI instance should read before c
 - `BLOCK_04_PLAN.md` is the implemented Block 4 GUI behavior contract.
 - `BLOCK_05_PLAN.md` is the implemented interaction-focused contract for Block 5.
 - `BLOCK_05_REPORT.md` records Block 5 implementation/test evidence.
-- `BLOCK_06_PLAN.md` is the prepared Team-library contract for the next block.
+- `BLOCK_06_PLAN.md` is the implemented Team-library behavior contract.
+- `BLOCK_06_REPORT.md` records Block 6 implementation/test evidence.
+- `BLOCK_07_PLAN.md` is the prepared real-Set-data pipeline contract for the next block.
 
 These files are part of the project. They are not chat-only notes.
 
@@ -162,4 +165,4 @@ Version 0.4.0 introduced the first functional Builder GUI; version 0.4.1 polishe
 
 Version 0.5.0 added Champion/Trait search, Trait-click filtering, native Flet drag/drop translation, dynamic Trait editing and desktop keyboard shortcuts while keeping all mutations in TeamEditor. Version 0.5.1 is the post-Windows correction/audit: the packaged entry module now starts Flet when imported by device-mode tests, the two real Ruff E731 findings are removed, repeated Set lookup dictionaries are cached once per BuilderView, and one unused catalog helper was removed. `move_champion_to_end()` remains the dense trailing-drop primitive, `set_champion_trait_selection()` is the PER_CHAMPION dynamic edit primitive, and `validate_dynamic_selection()` is the shared rule validator.
 
-Block 6 should implement the Start page/Team library described in `BLOCK_06_PLAN.md`, with deterministic Flet-independent multiset similarity ranking across each Team's Lists.
+Block 6 is implemented and audited. Library search/ranking remains Flet-independent, Library aggregate reads are bounded/cached, and Block 7 is the next implementation target described in `BLOCK_07_PLAN.md`.

@@ -150,9 +150,10 @@ class Team:
             team_list.validate_invariants()
 
         list_ids = [team_list.list_id for team_list in self.lists]
-        if len(list_ids) != len(set(list_ids)):
+        unique_list_ids = set(list_ids)
+        if len(list_ids) != len(unique_list_ids):
             raise ValueError("List IDs must be unique inside a Team")
-        if self.primary_list_id not in set(list_ids):
+        if self.primary_list_id not in unique_list_ids:
             raise ValueError("primary_list_id must reference a List in the Team")
 
         instance_ids = [

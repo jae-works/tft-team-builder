@@ -549,3 +549,67 @@ Reasoning:
 
 Revisit when:
 - user testing shows that soft-delete feedback is not discoverable enough or the library gains genuinely irreversible batch operations.
+
+## D032 - Block 6 similarity ranking is pure, deterministic and List-aware
+
+Status: accepted in Block 6.
+
+Decision:
+- Team-name filtering and Champion-similarity ranking live in a small Flet/SQLite-independent module.
+- Similarity uses Champion multisets and scores each List independently; a Team adopts its best List score.
+- Library search/filter state is session state, not persisted Team state.
+
+Reasoning:
+- Multi-List Teams are the product model, so flattening all Lists would produce misleading similarity rankings.
+- Pure deterministic ranking is easier to reason about and exhaustively test than database- or UI-coupled scoring.
+- Search/navigation state is transient preference, not Team content.
+- Recoverable deletion behavior is already defined by D031 and is not duplicated here.
+
+## D033 - Block 6 navigation reloads after marking a Team opened
+
+Status: accepted in Block 6.
+
+Decision:
+- Opening a Team performs `mark_opened(team_id)` and then loads a fresh Team aggregate before creating TeamEditor.
+- Returning from Builder flushes queued text before leaving; a failed flush keeps the Builder open.
+
+Reasoning:
+- Saving an aggregate loaded before `mark_opened()` could overwrite the newer database-only timestamp with stale state.
+- Navigation must not silently abandon debounced text changes when persistence fails.
+
+## D034 - Team Library reads are batched and cached between repository mutations
+
+Status: accepted during version 0.6.1 quality audit.
+
+Decision:
+- `TeamRepository.load_all()` reconstructs all visible Team aggregates with four SELECTs regardless of Team count.
+- `LibraryView` keeps one in-memory aggregate snapshot for the lifetime of the current Library screen.
+- Search text, similarity selections, Set filtering and Trash toggling operate on that snapshot without re-reading SQLite.
+- Repository mutations performed by the Library explicitly reload the snapshot; returning from Builder creates a fresh LibraryView and therefore a fresh snapshot.
+
+Reasoning:
+- The original Library path performed one ID query plus four aggregate queries per Team on every UI refresh, including every search keystroke.
+- Library search/filter state is transient read-only state, so re-reading unchanged aggregates adds latency and disk work without improving correctness.
+- A concrete batch method keeps persistence direct and avoids introducing a cache/service framework.
+
+Revisit when:
+- another process or background task can mutate the same database while one LibraryView remains mounted; that would require an explicit invalidation mechanism rather than implicit polling.
+
+## D035 - Accessibility hardening requires non-drag operation paths and explicit semantics
+
+Status: accepted during version 0.6.1 HCI audit; implementation remains a pre-v1.0 requirement.
+
+Decision:
+- Dragging is an accelerator, never the sole path for a core Builder edit; move/swap placement must also be operable by click/keyboard.
+- Focus must remain visible, return to a logical trigger after temporary UI closes and not be obscured by application-owned overlays.
+- Important status changes must have semantic/assistive-technology exposure without stealing focus.
+- Essential Champion/Trait information must have a focus/click-accessible path and must not exist only on hover.
+- Final visual verification includes contrast, high contrast, dark theme, scaling and target-size audits using real Set data.
+
+Reasoning:
+- WCAG 2.2 adds explicit guidance for dragging alternatives, minimum target size and unobscured/visible focus.
+- Microsoft Fluent/Windows guidance emphasizes logical focus management, keyboard navigation, contrast, responsive scaling and framework semantics.
+- Flet exposes `Semantics`, tooltip-derived button semantics and a semantics debugger, so these requirements can be verified without building a custom accessibility framework.
+
+Revisit when:
+- the pinned Flet version changes or platform-specific accessibility behavior requires a different control strategy.

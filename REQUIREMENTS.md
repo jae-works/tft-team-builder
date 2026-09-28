@@ -10,7 +10,7 @@ Legend:
 - [!] blocked / decision required
 
 ## Core
-- [ ] Python desktop application for Windows.
+- [x] Python desktop application for Windows.
 - [x] Flet GUI.
 - [x] Windows desktop is the required first release target.
 - [x] Browser and mobile/tablet support are deferred future targets, not removed from the long-term project direction.
@@ -183,10 +183,10 @@ Legend:
 - [x] Search champions by champion name.
 - [x] Search champions by trait name.
 - [x] Search normalization ignores case, spaces and punctuation and handles Unicode sensibly.
-- [ ] Start page can search Teams by Team name.
-- [ ] Start page can select champions to rank Teams by best matching List.
-- [ ] Ranking prioritizes number of selected champion matches, then fewer extra champions.
-- [ ] Duplicate selected champions are treated as separate desired instances for similarity search.
+- [x] Start page can search Teams by Team name.
+- [x] Start page can select champions to rank Teams by best matching List.
+- [x] Ranking prioritizes number of selected champion matches, then fewer extra champions.
+- [x] Duplicate selected champions are treated as separate desired instances for similarity search.
 
 ## Traits
 - [x] Left-side Trait panel reflects the active List only.
@@ -209,16 +209,41 @@ Legend:
 - [x] Clicking a rendered Trait can filter the Champion library to Champions that can contribute to that Trait.
 
 ## Start page
-- [ ] Set selector.
-- [ ] Team creation.
-- [ ] Team cards shown in the same visual language as builder Lists.
-- [ ] Primary List used as the normal Team preview.
-- [ ] Team name search.
-- [ ] Champion-based similarity search.
-- [ ] Clicking a Team opens the Builder.
-- [ ] Returning from Builder preserves relevant page/search state where practical.
-- [ ] Empty library, empty Trash and zero-result search states clearly explain the state and provide the next useful/reset action.
-- [ ] Routine Team removal is immediate/recoverable soft delete without a confirmation dialog; irreversible permanent deletion, if exposed, uses a specific confirmation and is separated from common actions.
+- [x] Set selector.
+- [x] Team creation.
+- [x] Team cards shown in the same visual language as builder Lists.
+- [x] Primary List used as the normal Team preview.
+- [x] Team name search.
+- [x] Champion-based similarity search.
+- [x] Clicking a Team opens the Builder.
+- [x] Returning from Builder preserves relevant page/search state where practical.
+- [x] Empty library, empty Trash and zero-result search states clearly explain the state and provide the next useful/reset action.
+- [x] Routine Team removal is immediate/recoverable soft delete without a confirmation dialog; irreversible permanent deletion, if exposed, uses a specific confirmation and is separated from common actions.
+- [x] Team-library aggregate loading uses a bounded query count independent of Team count, and in-view search/filter rerenders reuse an in-memory snapshot until repository data actually changes.
+
+## HCI and accessibility
+- [x] Primary task actions are directly visible; lower-frequency maintenance actions may move to labeled/tooltip overflow controls.
+- [x] Recoverable routine deletion prefers immediate soft delete plus visible Restore/Undo over repetitive confirmation dialogs.
+- [x] Irreversible deletion uses explicit consequence-focused confirmation and is separated from common actions.
+- [x] Empty-library, empty-Trash and zero-result states explain what happened and offer an appropriate next/reset action.
+- [x] Search/filter state has visible controls and an explicit clear/reset affordance.
+- [x] Stable control keys are used for automated interaction tests instead of relying on mutable display text.
+- [x] Similarity results preview the actual best-matching List while normal Team cards continue to preview the primary List.
+- [ ] Every drag-dependent Builder operation has a non-drag alternative that works with click and keyboard input; dragging must never be the only way to complete a core edit.
+- [ ] Keyboard focus is restored to a logical trigger after dialogs/popovers close and focused controls are not obscured by application-owned overlays or scrolling containers.
+- [ ] Custom focus styling, when used, remains clearly visible with sufficient area and contrast instead of relying on a subtle color shift.
+- [ ] Save, delete, validation and other status messages are exposed to assistive technology without stealing keyboard focus.
+- [ ] Essential Champion/Trait information is never available only on hover; equivalent focus/click-accessible details exist.
+- [ ] Text contrast targets at least 4.5:1 for normal text and 3:1 for large text; interactive/non-text controls target at least 3:1 against adjacent colors.
+- [ ] Keyboard shortcuts are discoverable through tooltips, menus or labels where the shortcut materially speeds a visible command.
+- [ ] Final desktop target audit keeps every pointer target at least 24x24 logical pixels and generally targets approximately 40x40 for common Windows actions; future touch layouts should generally target about 48dp where practical.
+- [ ] Full keyboard focus-order and visible-focus audit is completed before v1.0; keyboard users must not lose track of focus.
+- [ ] Selection, error, save and destructive states are not communicated by color alone; use text, iconography, borders or shape as redundant cues.
+- [ ] Contrast, Windows high-contrast behavior and dark-theme behavior are manually audited before v1.0.
+- [ ] 200/400-percent scaling and narrow-window audits preserve core task access, search and recovery actions.
+- [ ] Accessible labels/semantics are reviewed for icon-only actions and important status controls.
+- [ ] Loading, empty, no-results and error states remain visually distinct when asynchronous work is introduced.
+- [ ] Final visual density, spacing and typography pass happens after real TFT assets/data are integrated so prototype fixtures do not drive permanent dimensions.
 
 ## Builder
 - [x] Desktop layout: Traits | Lists | Champion library.
@@ -288,7 +313,7 @@ Legend:
 - [ ] Missing champion images do not crash the app.
 - [ ] Missing translations have fallback behavior.
 - [ ] Unknown champion/trait IDs are surfaced clearly.
-- [ ] Invalid Set packages do not partially load.
+- [x] Invalid Set packages do not partially load.
 - [ ] Invalid Team Planner codes do not modify data.
 - [x] Database save errors are logged, surfaced in the Builder status, and retained as queued autosave snapshots for retry.
 - [x] Critical writes use transactions.
@@ -298,7 +323,7 @@ Legend:
 - [x] Detailed set-package validation tests.
 - [x] Detailed trait-engine tests, including duplicate champions and dynamic choices.
 - [x] Detailed slot move/swap/copy tests.
-- [ ] Detailed similarity ranking tests.
+- [x] Detailed similarity ranking tests.
 - [x] Detailed core undo/redo tests.
 - [ ] Import/export round-trip tests.
 - [x] Persistence and migration tests.

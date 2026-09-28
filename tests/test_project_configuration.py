@@ -70,7 +70,7 @@ def test_flet_uses_src_app_path_and_current_entry_module(project_root: Path) -> 
     flet = load_pyproject(project_root)["tool"]["flet"]
     assert "desktop_flavor" not in flet
     assert flet["app"]["path"] == "src"
-    assert flet["app"]["module"] == "main.py"
+    assert flet["app"]["module"] == "main"
     assert "company" not in flet
     assert "org" not in flet
     assert "bundle_id" not in flet

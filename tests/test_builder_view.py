@@ -23,6 +23,7 @@ from tft_builder.builder_view import (
     reconcile_active_list,
     visible_trait_results,
 )
+from tft_builder.flet_helpers import event_handler, text_value_handler
 from tft_builder.models import ChampionInstance, Slot, Team, TeamList, TraitSelection
 from tft_builder.persistence import AutosaveService
 from tft_builder.set_loader import load_set_directory
@@ -473,7 +474,7 @@ def test_trait_progress_active_style_and_empty_trait_message(
 def test_event_name_and_bool_handler_adapters(fake_flet, loaded_set, tmp_path: Path) -> None:
     calls = []
     event = SimpleNamespace(control=SimpleNamespace(value="value"))
-    BuilderView._event_handler(lambda a, b: calls.append((a, b)), 1, 2)(event)
+    event_handler(lambda a, b: calls.append((a, b)), 1, 2)(event)
     BuilderView._name_change_handler(lambda prefix, value: calls.append((prefix, value)), "p")(
         event
     )
@@ -908,9 +909,9 @@ def test_dialog_focus_and_handler_helpers_cover_safe_edges(
 
     calls = []
     event = SimpleNamespace(control=SimpleNamespace(value="hello"))
-    BuilderView._text_value_handler(calls.append)(event)
+    text_value_handler(calls.append)(event)
     event.control.value = None
-    BuilderView._text_value_handler(calls.append)(event)
+    text_value_handler(calls.append)(event)
     assert calls == ["hello", ""]
 
     wrapped = BuilderView._drop_handler(lambda event, value: (event, value), 3)
@@ -1007,3 +1008,47 @@ async def test_open_dialog_suppresses_global_history_and_search_shortcuts(
     await view._handle_keyboard_event(SimpleNamespace(key="Z", ctrl=True, meta=False, shift=False))
     await view._handle_keyboard_event(SimpleNamespace(key="F", ctrl=True, meta=False, shift=False))
     assert view.editor.undo_depth == depth
+
+
+def test_back_to_library_flushes_pending_text_before_navigation(
+    fake_flet, loaded_set, tmp_path: Path
+) -> None:
+    team = Team.create(set_id=loaded_set.manifest.set_id, name="Team")
+    page = FakePage()
+    repo = FakeRepo()
+    calls = []
+    view = BuilderView(
+        page,
+        loaded_set,
+        TeamEditor(team),
+        AutosaveService(repo),
+        assets_dir=loaded_set.root.parents[1],
+        on_back=lambda: calls.append("back"),
+    )
+    view.mount()
+    assert by_key(page.controls[0], "builder-back")
+    view.rename_team("Queued before back")
+    view.back_to_library()
+    assert calls == ["back"]
+    assert repo.saved[-1].name == "Queued before back"
+
+
+def test_back_to_library_stays_in_builder_when_flush_fails(
+    fake_flet, loaded_set, tmp_path: Path
+) -> None:
+    team = Team.create(set_id=loaded_set.manifest.set_id, name="Team")
+    repo = FakeRepo()
+    calls = []
+    view = BuilderView(
+        FakePage(),
+        loaded_set,
+        TeamEditor(team),
+        AutosaveService(repo),
+        assets_dir=loaded_set.root.parents[1],
+        on_back=lambda: calls.append("back"),
+    )
+    view.rename_team("Queued")
+    repo.error = OSError("readonly")
+    view.back_to_library()
+    assert calls == []
+    assert view.status_is_error

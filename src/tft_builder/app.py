@@ -1,4 +1,4 @@
-"""Application startup, Builder bootstrap and Flet composition boundary."""
+"""Application startup, Team-library navigation and Flet composition boundary."""
 
 from __future__ import annotations
 
@@ -6,11 +6,11 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from .builder import TeamEditor
 from .constants import APP_NAME
 from .logging_config import configure_logging
-from .models import Team
 from .paths import ApplicationPaths, build_application_paths
 from .persistence import AutosaveService, Database, TeamRepository
 from .set_loader import LoadedSet, validate_all_sets
@@ -28,14 +28,15 @@ class StartupState:
 
 
 @dataclass(frozen=True, slots=True)
-class BuilderRuntime:
-    loaded_set: LoadedSet
-    editor: TeamEditor
-    autosave: AutosaveService
+class ApplicationRuntime:
+    """Validated Sets and one repository shared by Library and Builder screens."""
+
+    loaded_sets: tuple[LoadedSet, ...]
+    repository: TeamRepository
 
 
-class BuilderStartupError(RuntimeError):
-    """Raised when the current pre-library Builder bootstrap cannot continue safely."""
+class ApplicationStartupError(RuntimeError):
+    """Raised when no safe interactive application runtime can be created."""
 
 
 def startup_set_summary(sets_dir: Path) -> tuple[str, ...]:
@@ -90,77 +91,89 @@ def initialize_application(
     )
 
 
-def initialize_builder_runtime(state: StartupState) -> BuilderRuntime:
-    """Open or create the current Builder Team and resolve its exact validated Set."""
+def initialize_runtime(state: StartupState) -> ApplicationRuntime:
+    """Resolve validated Sets and the shared Team repository."""
 
     reports = validate_all_sets(state.paths.bundled_sets_dir)
-    loaded_sets = [
+    loaded_sets = tuple(
         report.loaded_set for report in reports if report.is_valid and report.loaded_set is not None
-    ]
+    )
     if not loaded_sets:
-        raise BuilderStartupError("No valid bundled Set is available for the Builder")
+        raise ApplicationStartupError("No valid bundled Set is available")
 
-    sets_by_id: dict[str, LoadedSet] = {}
+    seen: set[str] = set()
     for loaded_set in loaded_sets:
         set_id = loaded_set.manifest.set_id
-        if set_id in sets_by_id:
-            raise BuilderStartupError(f"Duplicate bundled Set ID: {set_id}")
-        sets_by_id[set_id] = loaded_set
+        if set_id in seen:
+            raise ApplicationStartupError(f"Duplicate bundled Set ID: {set_id}")
+        seen.add(set_id)
 
     repository = TeamRepository(
         Database(state.paths.database_path, backups_dir=state.paths.backups_dir)
     )
-    team_ids = repository.list_ids()
-    if team_ids:
-        team = repository.load(team_ids[0])
-    else:
-        first_set = min(loaded_sets, key=lambda item: item.manifest.set_id)
-        team = Team.create(set_id=first_set.manifest.set_id, name="Untitled Team")
-        repository.save(team)
-
-    loaded_set = sets_by_id.get(team.set_id)
-    if loaded_set is None:
-        raise BuilderStartupError(
-            f"Team requires Set '{team.set_id}', but that Set is not available and valid"
-        )
-    return BuilderRuntime(
-        loaded_set=loaded_set,
-        editor=TeamEditor(team),
-        autosave=AutosaveService(repository),
-    )
+    return ApplicationRuntime(loaded_sets=loaded_sets, repository=repository)
 
 
 def main(page: ft.Page) -> None:
-    """Initialize the application and render the first complete functional Builder screen."""
+    """Initialize the application and render the Team library with Builder navigation."""
 
     import flet as ft
 
     from .builder_view import BuilderView
+    from .library_view import LibrarySessionState, LibraryView
 
     state = initialize_application()
     page.title = APP_NAME
     try:
-        runtime = initialize_builder_runtime(state)
-    except BuilderStartupError as error:
-        logging.getLogger("tft_builder.app").error("Builder startup blocked: %s", error)
+        runtime = initialize_runtime(state)
+    except ApplicationStartupError as error:
+        logging.getLogger("tft_builder.app").error("Application startup blocked: %s", error)
         page.add(
             ft.SafeArea(
                 expand=True,
                 content=ft.Column(
                     controls=[
                         ft.Text(APP_NAME, size=28, weight=ft.FontWeight.BOLD),
-                        ft.Text("Builder startup failed", weight=ft.FontWeight.BOLD),
-                        ft.Text(str(error), key="builder-startup-error"),
+                        ft.Text("Application startup failed", weight=ft.FontWeight.BOLD),
+                        ft.Text(str(error), key="app-startup-error"),
                     ]
                 ),
             )
         )
         return
 
-    BuilderView(
-        page,
-        runtime.loaded_set,
-        runtime.editor,
-        runtime.autosave,
-        assets_dir=state.paths.bundled_assets_dir,
-    ).mount()
+    sets_by_id = {loaded_set.manifest.set_id: loaded_set for loaded_set in runtime.loaded_sets}
+    session = LibrarySessionState()
+
+    def show_library() -> None:
+        page.on_keyboard_event = None
+        page.clean()
+        LibraryView(
+            page,
+            runtime.loaded_sets,
+            runtime.repository,
+            assets_dir=state.paths.bundled_assets_dir,
+            on_open=show_builder,
+            session=session,
+        ).mount()
+
+    def show_builder(team_id: UUID) -> None:
+        if not runtime.repository.mark_opened(team_id):
+            raise ApplicationStartupError(f"Unknown Team ID: {team_id}")
+        team = runtime.repository.load(team_id)
+        loaded_set = sets_by_id.get(team.set_id)
+        if loaded_set is None:
+            raise ApplicationStartupError(
+                f"Team requires Set '{team.set_id}', but that Set is not available and valid"
+            )
+        page.clean()
+        BuilderView(
+            page,
+            loaded_set,
+            TeamEditor(team),
+            AutosaveService(runtime.repository),
+            assets_dir=state.paths.bundled_assets_dir,
+            on_back=show_library,
+        ).mount()
+
+    show_library()

@@ -113,7 +113,7 @@ The final Windows package also ships readable copies of the relevant project doc
 
 ## Current implementation position
 
-Blocks 1 through 5 are implemented. The real 0.5.0 Windows run passed 585 normal tests at 100 percent coverage and all existing non-Flet smokes, then exposed two Ruff E731 findings and a packaged-test-only empty page. Version 0.5.1 fixes both: dynamic-dialog callbacks are named functions, and `src/main.py` starts Flet at module import time because pinned Flet 1.0.1 device-mode tests execute the packaged embedded-Python app by importing the configured entry module. The normal desktop app already started successfully. `BLOCK_06_PLAN.md` is refined for the Start page/Team library with deterministic similarity ranking and undo-first local-library interactions.
+Blocks 1 through 6 are implemented. Version 0.6.0 adds the local Team Library and keeps ranking/search logic Flet- and SQLite-independent. The v0.5.1 Windows run passed 586 normal tests at 100 percent coverage and exact Ruff checks; the packaged Flet host built and exited cleanly but did not expose a stable application key after one settle. The Block 6 packaged smoke now uses bounded polling for the library-first startup flow instead of treating one settle as a readiness contract. `BLOCK_07_PLAN.md` is the next-block handoff for reproducible real TFT Set acquisition and generation.
 
 
 ## Block 2 persistence decision

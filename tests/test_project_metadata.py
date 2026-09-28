@@ -12,10 +12,11 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
         project_version = tomllib.load(handle)["project"]["version"]
     assert payload["version"] == project_version
     assert (
-        payload["current_state"] == "block_5_corrected_block_6_refined_pending_windows_release_gate"
+        payload["current_state"]
+        == "block_6_quality_audited_block_7_refined_pending_windows_release_gate"
     )
-    assert payload["current_block"] == 5
-    assert payload["next_block"] == 6
+    assert payload["current_block"] == 6
+    assert payload["next_block"] == 7
 
 
 def test_release_documents_match_package_version(project_root: Path) -> None:
@@ -27,7 +28,7 @@ def test_release_documents_match_package_version(project_root: Path) -> None:
         "PROGRESS.md": f"Current version: {version}",
         "PROJECT_CONTEXT.md": f"Current version: {version}",
         "LICENSE_REVIEW.md": f"Project version: {version}",
-        "BLOCK_05_REPORT.md": f"Version: {version}",
+        "BLOCK_06_REPORT.md": f"Version: {version}",
     }
     for relative, expected in expected_fragments.items():
         text = (project_root / relative).read_text(encoding="ascii")
@@ -44,6 +45,8 @@ def test_manifest_includes_current_block_plans_and_report(project_root: Path) ->
         "BLOCK_05_PLAN.md",
         "BLOCK_05_REPORT.md",
         "BLOCK_06_PLAN.md",
+        "BLOCK_06_REPORT.md",
+        "BLOCK_07_PLAN.md",
     ):
         assert filename in payload["required_project_documents"]
         assert filename in payload["mirrored_project_documents"]
@@ -80,11 +83,11 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] == 586
+    assert verification["pytest_passed"] == 623
     assert verification["statement_coverage_percent"] == 100.0
     assert verification["branch_coverage_percent"] == 100.0
-    assert verification["production_statements"] == 2441
-    assert verification["production_branches"] == 736
+    assert verification["production_statements"] == 2721
+    assert verification["production_branches"] == 808
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
@@ -115,7 +118,7 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_3_trait_oracle_generated_lists"] == 2500
     assert verification["production_duplicate_function_groups"] == 0
     assert verification["all_python_duplicate_function_groups"] == 0
-    assert verification["static_python_files_audited"] == 56
+    assert verification["static_python_files_audited"] == 62
     assert verification["windows_0_3_1_pytest_passed"] == 537
     assert verification["windows_0_3_1_ruff_lint_passed"] is True
     assert verification["windows_0_3_1_ruff_format_final_passed"] is True
@@ -171,12 +174,45 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_5_1_editor_stress_operations"] == 750
     assert verification["block_5_1_local_pytest_passed"] == 586
     assert verification["block_5_1_local_coverage_percent"] == 100.0
-    assert verification["block_5_1_exact_ruff_windows_pending"] is True
+    assert verification["block_5_1_exact_ruff_windows_pending"] is False
     assert verification["block_5_1_packaged_flet_windows_pending"] is True
-    assert verification["block_5_exact_ruff_windows_pending"] is True
+    assert verification["block_5_exact_ruff_windows_pending"] is False
     assert verification["block_5_packaged_flet_windows_pending"] is True
     assert verification["block_6_plan_prepared"] is True
     assert verification["block_6_hci_plan_refined"] is True
+    assert verification["windows_0_5_1_pytest_passed"] == 586
+    assert verification["windows_0_5_1_coverage_percent"] == 100.0
+    assert verification["windows_0_5_1_ruff_format_initial_drift_files"] == 2
+    assert verification["windows_0_5_1_ruff_format_final_passed"] is True
+    assert verification["windows_0_5_1_ruff_lint_passed"] is True
+    assert verification["windows_0_5_1_flet_test_host_provisioned"] is True
+    assert verification["windows_0_5_1_flet_flutter_process_exit_code"] == 0
+    assert verification["windows_0_5_1_flet_stable_app_key_found"] is False
+    assert verification["windows_0_5_1_normal_flet_run_passed"] is True
+    assert verification["windows_0_5_1_stream_writer_warning_observed"] is True
+    assert verification["block_6_team_library_implemented"] is True
+    assert verification["block_6_similarity_engine_verified"] is True
+    assert verification["block_6_soft_delete_restore_verified"] is True
+    assert verification["block_6_navigation_state_verified"] is True
+    assert verification["block_6_hci_empty_states_verified"] is True
+    assert verification["block_6_last_team_restore_regression_verified"] is True
+    assert verification["block_6_packaged_flet_smoke_updated"] is True
+    assert verification["block_6_exact_windows_pending"] is True
+    assert verification["block_7_plan_prepared"] is True
+    assert verification["block_6_local_pytest_passed"] == 617
+    assert verification["block_6_local_statement_coverage_percent"] == 100.0
+    assert verification["block_6_local_branch_coverage_percent"] == 100.0
+    assert verification["block_6_local_smokes_passed"] is True
+    assert verification["block_6_static_audit_passed"] is True
+    assert verification["block_6_1_batched_library_load_verified"] is True
+    assert verification["block_6_1_library_snapshot_cache_verified"] is True
+    assert verification["block_6_1_similarity_preview_verified"] is True
+    assert verification["block_6_1_shared_flet_helpers_verified"] is True
+    assert verification["block_6_1_hci_requirements_refined"] is True
+    assert verification["block_6_1_local_pytest_passed"] == 623
+    assert verification["block_6_1_local_statement_coverage_percent"] == 100.0
+    assert verification["block_6_1_local_branch_coverage_percent"] == 100.0
+    assert verification["block_6_1_exact_windows_pending"] is True
 
 
 def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:

@@ -1,7 +1,7 @@
 # TFT Team Builder
 
-Current version: 0.5.1
-Current milestone: Block 5 is implemented and re-audited after the real 0.5.0 Windows run; the packaged Flet entry point and final Ruff findings are corrected; Block 6 Team library is prepared; exact Windows Ruff/Flet verification of 0.5.1 remains pending.
+Current version: 0.6.1
+Current milestone: Block 6 Team Library is implemented and quality-audited in v0.6.1. The Library now uses bounded batch aggregate reads, in-view search/filter caching and best-match List previews; HCI/accessibility requirements are refined for final hardening. Exact v0.6.1 Windows Ruff/Flet verification remains pending.
 
 TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
 
@@ -177,5 +177,7 @@ Read these in order before changing the project:
 14. `BLOCK_05_PLAN.md`
 15. `BLOCK_05_REPORT.md`
 16. `BLOCK_06_PLAN.md`
+17. `BLOCK_06_REPORT.md`
+18. `BLOCK_07_PLAN.md`
 
 Every delivered project ZIP must contain the complete current project and a SHA-256 checksum calculated after the final ZIP is created.

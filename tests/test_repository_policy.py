@@ -82,3 +82,26 @@ def test_project_owned_path_names_are_ascii(project_root: Path) -> None:
         if not relative.as_posix().isascii():
             bad_paths.append(relative)
     assert bad_paths == []
+
+
+def test_production_functions_do_not_duplicate_nontrivial_bodies(project_root: Path) -> None:
+    """Catch exact copy/paste helpers once they are large enough to merit consolidation."""
+
+    import ast
+    import hashlib
+
+    bodies: dict[str, list[tuple[Path, str]]] = {}
+    package_root = project_root / "src" / "tft_builder"
+    for path in sorted(package_root.rglob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            body = ast.dump(ast.Module(body=node.body, type_ignores=[]), include_attributes=False)
+            if len(body) < 300:
+                continue
+            digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
+            bodies.setdefault(digest, []).append((path.relative_to(project_root), node.name))
+
+    duplicates = [locations for locations in bodies.values() if len(locations) > 1]
+    assert duplicates == []

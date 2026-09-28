@@ -1,8 +1,8 @@
 # TFT Team Builder - Progress
 
-Current version: 0.5.1
-Current status: Block 5 implemented and post-Windows correction/audit complete; packaged Flet entry-point and Ruff E731 issues fixed; Block 6 Team library plan refined; exact 0.5.1 Ruff/Flet Windows release gate pending.
-Next planned block: Block 6 - Start page and Team library.
+Current version: 0.6.1
+Current status: Block 6 Team Library implemented and quality-audited. v0.6.1 removes remaining UI-helper duplication, batches/caches Library aggregate reads, previews the actual best List during similarity search and expands HCI/accessibility requirements. Exact v0.6.1 Windows Ruff/Flet verification remains pending.
+Next planned block: Block 7 - Real TFT Set data pipeline and production Set package.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
 
@@ -304,3 +304,43 @@ Exact packaged Flet verification still requires Windows Developer Mode to be ena
 - A bounded deterministic post-refactor stress audit completed 750 successful mixed add/remove/copy/dense-move edits across three Lists, validating Team invariants and Champion instance-ID uniqueness after every edit.
 - `tests_flet` patches only Flet 1.0.1's leaking temporary-port probe with an equivalent context-managed socket; normal ResourceWarning handling remains strict and no broader warning suppression is added.
 - Block 6 planning now explicitly follows undo-first deletion, clear empty/no-result states, visible search clear/filter state, concise task-oriented navigation, and separation of destructive actions from common actions.
+
+## Completed in Block 6
+
+- [x] Application startup opens the local Team Library instead of implicitly selecting one Team.
+- [x] Set selector controls new-Team creation and Champion-similarity search without migrating existing Teams.
+- [x] Team create/open/back navigation uses one shared repository and preserves Library session search/filter state.
+- [x] Opening marks the Team opened and then reloads it before Builder construction to avoid stale last-opened timestamps.
+- [x] Team-name search uses the existing normalized text rules.
+- [x] Champion similarity uses deterministic multiset scoring and evaluates each List independently before selecting the Team's best List.
+- [x] Duplicate desired Champions affect ranking intentionally.
+- [x] Team cards show primary-List previews, Set identity, List count and updated time; missing Sets disable Open instead of rewriting data.
+- [x] Normal deletion is immediate soft delete with visible Restore and a Trash view.
+- [x] Deleting the final visible Team still leaves the Restore action visible next to the explicit empty-library state.
+- [x] Permanent deletion is separated from routine actions and requires consequence-focused confirmation.
+- [x] Empty library, empty Trash and no-results states provide explicit explanation and useful create/reset actions.
+- [x] Shared Set display/search helpers remove Builder/Library presentation duplication.
+- [x] Builder back navigation flushes queued text and remains in Builder when that flush fails.
+- [x] Packaged Flet smoke now uses a bounded readiness wait for the library-first app rather than assuming one settle means embedded Python startup is complete.
+- [x] Block 7 real TFT Set data pipeline plan prepared.
+
+Block 6 local verification candidate:
+- 617 normal tests passed with 2701 production statements and 800 branches at 100 percent coverage.
+- 61 Python files passed the manual structural/duplicate-function audit.
+- ASCII, project-doc mirror, compileall, sample Set validation/inspection, persistence smoke and Builder smoke passed.
+- Exact Ruff 0.16.9 and packaged Flet/Flutter verification remain the Windows release gate.
+
+## Version 0.6.1 quality and HCI audit
+
+- [x] Add `TeamRepository.load_all()` so Team-library aggregate reads use four SELECTs independent of Team count instead of one ID query plus four queries per Team.
+- [x] Cache the complete Library aggregate snapshot for the mounted LibraryView and invalidate it only after repository mutations; Team/champion search, similarity chips, Set filtering and Trash toggling no longer re-read SQLite on each keystroke.
+- [x] Share exact Flet lazy-import/event/text adapters between BuilderView and LibraryView through one small UI-only helper module instead of maintaining duplicated functions.
+- [x] Similarity-result cards preview the actual best-matching List; normal unfiltered cards still preview the primary List.
+- [x] Add a repository policy test preventing exact non-trivial production-function copy/paste duplication from silently returning.
+- [x] Remove one repeated Team List-ID set construction during invariant validation.
+- [x] Correct stale requirement status for already-implemented Start-page search/similarity behavior and atomic invalid-Set rejection.
+- [x] Expand HCI/accessibility requirements with non-drag operation paths, focus restoration/not-obscured behavior, semantic status announcements, hover alternatives, contrast, shortcut discoverability and explicit target-size baselines.
+- [x] Expand Block 9 hardening scope to include a concrete semantics/focus/contrast/scaling audit and a post-real-data decision gate for decomposing the very large BuilderView only if it still materially improves maintainability.
+- [x] Refine Block 7 acquisition requirements with HTTPS-only release sources, bounded streamed downloads and project-controlled cache names.
+- [x] 623 normal tests pass with 2721 production statements and 808 branches at 100 percent coverage in the implementation environment.
+- [x] A 300-Team aggregate benchmark completed through the new four-query batch path; exact performance acceptance remains a Block 9 real-library audit rather than a machine-specific timing requirement.

@@ -9,9 +9,9 @@ from types import SimpleNamespace
 import pytest
 
 from tft_builder.app import (
-    BuilderStartupError,
+    ApplicationStartupError,
     initialize_application,
-    initialize_builder_runtime,
+    initialize_runtime,
     startup_set_summary,
 )
 from tft_builder.models import Team
@@ -95,25 +95,21 @@ def runtime_state(project_root: Path, tmp_path: Path):
     )
 
 
-def test_builder_runtime_creates_initial_team_and_reopens_latest(
+def test_runtime_exposes_valid_sets_and_shared_repository(
     project_root: Path, tmp_path: Path
 ) -> None:
     try:
         state = runtime_state(project_root, tmp_path)
-        first = initialize_builder_runtime(state)
-        assert first.editor.team.name == "Untitled Team"
-        assert first.editor.team.set_id == "sample_set"
-        assert first.loaded_set.manifest.set_id == "sample_set"
-        first.editor.rename_team("Persisted")
-        first.autosave.save_now(first.editor.team)
-        second = initialize_builder_runtime(state)
-        assert second.editor.team.team_id == first.editor.team.team_id
-        assert second.editor.team.name == "Persisted"
+        runtime = initialize_runtime(state)
+        assert [item.manifest.set_id for item in runtime.loaded_sets] == ["sample_set"]
+        team = Team.create(set_id="sample_set", name="Persisted")
+        runtime.repository.save(team)
+        assert runtime.repository.load(team.team_id) == team
     finally:
         close_application_logging()
 
 
-def test_builder_runtime_rejects_no_valid_sets(project_root: Path, tmp_path: Path) -> None:
+def test_runtime_rejects_no_valid_sets(project_root: Path, tmp_path: Path) -> None:
     assets = tmp_path / "assets"
     (assets / "sets").mkdir(parents=True)
     try:
@@ -122,28 +118,13 @@ def test_builder_runtime_rejects_no_valid_sets(project_root: Path, tmp_path: Pat
             data_dir_override=tmp_path / "runtime",
             assets_dir_override=assets,
         )
-        with pytest.raises(BuilderStartupError, match="No valid bundled Set"):
-            initialize_builder_runtime(state)
+        with pytest.raises(ApplicationStartupError, match="No valid bundled Set"):
+            initialize_runtime(state)
     finally:
         close_application_logging()
 
 
-def test_builder_runtime_rejects_team_whose_set_is_unavailable(
-    project_root: Path, tmp_path: Path
-) -> None:
-    try:
-        state = runtime_state(project_root, tmp_path)
-        repository = TeamRepository(Database(state.paths.database_path))
-        repository.save(Team.create(set_id="missing_set", name="Broken"))
-        with pytest.raises(BuilderStartupError, match="missing_set"):
-            initialize_builder_runtime(state)
-    finally:
-        close_application_logging()
-
-
-def test_builder_runtime_rejects_duplicate_set_ids(
-    project_root: Path, tmp_path: Path, monkeypatch
-) -> None:
+def test_runtime_rejects_duplicate_set_ids(project_root: Path, tmp_path: Path, monkeypatch) -> None:
     import tft_builder.app as app_module
     from tft_builder.set_loader import load_set_directory
 
@@ -152,8 +133,8 @@ def test_builder_runtime_rejects_duplicate_set_ids(
         loaded = load_set_directory(state.paths.bundled_sets_dir / "sample_set")
         report = SimpleNamespace(is_valid=True, loaded_set=loaded)
         monkeypatch.setattr(app_module, "validate_all_sets", lambda _path: (report, report))
-        with pytest.raises(BuilderStartupError, match="Duplicate bundled Set ID"):
-            initialize_builder_runtime(state)
+        with pytest.raises(ApplicationStartupError, match="Duplicate bundled Set ID"):
+            initialize_runtime(state)
     finally:
         close_application_logging()
 
@@ -171,14 +152,21 @@ class FakePage:
     def __init__(self) -> None:
         self.title = ""
         self.controls = []
+        self.on_keyboard_event = None
+        self.cleaned = 0
 
     def add(self, control) -> None:
         self.controls.append(control)
 
+    def clean(self) -> None:
+        self.controls.clear()
+        self.cleaned += 1
 
-def test_main_mounts_builder_view(monkeypatch) -> None:
+
+def test_main_mounts_library_and_open_callback_mounts_builder(monkeypatch) -> None:
     import tft_builder.app as app_module
-    import tft_builder.builder_view as view_module
+    import tft_builder.builder_view as builder_module
+    import tft_builder.library_view as library_module
 
     fake_flet = SimpleNamespace(
         SafeArea=FakeControl,
@@ -187,24 +175,105 @@ def test_main_mounts_builder_view(monkeypatch) -> None:
         FontWeight=SimpleNamespace(BOLD="bold"),
     )
     monkeypatch.setitem(sys.modules, "flet", fake_flet)
-    state = SimpleNamespace(paths=SimpleNamespace(bundled_assets_dir=Path("assets")))
-    runtime = SimpleNamespace(loaded_set=object(), editor=object(), autosave=object())
+    paths = SimpleNamespace(bundled_assets_dir=Path("assets"))
+    state = SimpleNamespace(paths=paths)
+    team = Team.create(set_id="sample_set", name="Team")
+
+    repository_events = []
+
+    class FakeRepository:
+        def mark_opened(self, team_id):
+            repository_events.append(("mark", team_id))
+            return team_id == team.team_id
+
+        def load(self, team_id):
+            repository_events.append(("load", team_id))
+            assert team_id == team.team_id
+            return team
+
+    loaded_set = SimpleNamespace(manifest=SimpleNamespace(set_id="sample_set"))
+    runtime = SimpleNamespace(loaded_sets=(loaded_set,), repository=FakeRepository())
     monkeypatch.setattr(app_module, "initialize_application", lambda: state)
-    monkeypatch.setattr(app_module, "initialize_builder_runtime", lambda _state: runtime)
+    monkeypatch.setattr(app_module, "initialize_runtime", lambda _state: runtime)
     mounted = []
 
+    class FakeLibraryView:
+        def __init__(self, *args, **kwargs):
+            mounted.append(("library-init", args, kwargs))
+            self.on_open = kwargs["on_open"]
+
+        def mount(self):
+            mounted.append("library-mounted")
+
     class FakeBuilderView:
-        def __init__(self, *args, **kwargs) -> None:
-            mounted.append((args, kwargs))
+        def __init__(self, *args, **kwargs):
+            mounted.append(("builder-init", args, kwargs))
 
-        def mount(self) -> None:
-            mounted.append("mounted")
+        def mount(self):
+            mounted.append("builder-mounted")
 
-    monkeypatch.setattr(view_module, "BuilderView", FakeBuilderView)
+    monkeypatch.setattr(library_module, "LibraryView", FakeLibraryView)
+    monkeypatch.setattr(builder_module, "BuilderView", FakeBuilderView)
     page = FakePage()
     app_module.main(page)
-    assert page.title == "TFT Team Builder"
-    assert mounted[-1] == "mounted"
+    assert mounted[-1] == "library-mounted"
+    callback = next(
+        item for item in mounted if isinstance(item, tuple) and item[0] == "library-init"
+    )[2]["on_open"]
+    callback(team.team_id)
+    assert repository_events == [("mark", team.team_id), ("load", team.team_id)]
+    assert mounted[-1] == "builder-mounted"
+    builder_init = next(
+        item for item in mounted if isinstance(item, tuple) and item[0] == "builder-init"
+    )
+    assert builder_init[2]["on_back"] is not None
+    builder_init[2]["on_back"]()
+    assert mounted[-1] == "library-mounted"
+
+
+def test_main_rejects_unknown_open_and_missing_team_set(monkeypatch) -> None:
+    import tft_builder.app as app_module
+    import tft_builder.library_view as library_module
+
+    fake_flet = SimpleNamespace(
+        SafeArea=FakeControl,
+        Column=FakeControl,
+        Text=FakeControl,
+        FontWeight=SimpleNamespace(BOLD="bold"),
+    )
+    monkeypatch.setitem(sys.modules, "flet", fake_flet)
+    team = Team.create(set_id="missing", name="Broken")
+
+    class Repo:
+        def mark_opened(self, team_id):
+            return team_id == team.team_id
+
+        def load(self, _team_id):
+            return team
+
+    state = SimpleNamespace(paths=SimpleNamespace(bundled_assets_dir=Path("assets")))
+    runtime = SimpleNamespace(
+        loaded_sets=(SimpleNamespace(manifest=SimpleNamespace(set_id="sample_set")),),
+        repository=Repo(),
+    )
+    monkeypatch.setattr(app_module, "initialize_application", lambda: state)
+    monkeypatch.setattr(app_module, "initialize_runtime", lambda _state: runtime)
+    callbacks = []
+
+    class FakeLibraryView:
+        def __init__(self, *args, **kwargs):
+            callbacks.append(kwargs["on_open"])
+
+        def mount(self):
+            pass
+
+    monkeypatch.setattr(library_module, "LibraryView", FakeLibraryView)
+    page = FakePage()
+    app_module.main(page)
+    with pytest.raises(ApplicationStartupError, match="Unknown Team ID"):
+        callbacks[-1](Team.create(set_id="x", name="X").team_id)
+    with pytest.raises(ApplicationStartupError, match="missing"):
+        callbacks[-1](team.team_id)
 
 
 def test_main_renders_blocking_startup_error(monkeypatch) -> None:
@@ -224,11 +293,11 @@ def test_main_renders_blocking_startup_error(monkeypatch) -> None:
     )
     monkeypatch.setattr(
         app_module,
-        "initialize_builder_runtime",
-        lambda _state: (_ for _ in ()).throw(BuilderStartupError("broken set")),
+        "initialize_runtime",
+        lambda _state: (_ for _ in ()).throw(ApplicationStartupError("broken set")),
     )
     page = FakePage()
     app_module.main(page)
     assert page.title == "TFT Team Builder"
     assert page.controls[0].content.controls[-1].value == "broken set"
-    assert page.controls[0].content.controls[-1].key == "builder-startup-error"
+    assert page.controls[0].content.controls[-1].key == "app-startup-error"

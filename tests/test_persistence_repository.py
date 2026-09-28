@@ -212,3 +212,49 @@ def test_large_team_round_trip_preserves_all_slots_and_traits(tmp_path: Path) ->
     ]
     repository.save(team)
     assert repository.load(team.team_id) == team
+
+
+def test_load_all_round_trips_active_and_deleted_teams_in_updated_order(tmp_path: Path) -> None:
+    repository = make_repository(tmp_path)
+    older = make_complex_team()
+    older.name = "Older"
+    older.updated_at = datetime(2026, 9, 27, 11, tzinfo=UTC)
+    newer = make_complex_team()
+    newer.name = "Newer"
+    newer.updated_at = datetime(2026, 9, 27, 12, tzinfo=UTC)
+    deleted = make_complex_team()
+    deleted.name = "Deleted"
+    deleted.updated_at = datetime(2026, 9, 27, 10, tzinfo=UTC)
+    for team in (older, newer, deleted):
+        repository.save(team)
+    repository.soft_delete(deleted.team_id, when=datetime(2026, 9, 28, tzinfo=UTC))
+
+    assert [team.name for team in repository.load_all()] == ["Newer", "Older"]
+    all_teams = repository.load_all(include_deleted=True)
+    assert {team.name for team in all_teams} == {"Older", "Newer", "Deleted"}
+    assert next(team for team in all_teams if team.name == "Deleted").deleted_at is not None
+
+
+def test_load_all_query_count_is_constant_for_many_teams(tmp_path: Path, monkeypatch) -> None:
+    repository = make_repository(tmp_path)
+    for index in range(12):
+        team = Team.create(set_id="set", name=f"Team {index}")
+        team.primary_list.slots = [Slot(0, ChampionInstance(f"unit-{index % 3}"))]
+        repository.save(team)
+
+    statements: list[str] = []
+    original_connect = repository.database.connect
+
+    def tracked_connect():
+        connection = original_connect()
+        connection.set_trace_callback(statements.append)
+        return connection
+
+    monkeypatch.setattr(repository.database, "connect", tracked_connect)
+    loaded = repository.load_all()
+    selects = [
+        statement for statement in statements if statement.lstrip().upper().startswith("SELECT")
+    ]
+
+    assert len(loaded) == 12
+    assert len(selects) == 4

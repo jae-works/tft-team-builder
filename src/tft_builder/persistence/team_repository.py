@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sqlite3
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from uuid import UUID
 
@@ -94,18 +96,21 @@ class TeamRepository:
             )
 
     def load(self, team_id: UUID, *, include_deleted: bool = False) -> Team:
+        """Load one complete Team aggregate with a bounded four-query read."""
+
+        team_id_text = str(team_id)
         with self.database.connection() as connection:
             query = "SELECT * FROM teams WHERE team_id = ?"
-            parameters: tuple[object, ...] = (str(team_id),)
+            parameters: tuple[object, ...] = (team_id_text,)
             if not include_deleted:
                 query += " AND deleted_at IS NULL"
             team_row = connection.execute(query, parameters).fetchone()
             if team_row is None:
-                raise TeamNotFoundError(str(team_id))
+                raise TeamNotFoundError(team_id_text)
 
             list_rows = connection.execute(
                 "SELECT * FROM team_lists WHERE team_id = ? ORDER BY order_index",
-                (str(team_id),),
+                (team_id_text,),
             ).fetchall()
             slot_rows = connection.execute(
                 """
@@ -117,7 +122,7 @@ class TeamRepository:
                 WHERE l.team_id = ?
                 ORDER BY l.order_index, s.slot_index
                 """,
-                (str(team_id),),
+                (team_id_text,),
             ).fetchall()
             trait_rows = connection.execute(
                 """
@@ -128,45 +133,63 @@ class TeamRepository:
                 WHERE l.team_id = ?
                 ORDER BY c.instance_id, t.selection_index
                 """,
-                (str(team_id),),
+                (team_id_text,),
             ).fetchall()
 
-        traits_by_instance: dict[str, list[str]] = {}
-        for row in trait_rows:
-            traits_by_instance.setdefault(row["instance_id"], []).append(row["trait_id"])
+        return _assemble_teams((team_row,), list_rows, slot_rows, trait_rows)[0]
 
-        slots_by_list: dict[str, list[Slot]] = {row["list_id"]: [] for row in list_rows}
-        for row in slot_rows:
-            champion = None
-            instance_id = row["instance_id"]
-            if instance_id is not None:
-                champion = ChampionInstance(
-                    champion_id=row["champion_id"],
-                    instance_id=UUID(instance_id),
-                    trait_selection=TraitSelection(tuple(traits_by_instance.get(instance_id, ()))),
-                )
-            slots_by_list[row["list_id"]].append(Slot(index=row["slot_index"], champion=champion))
+    def load_all(self, *, include_deleted: bool = False) -> tuple[Team, ...]:
+        """Load every visible Team aggregate in four SELECTs regardless of Team count."""
 
-        lists = [
-            TeamList(
-                name=row["name"],
-                list_id=UUID(row["list_id"]),
-                slots=slots_by_list[row["list_id"]],
-            )
-            for row in list_rows
-        ]
+        team_filter = "" if include_deleted else "WHERE t.deleted_at IS NULL"
+        trait_team_filter = "" if include_deleted else "WHERE team.deleted_at IS NULL"
+        with self.database.connection() as connection:
+            team_rows = connection.execute(
+                f"""
+                SELECT t.*
+                FROM teams AS t
+                {team_filter}
+                ORDER BY t.updated_at DESC, t.team_id
+                """
+            ).fetchall()
+            if not team_rows:
+                return ()
 
-        return Team(
-            set_id=team_row["set_id"],
-            name=team_row["name"],
-            lists=lists,
-            primary_list_id=UUID(team_row["primary_list_id"]),
-            team_id=UUID(team_row["team_id"]),
-            created_at=decode_timestamp(team_row["created_at"]),
-            updated_at=decode_timestamp(team_row["updated_at"]),
-            last_opened_at=decode_timestamp(team_row["last_opened_at"]),
-            deleted_at=decode_timestamp(team_row["deleted_at"]),
-        )
+            list_rows = connection.execute(
+                f"""
+                SELECT l.*
+                FROM team_lists AS l
+                JOIN teams AS t ON t.team_id = l.team_id
+                {team_filter}
+                ORDER BY t.updated_at DESC, t.team_id, l.order_index
+                """
+            ).fetchall()
+            slot_rows = connection.execute(
+                f"""
+                SELECT l.list_id, s.slot_index, c.instance_id, c.champion_id
+                FROM team_lists AS l
+                JOIN teams AS t ON t.team_id = l.team_id
+                JOIN slots AS s ON s.list_id = l.list_id
+                LEFT JOIN champion_instances AS c
+                  ON c.list_id = s.list_id AND c.slot_index = s.slot_index
+                {team_filter}
+                ORDER BY t.updated_at DESC, t.team_id, l.order_index, s.slot_index
+                """
+            ).fetchall()
+            trait_rows = connection.execute(
+                f"""
+                SELECT c.instance_id, t.trait_id
+                FROM team_lists AS l
+                JOIN teams AS team ON team.team_id = l.team_id
+                JOIN champion_instances AS c ON c.list_id = l.list_id
+                JOIN trait_selections AS t ON t.instance_id = c.instance_id
+                {trait_team_filter}
+                ORDER BY team.updated_at DESC, team.team_id, l.order_index,
+                         c.instance_id, t.selection_index
+                """
+            ).fetchall()
+
+        return _assemble_teams(team_rows, list_rows, slot_rows, trait_rows)
 
     def list_ids(self, *, include_deleted: bool = False) -> tuple[UUID, ...]:
         query = "SELECT team_id FROM teams"
@@ -214,3 +237,53 @@ class TeamRepository:
         with self.database.transaction() as connection:
             cursor = connection.execute("DELETE FROM teams WHERE team_id = ?", (str(team_id),))
             return cursor.rowcount == 1
+
+
+def _assemble_teams(
+    team_rows: Sequence[sqlite3.Row],
+    list_rows: Sequence[sqlite3.Row],
+    slot_rows: Sequence[sqlite3.Row],
+    trait_rows: Sequence[sqlite3.Row],
+) -> tuple[Team, ...]:
+    """Rebuild Team aggregates from already ordered relational rows."""
+
+    traits_by_instance: dict[str, list[str]] = {}
+    for row in trait_rows:
+        traits_by_instance.setdefault(row["instance_id"], []).append(row["trait_id"])
+
+    slots_by_list: dict[str, list[Slot]] = {row["list_id"]: [] for row in list_rows}
+    for row in slot_rows:
+        champion = None
+        instance_id = row["instance_id"]
+        if instance_id is not None:
+            champion = ChampionInstance(
+                champion_id=row["champion_id"],
+                instance_id=UUID(instance_id),
+                trait_selection=TraitSelection(tuple(traits_by_instance.get(instance_id, ()))),
+            )
+        slots_by_list[row["list_id"]].append(Slot(index=row["slot_index"], champion=champion))
+
+    lists_by_team: dict[str, list[TeamList]] = {row["team_id"]: [] for row in team_rows}
+    for row in list_rows:
+        lists_by_team[row["team_id"]].append(
+            TeamList(
+                name=row["name"],
+                list_id=UUID(row["list_id"]),
+                slots=slots_by_list[row["list_id"]],
+            )
+        )
+
+    return tuple(
+        Team(
+            set_id=row["set_id"],
+            name=row["name"],
+            lists=lists_by_team[row["team_id"]],
+            primary_list_id=UUID(row["primary_list_id"]),
+            team_id=UUID(row["team_id"]),
+            created_at=decode_timestamp(row["created_at"]),
+            updated_at=decode_timestamp(row["updated_at"]),
+            last_opened_at=decode_timestamp(row["last_opened_at"]),
+            deleted_at=decode_timestamp(row["deleted_at"]),
+        )
+        for row in team_rows
+    )

@@ -80,7 +80,7 @@ def loaded_set(
     return LoadedSet(
         root=Path(),
         manifest=SetManifest(
-            schema_version=3,
+            schema_version=5,
             set_id="test_set",
             display_name_key="set.name",
             revision="1.0.0",

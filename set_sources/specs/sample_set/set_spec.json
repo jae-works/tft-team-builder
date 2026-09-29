@@ -3,6 +3,8 @@
     "assets/champions/sample_flex.png": "assets/champions/sample_flex.png",
     "assets/champions/sample_guardian.png": "assets/champions/sample_guardian.png",
     "assets/champions/sample_mage.png": "assets/champions/sample_mage.png",
+    "assets/champions/variants/sample_flex_arcane.png": "assets/champions/variants/sample_flex_arcane.png",
+    "assets/champions/variants/sample_flex_wildcard.png": "assets/champions/variants/sample_flex_wildcard.png",
     "assets/items/sample_blade.png": "assets/items/sample_blade.png",
     "assets/traits/sample_arcane.png": "assets/traits/sample_arcane.png",
     "assets/traits/sample_guard.png": "assets/traits/sample_guard.png",
@@ -52,6 +54,10 @@
   "dynamic_traits": [
     {
       "champion_id": "sample_flex",
+      "choice_images": {
+        "sample_arcane": "assets/champions/variants/sample_flex_arcane.png",
+        "sample_wildcard": "assets/champions/variants/sample_flex_wildcard.png"
+      },
       "choices": [
         "sample_arcane",
         "sample_wildcard"
@@ -85,6 +91,9 @@
       "item.sample_blade.name": "Sample Blade",
       "set.sample_set.name": "Development Sample Set",
       "trait.sample_arcane.name": "Sample Arcane",
+      "trait.sample_guard.breakpoint.2.description": "Gain a basic defensive bonus.",
+      "trait.sample_guard.breakpoint.4.description": "Gain an improved defensive bonus.",
+      "trait.sample_guard.description": "Sample Guard grants defensive bonuses at each breakpoint.",
       "trait.sample_guard.name": "Sample Guard",
       "trait.sample_wildcard.name": "Sample Wildcard"
     }
@@ -99,7 +108,7 @@
     "locales_dir": "locales",
     "overview_file": "SET_OVERVIEW.md",
     "revision": "0.1.0",
-    "schema_version": 3,
+    "schema_version": 5,
     "set_id": "sample_set",
     "source_inventory_file": "reports/source_inventory.json",
     "source_manifest_file": "source_manifest.json",
@@ -110,7 +119,7 @@
     "team_planner_supported": false,
     "traits_file": "data/traits.json"
   },
-  "schema_version": 3,
+  "schema_version": 5,
   "source_inventory": [],
   "sources": [],
   "team_planner": {
@@ -122,14 +131,17 @@
       "breakpoints": [
         {
           "count": 2,
+          "description_key": "trait.sample_guard.breakpoint.2.description",
           "style": "bronze"
         },
         {
           "count": 4,
+          "description_key": "trait.sample_guard.breakpoint.4.description",
           "style": "silver"
         }
       ],
       "counting_mode": "UNIQUE_CHAMPION",
+      "description_key": "trait.sample_guard.description",
       "display_order": 10,
       "icon": "assets/traits/sample_guard.png",
       "id": "sample_guard",

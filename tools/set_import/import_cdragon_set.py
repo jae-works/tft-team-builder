@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import html
 import json
 import re
 import shutil
@@ -18,6 +19,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import httpx
+from PIL import Image
 
 from tft_builder.constants import SET_SCHEMA_VERSION, SOURCE_SPEC_SCHEMA_VERSION
 from tft_builder.json_utils import canonical_json_bytes
@@ -34,6 +36,218 @@ def _slug(value: str) -> str:
     if not slug:
         raise ValueError(f"cannot create stable ID from {value!r}")
     return slug
+
+
+def _fnv1a_32(value: str) -> str:
+    """Return Riot's lowercase 32-bit FNV-1a BIN-field hash as eight hex digits."""
+
+    result = 0x811C9DC5
+    for byte in value.casefold().encode("utf-8"):
+        result = ((result ^ byte) * 0x01000193) & 0xFFFFFFFF
+    return f"{result:08x}"
+
+
+def _effect_variable(effect: dict, name: str, overrides: dict[str, float]) -> float | None:
+    """Resolve one tooltip variable from readable or hashed CommunityDragon effect keys."""
+
+    for key, value in overrides.items():
+        if key.casefold() == name.casefold():
+            return float(value)
+    variables = effect.get("variables") or {}
+    for key, value in variables.items():
+        if key.casefold() == name.casefold():
+            return float(value)
+    value = variables.get("{" + _fnv1a_32(name) + "}")
+    return None if value is None else float(value)
+
+
+def _format_trait_number(value: float) -> str:
+    """Hide binary floating-point noise while preserving meaningful decimal trait values."""
+
+    rounded = round(value, 4)
+    if abs(rounded - round(rounded)) < 1e-4:
+        return str(int(round(rounded)))
+    return f"{rounded:.4f}".rstrip("0").rstrip(".")
+
+
+_STAT_ICON_LABELS = {
+    "en_US": {
+        "scaleAD": "AD",
+        "scaleAP": "AP",
+        "scaleAS": "Attack Speed",
+        "scaleHealth": "Health",
+        "scaleArmor": "Armor",
+        "scaleMR": "Magic Resist",
+        "scaleManaRegen": "Mana Regen",
+        "scaleDR": "Durability",
+    },
+    "de_DE": {
+        "scaleAD": "Angriffsschaden",
+        "scaleAP": "F\u00e4higkeitsst\u00e4rke",
+        "scaleAS": "Angriffstempo",
+        "scaleHealth": "Leben",
+        "scaleArmor": "R\u00fcstung",
+        "scaleMR": "Magieresistenz",
+        "scaleManaRegen": "Manaregeneration",
+        "scaleDR": "Durchhalteverm\u00f6gen",
+    },
+}
+
+
+def _plain_trait_text(value: str, locale: str) -> str:
+    """Convert Riot tooltip markup to stable plain text suitable for locale JSON and the GUI."""
+
+    labels = _STAT_ICON_LABELS.get(locale, _STAT_ICON_LABELS["en_US"])
+    value = re.sub(r"<br\s*/?>", "\n", value, flags=re.IGNORECASE)
+    combined_resists = {
+        "en_US": "Armor and Magic Resist",
+        "de_DE": "R\u00fcstung und Magieresistenz",
+    }.get(locale, "Armor and Magic Resist")
+    value = value.replace("%i:scaleArmor%%i:scaleMR%", f" {combined_resists} ")
+    value = re.sub(
+        r"%i:([^%]+)%",
+        lambda match: " " + labels.get(match.group(1), match.group(1)) + " ",
+        value,
+    )
+    value = re.sub(r"<[^>]+>", "", value)
+    value = html.unescape(value).replace("\xa0", " ")
+    lines = [re.sub(r"[ \t]+", " ", line).strip() for line in value.splitlines()]
+    return "\n".join(line for line in lines if line).strip()
+
+
+def _render_trait_template(
+    template: str,
+    effect: dict,
+    *,
+    count: int | None,
+    overrides: dict[str, float] | None = None,
+    locale: str = "en_US",
+) -> str:
+    """Resolve Riot ``@Variable@`` tooltip expressions without a runtime markup interpreter."""
+
+    override_values = overrides or {}
+
+    def replace(match: re.Match[str]) -> str:
+        expression = match.group(1)
+        parts = expression.split("*", 1)
+        name = parts[0]
+        if name == "MinUnits":
+            if count is None:
+                raise ValueError("trait tooltip MinUnits has no breakpoint count")
+            value = float(count)
+        else:
+            resolved = _effect_variable(effect, name, override_values)
+            if resolved is None:
+                raise ValueError(f"unresolved Trait tooltip variable {name!r}")
+            value = resolved
+        if len(parts) == 2:
+            value *= float(parts[1])
+        return _format_trait_number(value)
+
+    return _plain_trait_text(re.sub(r"@([^@]+)@", replace, template), locale)
+
+
+def _render_item_description(item: dict, *, locale: str) -> str:
+    """Resolve Item tooltip variables and strip source markup before locale packaging."""
+
+    description = item.get("desc") or ""
+    if not description:
+        return ""
+    return _render_trait_template(
+        description,
+        {"variables": item.get("effects") or {}},
+        count=None,
+        locale=locale,
+    )
+
+
+def _trait_display_texts(
+    trait: dict,
+    breakpoints: list[dict],
+    variable_overrides: dict[str, dict[str, float]],
+    *,
+    locale: str = "en_US",
+) -> tuple[str, dict[int, str]]:
+    """Render one localized Trait summary and its informative breakpoint-specific effects."""
+
+    description = trait.get("desc") or ""
+    rows = re.findall(r"<row>(.*?)</row>", description, flags=re.IGNORECASE | re.DOTALL)
+    effects = trait.get("effects") or []
+
+    # Preamble variables are invariant across breakpoints in Riot's Set 18 data. Resolve each
+    # from the first source effect that carries it so summaries stay compact and non-repetitive.
+    summary_template = description.split("<row>", 1)[0] if rows else description
+    summary_effect: dict = {"variables": {}}
+    for expression in re.findall(r"@([^@]+)@", summary_template):
+        name = expression.split("*", 1)[0]
+        if name == "MinUnits":
+            continue
+        for effect in effects:
+            value = _effect_variable(effect, name, {})
+            if value is not None:
+                summary_effect["variables"][name] = value
+                break
+    summary = (
+        _render_trait_template(summary_template, summary_effect, count=None, locale=locale)
+        if summary_template
+        else ""
+    )
+
+    # Duplicate minUnits occur for special stateful traits such as Rival. Matching by source
+    # order and keeping the last row for a count mirrors the source breakpoint selection logic.
+    rows_by_count: dict[int, tuple[str, dict]] = {}
+    for row, effect in zip(rows, effects, strict=False):
+        source_count = int(effect.get("minUnits") or 0)
+        if source_count >= 1:
+            rows_by_count[source_count] = (row, effect)
+
+    rendered_breakpoints: dict[int, str] = {}
+    for breakpoint in breakpoints:
+        count = int(breakpoint["count"])
+        row_and_effect = rows_by_count.get(count)
+        if row_and_effect is None:
+            continue
+        row, effect = row_and_effect
+        overrides = variable_overrides.get(str(count), {})
+        rendered = _render_trait_template(
+            row, effect, count=count, overrides=overrides, locale=locale
+        )
+        rendered = re.sub(rf"^\(\s*{count}\s*\)\s*", "", rendered).strip()
+        if rendered:
+            rendered_breakpoints[count] = rendered
+    if not summary and rendered_breakpoints:
+        summary = next(iter(rendered_breakpoints.values()))
+    return summary, rendered_breakpoints
+
+
+def _trait_variable_overrides(
+    config: dict, trait_name: str, breakpoint_counts: set[str] | None = None
+) -> dict[str, dict[str, float]]:
+    """Return one reviewed Trait override map and validate its provenance metadata."""
+
+    record = config.get("trait_variable_overrides_by_name", {}).get(trait_name)
+    if record is None:
+        return {}
+    override_source_id = record.get("source")
+    if override_source_id not in config.get("trait_variable_override_sources", {}):
+        raise ValueError(
+            f"Trait variable override for {trait_name!r} has unknown source: "
+            f"{override_source_id!r}"
+        )
+    reason = record.get("reason")
+    if not isinstance(reason, str) or not reason.strip():
+        raise ValueError(f"Trait variable override for {trait_name!r} requires a reason")
+    values = record.get("breakpoints")
+    if not isinstance(values, dict):
+        raise ValueError(f"Trait variable override for {trait_name!r} requires breakpoint values")
+    if breakpoint_counts is not None:
+        unknown_counts = sorted(set(values) - breakpoint_counts)
+        if unknown_counts:
+            raise ValueError(
+                f"Trait variable overrides for {trait_name!r} reference unknown breakpoints: "
+                + ", ".join(unknown_counts)
+            )
+    return values
 
 
 def _json(path: Path) -> Any:
@@ -106,44 +320,81 @@ def _set_data(payload: dict, mutator: str) -> dict:
 
 
 def _dd_data(payload: dict) -> dict[str, dict]:
+    """Index Data Dragon records by their stable public ID instead of archive path keys."""
+
     data = payload.get("data")
     if not isinstance(data, dict):
         raise ValueError("Data Dragon payload has no data object")
-    return data
+    records: dict[str, dict] = {}
+    for archive_key, record in data.items():
+        record_id = record.get("id") if isinstance(record, dict) else None
+        if not isinstance(record_id, str) or not record_id:
+            raise ValueError(f"Data Dragon record {archive_key!r} has no stable id")
+        if record_id in records:
+            raise ValueError(f"Data Dragon contains duplicate record id {record_id!r}")
+        records[record_id] = record
+    return records
 
 
-def _cdragon_asset_url(revision: str, path: str) -> str:
-    normalized = path.replace("\\", "/").lower().removeprefix("/").replace(".tex", ".png")
-    return f"https://raw.communitydragon.org/{revision}/game/{normalized}"
+def _dd_sprite_url(version: str, record: dict) -> tuple[str, str]:
+    """Return one pinned Data Dragon sprite source ID and URL for an image record."""
 
-
-def _dd_asset_url(version: str, record: dict) -> str | None:
     image = record.get("image") or {}
     group = image.get("group")
-    filename = image.get("full")
-    if not group or not filename:
-        return None
-    return f"https://ddragon.leagueoflegends.com/cdn/{version}/img/{group}/{filename}"
+    sprite = image.get("sprite")
+    if not group or not sprite:
+        raise ValueError(f"Data Dragon record {record.get('id')!r} has no sprite metadata")
+    source_id = f"ddragon_sprite_{_slug(group)}_{_slug(sprite)}"
+    url = f"https://ddragon.leagueoflegends.com/cdn/{version}/img/sprite/{sprite}"
+    return source_id, url
 
 
-def _asset(
+def _append_source_once(sources: list[dict], record: dict) -> None:
+    """Add one provenance source while rejecting ID collisions with different content."""
+
+    existing = next((value for value in sources if value["id"] == record["id"]), None)
+    if existing is None:
+        sources.append(record)
+    elif existing != record:
+        raise ValueError(f"source id {record['id']!r} resolves to inconsistent metadata")
+
+
+def _dd_sprite_asset(
     client: httpx.Client,
     cache_dir: Path,
     spec_dir: Path,
     sources: list[dict],
-    source_id: str,
-    revision: str,
-    locale: str | None,
-    url: str,
+    version: str,
+    record: dict,
     target: str,
 ) -> None:
+    """Crop one deterministic 48px-style asset from a pinned Data Dragon sprite sheet."""
+
+    source_id, url = _dd_sprite_url(version, record)
     downloaded = _download(client, cache_dir, source_id, url, MAX_IMAGE_BYTES)
     if downloaded.read_bytes()[:8] != PNG_SIGNATURE:
-        raise ValueError(f"asset is not a PNG: {url}")
+        raise ValueError(f"Data Dragon sprite is not a PNG: {url}")
+    _append_source_once(sources, _source_record(source_id, url, version, None, downloaded))
+
+    image_meta = record["image"]
+    try:
+        x = int(image_meta["x"])
+        y = int(image_meta["y"])
+        width = int(image_meta["w"])
+        height = int(image_meta["h"])
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError(f"Data Dragon record {record.get('id')!r} has invalid sprite bounds") from error
+    if x < 0 or y < 0 or width <= 0 or height <= 0:
+        raise ValueError(f"Data Dragon record {record.get('id')!r} has invalid sprite bounds")
+
     destination = spec_dir / target
     destination.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(downloaded, destination)
-    sources.append(_source_record(source_id, url, revision, locale, downloaded))
+    with Image.open(downloaded) as sprite_image:
+        sprite_image.load()
+        if x + width > sprite_image.width or y + height > sprite_image.height:
+            raise ValueError(f"Data Dragon record {record.get('id')!r} exceeds sprite bounds")
+        cropped = sprite_image.crop((x, y, x + width, y + height))
+        cropped.save(destination, format="PNG", optimize=False, compress_level=9)
 
 
 def _trait_name_map(set_data: dict) -> tuple[dict[str, dict], dict[str, str]]:
@@ -155,56 +406,117 @@ def _trait_name_map(set_data: dict) -> tuple[dict[str, dict], dict[str, str]]:
     return by_api, by_name
 
 
-def _category(item: dict) -> str:
-    tags = {str(tag).casefold() for tag in item.get("tags") or []}
-    api = str(item.get("apiName", "")).casefold()
-    if "component" in tags or "component" in api:
-        return "COMPONENT"
-    if "radiant" in tags or "radiant" in api:
-        return "RADIANT"
-    if "artifact" in tags or "ornn" in api:
-        return "ARTIFACT"
-    if "support" in tags or "support" in api:
-        return "SUPPORT"
-    if item.get("associatedTraits") or "emblem" in api:
-        return "EMBLEM"
-    if (
-        "consumable" in tags
-        or "consumable" in api
-        or "potion" in api
-        or "booster" in api
-    ):
-        return "CONSUMABLE"
-    if item.get("composition"):
-        return "CRAFTABLE"
-    return "OTHER"
+def _retained_item_categories(
+    source_set: dict, all_items: dict[str, dict], policy: dict
+) -> dict[str, str]:
+    """Select the reviewed user-facing Set item inventory from broad upstream records.
 
+    CommunityDragon intentionally exposes many engine objects, aliases, Wisps and temporary
+    rewards through the Set item list. The runtime package keeps only the stable item families
+    that a player can identify as actual Set item references. Source-specific identifiers stay
+    in the declarative Set configuration instead of leaking into application code.
+    """
 
-
-def _collect_set_item_ids(source_set: dict, all_items: dict[str, dict]) -> set[str]:
-    """Return every Set-declared item plus every recursively referenced component."""
-
-    item_ids = set(source_set.get("items") or [])
-    pending = list(item_ids)
-    while pending:
-        current = pending.pop()
-        item = all_items.get(current)
-        if item is None:
-            raise ValueError(f"Set item {current!r} is missing from CommunityDragon items")
-        for component in item.get("composition") or []:
-            if component not in item_ids:
-                item_ids.add(component)
-                pending.append(component)
-    return item_ids
-
-
-def _require_item_categories(item_rows: list[dict], required_categories: list[str]) -> None:
-    """Fail acquisition when an expected current-Set item family disappears upstream."""
-
-    present = {row["category"] for row in item_rows}
-    missing = sorted(set(required_categories) - present)
+    declared = set(source_set.get("items") or [])
+    missing = sorted(source_id for source_id in declared if source_id not in all_items)
     if missing:
-        raise ValueError("Set item inventory is missing required categories: " + ", ".join(missing))
+        raise ValueError("Set item records are missing from CommunityDragon: " + ", ".join(missing))
+
+    excluded = set(policy.get("exclude_ids", []))
+    explicit = {
+        source_id: category
+        for category, source_ids in policy.get("explicit_ids", {}).items()
+        for source_id in source_ids
+    }
+    unknown_explicit = sorted(set(explicit) - declared)
+    if unknown_explicit:
+        raise ValueError(
+            "explicit retained Item IDs are missing from the Set: "
+            + ", ".join(unknown_explicit)
+        )
+    unknown_excluded = sorted(excluded - declared)
+    if unknown_excluded:
+        raise ValueError(
+            "explicit excluded Item IDs are missing from the Set: "
+            + ", ".join(unknown_excluded)
+        )
+
+    component_prefix = policy["component_prefix"]
+    craftable_prefix = policy["craftable_prefix"]
+    emblem_prefix = policy["emblem_prefix"]
+    artifact_prefixes = tuple(policy["artifact_prefixes"])
+    radiant_prefix = policy["radiant_prefix"]
+    radiant_tag = policy["radiant_tag"]
+
+    retained: dict[str, str] = {}
+    for source_id in sorted(declared):
+        if source_id in excluded:
+            continue
+        item = all_items[source_id]
+        tags = set(item.get("tags") or [])
+        if source_id in explicit:
+            retained[source_id] = explicit[source_id]
+        elif source_id.startswith(component_prefix) and "component" in tags:
+            retained[source_id] = "COMPONENT"
+        elif source_id.startswith(emblem_prefix):
+            retained[source_id] = "EMBLEM"
+        elif source_id.startswith(artifact_prefixes):
+            retained[source_id] = "ARTIFACT"
+        elif source_id.startswith(radiant_prefix) and radiant_tag in tags:
+            retained[source_id] = "RADIANT"
+        elif source_id.startswith(craftable_prefix) and item.get("composition"):
+            retained[source_id] = "CRAFTABLE"
+
+    # A retained recipe must never point back into the discarded alias/internal inventory.
+    for source_id in sorted(retained):
+        for component in all_items[source_id].get("composition") or []:
+            if component not in retained:
+                raise ValueError(
+                    f"retained Item {source_id!r} references non-retained component {component!r}"
+                )
+    return retained
+
+
+def _require_item_category_counts(
+    categories: dict[str, str], expected_counts: dict[str, int]
+) -> None:
+    """Fail acquisition when the reviewed current-item boundary drifts upstream."""
+
+    actual: dict[str, int] = {}
+    for category in categories.values():
+        actual[category] = actual.get(category, 0) + 1
+    if actual != expected_counts:
+        raise ValueError(
+            f"retained Item category counts differ: expected {expected_counts}; got {actual}"
+        )
+
+
+def _require_expected_count(label: str, actual: int, expected: int | None) -> None:
+    """Turn silent upstream roster drift into an explicit review failure."""
+
+    if expected is not None and actual != expected:
+        raise ValueError(f"expected {expected} {label}; got {actual}")
+
+
+def _variant_records(group: dict, raw_champions: dict[str, dict]) -> list[dict]:
+    """Resolve one explicit variant group and report every missing source ID together."""
+
+    missing = [source_id for source_id in group["source_ids"] if source_id not in raw_champions]
+    if missing:
+        raise ValueError(
+            f"variant group {group['target_id']!r} references missing Champion source IDs: "
+            + ", ".join(missing)
+        )
+    records = [raw_champions[source_id] for source_id in group["source_ids"]]
+    costs = {record["cost"] for record in records}
+    if len(costs) != 1:
+        raise ValueError(f"variant group {group['target_id']!r} has inconsistent Champion costs")
+    if group["image_source_id"] not in group["source_ids"]:
+        raise ValueError(
+            f"variant group {group['target_id']!r} image_source_id must be one of source_ids"
+        )
+    return records
+
 
 def _localized_record(payload: dict, mutator: str, kind: str) -> dict[str, dict]:
     data = _set_data(payload, mutator)
@@ -268,12 +580,37 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
     }
 
     all_items = {item["apiName"]: item for item in cdragon[default_locale].get("items", [])}
-    item_ids = _collect_set_item_ids(source_set, all_items)
+    item_categories = _retained_item_categories(
+        source_set, all_items, config["item_retention"]
+    )
+    _require_item_category_counts(item_categories, config["expected_items_by_category"])
 
     excluded = config.get("exclude_champions", {})
     variant_groups = config.get("variant_groups", [])
     variant_source_ids = {source_id for group in variant_groups for source_id in group["source_ids"]}
     raw_champions = {champion["apiName"]: champion for champion in source_set["champions"]}
+    _require_expected_count(
+        "raw Champion records", len(raw_champions), config.get("expected_source_champions")
+    )
+    _require_expected_count(
+        "Trait records", len(source_set["traits"]), config.get("expected_traits")
+    )
+
+    missing_exclusions = sorted(set(excluded) - raw_champions.keys())
+    if missing_exclusions:
+        raise ValueError(
+            "excluded Champion source IDs are missing upstream: " + ", ".join(missing_exclusions)
+        )
+    overlap = sorted(set(excluded) & variant_source_ids)
+    if overlap:
+        raise ValueError(
+            "Champion source IDs cannot be both excluded and variant members: " + ", ".join(overlap)
+        )
+    if len(variant_source_ids) != sum(len(group["source_ids"]) for group in variant_groups):
+        raise ValueError("Champion source IDs may belong to only one variant group")
+    for group in variant_groups:
+        _variant_records(group, raw_champions)
+
     champion_candidates = [
         champion for champion in source_set["champions"] if champion["apiName"] not in excluded
     ]
@@ -282,6 +619,7 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
     dynamic_rows: list[dict] = []
     inventory: list[dict] = []
     assets: dict[str, str] = {}
+    variant_choice_sources: dict[str, dict[str, str]] = {}
     adjustments = config.get("champion_adjustments", {})
 
     def trait_ids(champion: dict) -> list[str]:
@@ -325,11 +663,40 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
         )
 
     for group in variant_groups:
-        variants = [raw_champions[source_id] for source_id in group["source_ids"]]
+        variants = _variant_records(group, raw_champions)
         trait_sets = [set(trait_ids(champion)) for champion in variants]
         base_traits = set.intersection(*trait_sets)
         choice_traits = sorted(set.union(*trait_sets) - base_traits)
         target_id = group["target_id"]
+
+        # Each visual source variant must represent either the base form or exactly one dynamic
+        # Trait choice. This keeps the source mapping reviewable and makes portrait switching
+        # deterministic without encoding Lux-specific rules in runtime code.
+        choice_sources: dict[str, str] = {}
+        for variant in variants:
+            selected = set(trait_ids(variant)) - base_traits
+            if not selected:
+                continue
+            if len(selected) != 1:
+                raise ValueError(
+                    f"variant source {variant['apiName']!r} must add exactly one choice Trait"
+                )
+            trait_id = next(iter(selected))
+            if trait_id in choice_sources:
+                raise ValueError(
+                    f"variant group {target_id!r} has multiple source records for Trait {trait_id!r}"
+                )
+            choice_sources[trait_id] = variant["apiName"]
+        if set(choice_sources) != set(choice_traits):
+            raise ValueError(f"variant group {target_id!r} cannot map every choice to one source image")
+        variant_choice_sources[target_id] = choice_sources
+        choice_images = {
+            trait_id: (
+                f"assets/champions/variants/{_slug(target_id)}--{_slug(trait_id)}.png"
+            )
+            for trait_id in choice_traits
+        }
+
         champion_rows.append(
             {
                 "id": target_id,
@@ -350,12 +717,20 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
                 "choices": choice_traits,
                 "selection_scope": group.get("selection_scope", "PER_INSTANCE"),
                 "exact_count": group.get("exact_count"),
-                "choice_points": {trait_id: group.get("choice_points", 1) for trait_id in choice_traits},
+                "choice_points": {
+                    trait_id: group.get("choice_points", 1) for trait_id in choice_traits
+                },
+                "choice_images": choice_images,
             }
         )
         for source_id in group["source_ids"]:
             inventory.append(
-                {"kind": "CHAMPION", "source_id": source_id, "status": "INCLUDED", "target_id": target_id}
+                {
+                    "kind": "CHAMPION",
+                    "source_id": source_id,
+                    "status": "INCLUDED",
+                    "target_id": target_id,
+                }
             )
 
     for rule in config.get("dynamic_traits", []):
@@ -368,9 +743,13 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
                 "selection_scope": rule.get("selection_scope", "PER_CHAMPION"),
                 "exact_count": rule.get("exact_count"),
                 "choice_points": {trait_id: rule.get("choice_points", 1) for trait_id in choices},
+                "choice_images": {},
             }
         )
 
+    _require_expected_count(
+        "logical Champions", len(champion_rows), config.get("expected_logical_champions")
+    )
 
     trait_adjustments = {}
     for trait_name, adjustment in config.get("trait_adjustments_by_name", {}).items():
@@ -395,6 +774,24 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
         ]
         if not breakpoints:
             breakpoints = [{"count": 1, "style": "tier_1"}]
+
+        known_counts = {str(value["count"]) for value in breakpoints}
+        variable_overrides = _trait_variable_overrides(
+            config, trait["name"], known_counts
+        )
+        _summary, breakpoint_texts = _trait_display_texts(
+            localized_traits[default_locale][source_id],
+            breakpoints,
+            variable_overrides,
+            locale=default_locale,
+        )
+        for breakpoint in breakpoints:
+            count = int(breakpoint["count"])
+            if count in breakpoint_texts:
+                breakpoint["description_key"] = (
+                    f"trait.{_slug(source_id)}.breakpoint.{count}.description"
+                )
+
         derived_requirements = {
             trait_api_by_name[name]: count
             for name, count in adjustment.get("derived_requirements_by_name", {}).items()
@@ -417,7 +814,18 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
         )
 
     item_rows = []
-    for index, source_id in enumerate(sorted(item_ids)):
+    retained_item_ids = set(item_categories)
+    for source_id in sorted(set(source_set.get("items") or []) - retained_item_ids):
+        inventory.append(
+            {
+                "kind": "ITEM",
+                "source_id": source_id,
+                "status": "EXCLUDED",
+                "reason": "outside reviewed user-facing Set 18 item reference boundary",
+            }
+        )
+
+    for index, source_id in enumerate(sorted(retained_item_ids)):
         item = all_items[source_id]
         item_rows.append(
             {
@@ -425,7 +833,7 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
                 "name_key": f"item.{_slug(source_id)}.name",
                 "description_key": f"item.{_slug(source_id)}.description",
                 "icon": f"assets/items/{_slug(source_id)}.png",
-                "category": _category(item),
+                "category": item_categories[source_id],
                 "composition": item.get("composition") or [],
                 "associated_traits": [value for value in item.get("associatedTraits") or [] if value in traits_by_api],
                 "display_order": index * 10 + 10,
@@ -436,12 +844,14 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
             {"kind": "ITEM", "source_id": source_id, "status": "INCLUDED", "target_id": source_id}
         )
 
-    _require_item_categories(item_rows, config.get("required_item_categories", []))
 
     locale_catalogs: dict[str, dict[str, str]] = {}
     for locale in locales:
         set_name_key = f"set.{_slug(config["set_id"])}.name"
-        catalog = {set_name_key: localized_sets[locale].get("name") or config["display_name"]}
+        display_name = config.get("localized_display_names", {}).get(
+            locale, config["display_name"]
+        )
+        catalog = {set_name_key: display_name}
         source_champs = {champion["apiName"]: champion for champion in localized_sets[locale]["champions"]}
         source_items = {item["apiName"]: item for item in cdragon[locale].get("items", [])}
         for row in champion_rows:
@@ -455,12 +865,22 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
             trait = localized_traits[locale][row["id"]]
             dd = ddragon[f"trait:{locale}"].get(row["id"], {})
             catalog[row["name_key"]] = dd.get("name") or trait.get("name") or row["id"]
-            catalog[row["description_key"]] = trait.get("desc") or "No source description available."
+            source_trait_name = traits_by_api[row["id"]]["name"]
+            variable_overrides = _trait_variable_overrides(config, source_trait_name)
+            summary, breakpoint_texts = _trait_display_texts(
+                trait, row["breakpoints"], variable_overrides, locale=locale
+            )
+            catalog[row["description_key"]] = summary or "No source description available."
+            for breakpoint in row["breakpoints"]:
+                description_key = breakpoint.get("description_key")
+                if description_key is not None:
+                    catalog[description_key] = breakpoint_texts[int(breakpoint["count"])]
         for row in item_rows:
             item = source_items.get(row["id"]) or all_items[row["id"]]
             dd = ddragon[f"item:{locale}"].get(row["id"], {})
             catalog[row["name_key"]] = dd.get("name") or item.get("name") or row["id"]
-            catalog[row["description_key"]] = item.get("desc") or "No source description available."
+            description = _render_item_description(item, locale=locale)
+            catalog[row["description_key"]] = description or "No source description available."
         locale_catalogs[locale] = catalog
 
     planner_rows = planner_payload.get(mutator) or []
@@ -478,53 +898,70 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
         for champion in champion_rows:
             group = next((value for value in variant_groups if value["target_id"] == champion["id"]), None)
             source_id = group["image_source_id"] if group else champion["id"]
-            c_record = raw_champions[source_id]
-            dd_record = ddragon[f"champion:{default_locale}"].get(source_id, {})
-            url = _dd_asset_url(config["ddragon_version"], dd_record) or _cdragon_asset_url(
-                config["cdragon_version"], c_record.get("squareIcon") or c_record.get("icon")
-            )
-            revision = (
-                config["ddragon_version"]
-                if "ddragon.leagueoflegends.com" in url
-                else config["cdragon_version"]
-            )
-            _asset(
-                client, cache_dir, spec_dir, sources, f"champion_asset_{source_id}",
-                revision, None, url, champion["image"]
+            dd_record = ddragon[f"champion:{default_locale}"].get(source_id)
+            if dd_record is None:
+                raise ValueError(f"Data Dragon has no Champion image record for {source_id!r}")
+            _dd_sprite_asset(
+                client,
+                cache_dir,
+                spec_dir,
+                sources,
+                config["ddragon_version"],
+                dd_record,
+                champion["image"],
             )
             assets[champion["image"]] = champion["image"]
 
+            choice_sources = variant_choice_sources.get(champion["id"], {})
+            if choice_sources:
+                dynamic_rule = next(
+                    rule for rule in dynamic_rows if rule["champion_id"] == champion["id"]
+                )
+                for trait_id, variant_source_id in sorted(choice_sources.items()):
+                    dd_variant = ddragon[f"champion:{default_locale}"].get(variant_source_id)
+                    if dd_variant is None:
+                        raise ValueError(
+                            f"Data Dragon has no Champion variant image for {variant_source_id!r}"
+                        )
+                    target = dynamic_rule["choice_images"][trait_id]
+                    _dd_sprite_asset(
+                        client,
+                        cache_dir,
+                        spec_dir,
+                        sources,
+                        config["ddragon_version"],
+                        dd_variant,
+                        target,
+                    )
+                    assets[target] = target
+
         for trait in trait_rows:
-            source = traits_by_api[trait["id"]]
-            dd_record = ddragon[f"trait:{default_locale}"].get(trait["id"], {})
-            url = _dd_asset_url(config["ddragon_version"], dd_record) or _cdragon_asset_url(
-                config["cdragon_version"], source["icon"]
-            )
-            revision = (
-                config["ddragon_version"]
-                if "ddragon.leagueoflegends.com" in url
-                else config["cdragon_version"]
-            )
-            _asset(
-                client, cache_dir, spec_dir, sources, f"trait_asset_{trait['id']}",
-                revision, None, url, trait["icon"]
+            dd_record = ddragon[f"trait:{default_locale}"].get(trait["id"])
+            if dd_record is None:
+                raise ValueError(f"Data Dragon has no Trait image record for {trait['id']!r}")
+            _dd_sprite_asset(
+                client,
+                cache_dir,
+                spec_dir,
+                sources,
+                config["ddragon_version"],
+                dd_record,
+                trait["icon"],
             )
             assets[trait["icon"]] = trait["icon"]
 
         for item in item_rows:
-            source = all_items[item["id"]]
-            dd_record = ddragon[f"item:{default_locale}"].get(item["id"], {})
-            url = _dd_asset_url(config["ddragon_version"], dd_record) or _cdragon_asset_url(
-                config["cdragon_version"], source["icon"]
-            )
-            revision = (
-                config["ddragon_version"]
-                if "ddragon.leagueoflegends.com" in url
-                else config["cdragon_version"]
-            )
-            _asset(
-                client, cache_dir, spec_dir, sources, f"item_asset_{item['id']}",
-                revision, None, url, item["icon"]
+            dd_record = ddragon[f"item:{default_locale}"].get(item["id"])
+            if dd_record is None:
+                raise ValueError(f"Data Dragon has no Item image record for {item['id']!r}")
+            _dd_sprite_asset(
+                client,
+                cache_dir,
+                spec_dir,
+                sources,
+                config["ddragon_version"],
+                dd_record,
+                item["icon"],
             )
             assets[item["icon"]] = item["icon"]
 

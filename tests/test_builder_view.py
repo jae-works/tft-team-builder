@@ -15,7 +15,9 @@ from tft_builder.builder_view import (
     BuilderView,
     asset_source,
     champion_details_text,
+    champion_portrait_path,
     champion_trait_ids,
+    dynamic_selection_text,
     dynamic_rule_summary,
     filtered_champion_groups,
     localized_text,
@@ -130,6 +132,7 @@ def fake_flet(monkeypatch):
         CrossAxisAlignment=SimpleNamespace(STRETCH="stretch", CENTER="center"),
         MainAxisAlignment=SimpleNamespace(CENTER="center"),
         ScrollMode=SimpleNamespace(AUTO="auto"),
+        TextOverflow=SimpleNamespace(ELLIPSIS="ellipsis"),
         Alignment=SimpleNamespace(CENTER="center"),
     )
     monkeypatch.setitem(sys.modules, "flet", namespace)
@@ -187,6 +190,83 @@ def test_pure_builder_helpers_cover_localization_assets_groups_and_navigation(
     team = Team.create(set_id="sample_set", name="T")
     assert reconcile_active_list(team, team.primary_list_id) == team.primary_list_id
     assert reconcile_active_list(team, uuid4()) == team.primary_list_id
+
+
+def test_dynamic_portrait_and_text_helpers_use_choice_data_and_safe_fallbacks(loaded_set) -> None:
+    flex = loaded_set.champions_by_id["sample_flex"]
+    arcane = TraitSelection(("sample_arcane",))
+
+    assert champion_portrait_path(loaded_set, flex, TraitSelection()) == flex.image
+    assert champion_portrait_path(loaded_set, flex, arcane) == (
+        "assets/champions/variants/sample_flex_arcane.png"
+    )
+    assert dynamic_selection_text(loaded_set, flex, arcane) == "Sample Arcane"
+
+    rule_without_portraits = loaded_set.dynamic_traits[0].model_copy(
+        update={"choice_images": {}}
+    )
+    fallback_set = replace(loaded_set, dynamic_traits=(rule_without_portraits,))
+    assert champion_portrait_path(fallback_set, flex, arcane) == flex.image
+    assert dynamic_selection_text(fallback_set, flex, arcane) == "Sample Arcane"
+
+    invalid_multi = TraitSelection(("sample_arcane", "sample_wildcard"))
+    assert champion_portrait_path(loaded_set, flex, invalid_multi) == flex.image
+    assert dynamic_selection_text(loaded_set, flex, invalid_multi) == (
+        "Sample Arcane, Sample Wildcard"
+    )
+
+
+def test_slot_renders_selected_dynamic_portrait_and_text(
+    fake_flet, loaded_set, tmp_path: Path
+) -> None:
+    view, page, _ = make_view(loaded_set, tmp_path)
+    instance_id = view.editor.add_champion(
+        view.team.primary_list_id,
+        0,
+        "sample_flex",
+        trait_selection=TraitSelection(("sample_arcane",)),
+    )
+    view.mount()
+
+    root = page.controls[0]
+    selected = by_key(root, f"slot-dynamic-{instance_id}")
+    assert selected.value == "Sample Arcane"
+    slot = by_key(root, f"slot-{view.team.primary_list_id}-0")
+    images = [item for item in walk(slot) if getattr(item, "src", None)]
+    assert any(
+        item.src.endswith("assets/champions/variants/sample_flex_arcane.png")
+        for item in images
+    )
+
+
+def test_hci_edge_fixture_does_not_assume_short_names_or_normal_costs(loaded_set) -> None:
+    flex = loaded_set.champions_by_id["sample_flex"].model_copy(
+        update={
+            "cost": 11,
+            "board_slots": 2,
+            "traits": ["sample_guard", "sample_arcane", "sample_wildcard"],
+            "trait_points": {"sample_guard": 2},
+        }
+    )
+    locales = {locale: dict(catalog) for locale, catalog in loaded_set.locales.items()}
+    locales[loaded_set.manifest.default_locale][flex.name_key] = (
+        "A Champion Name Designed to Wrap Across Narrow Desktop Cards"
+    )
+    edge_set = replace(
+        loaded_set,
+        champions=tuple(flex if item.id == flex.id else item for item in loaded_set.champions),
+        locales=locales,
+    )
+
+    details = champion_details_text(edge_set, flex)
+    assert details.startswith("A Champion Name Designed to Wrap Across Narrow Desktop Cards | Cost 11")
+    assert champion_trait_ids(edge_set, flex) == (
+        "sample_guard",
+        "sample_arcane",
+        "sample_wildcard",
+    )
+    assert flex.board_slots == 2
+    assert flex.trait_points == {"sample_guard": 2}
 
 
 def test_visible_trait_results_filters_only_below_first_breakpoint(loaded_set) -> None:

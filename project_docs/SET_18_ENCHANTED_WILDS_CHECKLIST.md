@@ -1,10 +1,10 @@
 # Set 18 - Enchanted Wilds completeness checklist
 
-Target: live Set 18, Enchanted Wilds. The pinned client-data inputs are Data Dragon 16.19.1 and CommunityDragon 16.19. Patch 18.3 has a September 24 B-patch; structural roster/Trait membership is sourced from the pinned client data, while balance-only hotfix text must be reviewed separately before claiming exact live numeric descriptions.
+Target: live Set 18, Enchanted Wilds, package revision 18.3b. The pinned client-data inputs are Data Dragon 16.19.1 and CommunityDragon 16.19. Structural roster/Trait membership stays pinned; current Patch 18.3 breakpoint value differences are recorded as explicit Riot-source overrides.
 
 ## Logical Champion roster
 
-The normalized runtime roster contains 65 logical units. CommunityDragon exposes nine Lux source variants; the importer intentionally normalizes those variants into one logical Lux with a data-driven Avatar origin choice.
+The reviewed pinned source contains 91 raw Champion records and normalizes to 65 logical units. Seventeen helper/encounter/pseudo-unit records are explicitly excluded. CommunityDragon exposes ten Lux records (one base plus nine origin variants); the importer intentionally normalizes all ten into one logical Lux with a data-driven Avatar origin choice.
 
 ### 1-cost (14)
 
@@ -32,12 +32,12 @@ The set has 35 ordinary visible Traits plus the derived Eclipse state, for 36 lo
 
 Adaptor, Apex Predator, Attuned, Avatar, Blackthorn, Blossom, Bounty Seeker, Brawler, Caustic, Coven, Defender, Eclipse, Elderwood, Emerald Aspect, Executioner, Fae, Flora Fatalis, Greenfather, Hunter, Inferno, Invoker, Juggernaut, Lunar, Monolith, Old Growth, Primal, Rapidfire, Ravager, Riftbeast, Rival, Solar, Spellweaver, Sprykin, Summoner, Thornmaiden, Vanguard.
 
-Exact breakpoint values, display ordering, localized names/descriptions and icons are generated from the pinned sources instead of being duplicated in this checklist.
+Exact breakpoint values, display ordering, localized names/descriptions and icons are generated from the pinned sources instead of being duplicated in this checklist. Informative breakpoint rows are stored as localized plain text; unique/general-only Traits and Primal do not receive invented row text when upstream data provides none.
 
 ## Builder-relevant exceptional semantics
 
-- Lux: one logical unit. Avatar plus exactly one of nine origin choices; the selected origin contributes 2 Trait points. The choices are Blossom, Coven, Elderwood, Blackthorn, Fae, Inferno, Lunar, Primal and Solar.
-- Kha'Zix: Rival evolution may permanently grant zero or one of Executioner, Rapidfire, Ravager or Spellweaver. This is a PER_CHAMPION selection so duplicate copies cannot disagree.
+- Lux: one logical unit. Avatar plus exactly one of nine origin choices; the selected origin contributes 2 Trait points. The choices are Blossom, Coven, Elderwood, Blackthorn, Fae, Inferno, Lunar, Primal and Solar. Each choice has its own source-backed portrait path.
+- Kha'Zix: Rival evolution may permanently grant zero or one of Executioner, Rapidfire, Ravager or Spellweaver. This is a PER_CHAMPION selection so duplicate copies cannot disagree. The pinned source has one Kha'Zix Champion portrait record, so all four choices intentionally fall back to that base portrait unless a reviewed source is added later.
 - Elder Dragon: occupies 2 board slots and contributes 2 Riftbeast points. It must not be modeled as three Riftbeasts.
 - Rival: normal activation is exact at 1 Rival. Two Rivals must not be treated as the normal active one-Rival tier merely because the count is above one; exceptional Augment behavior is outside the base Set package.
 - Eclipse: derived from fielding at least 3 Solar and 3 Lunar. It is not a normal Champion-granted Trait and must not be manually selectable as a dynamic Trait.
@@ -45,7 +45,7 @@ Exact breakpoint values, display ordering, localized names/descriptions and icon
 
 ## Item completeness contract
 
-The importer does not filter Items by craftability. It starts from every Item ID declared by the Set 18 CommunityDragon ItemLists and recursively adds every referenced component. Generation fails when an expected family is absent.
+The current pinned source exposes 770 Set-declared Item records, but that list mixes real player-facing items with Wisps, temporary/utility engine objects and duplicate/legacy aliases. The reviewed package boundary retains exactly 136 canonical references: 10 components, 39 craftable items, 20 Set 18 emblems, 31 current artifacts and 36 radiant items. The remaining 634 source records stay explicitly excluded from the generated source inventory. Repeated recipe components remain valid and generation fails if any reviewed category count drifts.
 
 Required families are:
 
@@ -54,9 +54,7 @@ Required families are:
 - EMBLEM - craftable and non-craftable Trait emblems declared by Set 18.
 - ARTIFACT - Artifact/Ornn-style special Items.
 - RADIANT - Radiant variants.
-- SUPPORT - Support Items.
-- CONSUMABLE - Set-specific consumable/temporary potion or booster entries when declared by Set 18.
-- OTHER - valid Set-declared Items that do not belong to the above semantic families.
+Support, consumable/temporary, Wisp/mechanic and uncategorized engine records are intentionally outside this reviewed reference boundary. They can be added later only for a concrete feature with its own source review.
 
 The generated `SET_OVERVIEW.md` is the authoritative human-readable Item-name list for the pinned import. Maintaining another hand-written list of every Item name here would create a second source of truth and would drift when Riot changes the current Set inventory.
 
@@ -66,12 +64,18 @@ A complete generated package contains one current TFT PNG for every logical Cham
 
 ## Human review gate
 
+The Part 3 acquisition harness already verifies the exact generated shape before official-byte acquisition: 65 Champions, 36 Traits, 136 Items, 2 dynamic rules, 246 package PNGs, 65 Team Planner mappings and 21 provenance sources. Data Dragon supplies those PNGs through 12 shared sprite sheets. The remaining gate is to run the identical path against the official Riot sprite bytes and review the real source lock.
+
 After acquisition, inspect `src/assets/sets/enchanted_wilds/SET_OVERVIEW.md` and verify at minimum:
 
 1. all 65 logical Champions and their Trait memberships;
 2. all 36 logical Trait definitions, especially Rival and derived Eclipse;
 3. Lux's nine choices, Kha'Zix's four optional evolution choices and Elder Dragon's 2-slot/+2 Riftbeast semantics;
-4. every Set-declared Item family, including non-craftable Items and recursively required components;
+4. all 136 reviewed canonical Item references and their exact category counts;
 5. current TFT portraits/icons, with no old-set or League substitutes;
 6. no unexplained source candidate omissions;
 7. the generated source lock and hashes match the reviewed upstream bytes.
+
+## Part 4 post-acquisition verification
+
+After the real sprite acquisition, run `tools/set_import/verify_enchanted_wilds.py` against the generated package and reviewed `source_lock.json`. This is the executable counterpart to the checklist and must pass before the package is accepted. GUI-specific stress cases and interaction expectations are recorded separately in `SET_18_GUI_HCI_HANDOFF.md` so the dataset checklist does not become a second UI specification.

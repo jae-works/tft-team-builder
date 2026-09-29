@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from .models import TraitSelection
 from .search import normalize_search_text
 from .set_loader import LoadedSet
-from .set_schema import ChampionDefinition
+from .set_schema import ChampionDefinition, DynamicTraitDefinition
 
 
 def localized_text(loaded_set: LoadedSet, key: str) -> str:
@@ -34,15 +35,55 @@ def asset_source(loaded_set: LoadedSet, assets_dir: Path, relative_path: str) ->
         ) from error
 
 
-def champion_trait_ids(loaded_set: LoadedSet, champion: ChampionDefinition) -> tuple[str, ...]:
-    """Return native and possible dynamic Trait IDs for one Champion without duplicates."""
+def _dynamic_rule(
+    loaded_set: LoadedSet, champion: ChampionDefinition
+) -> DynamicTraitDefinition | None:
+    """Return the optional data-driven dynamic Trait rule for one Champion."""
 
-    dynamic = next(
+    return next(
         (rule for rule in loaded_set.dynamic_traits if rule.champion_id == champion.id),
         None,
     )
+
+
+def champion_trait_ids(loaded_set: LoadedSet, champion: ChampionDefinition) -> tuple[str, ...]:
+    """Return native and possible dynamic Trait IDs for one Champion without duplicates."""
+
+    dynamic = _dynamic_rule(loaded_set, champion)
     dynamic_choices = () if dynamic is None else tuple(dynamic.choices)
     return tuple(dict.fromkeys((*champion.traits, *dynamic_choices)))
+
+
+def champion_portrait_path(
+    loaded_set: LoadedSet,
+    champion: ChampionDefinition,
+    selection: TraitSelection,
+) -> str:
+    """Return a selected dynamic portrait or the logical Champion's base portrait."""
+
+    dynamic = _dynamic_rule(loaded_set, champion)
+    if dynamic is None or len(selection.trait_ids) != 1:
+        return champion.image
+    return dynamic.choice_images.get(selection.trait_ids[0], champion.image)
+
+
+def dynamic_selection_text(
+    loaded_set: LoadedSet,
+    champion: ChampionDefinition,
+    selection: TraitSelection,
+) -> str:
+    """Return localized selected dynamic Trait names in the rule's stable choice order."""
+
+    dynamic = _dynamic_rule(loaded_set, champion)
+    if dynamic is None or not selection.trait_ids:
+        return ""
+    selected = set(selection.trait_ids)
+    traits_by_id = loaded_set.traits_by_id
+    return ", ".join(
+        localized_text(loaded_set, traits_by_id[trait_id].name_key)
+        for trait_id in dynamic.choices
+        if trait_id in selected
+    )
 
 
 def champion_details_text(loaded_set: LoadedSet, champion: ChampionDefinition) -> str:

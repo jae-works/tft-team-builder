@@ -29,6 +29,7 @@ src/assets/sets/<set_id>/
         source_inventory.json
     assets/
         champions/*.png
+        champions/variants/*.png
         items/*.png
         traits/*.png
 ```
@@ -41,15 +42,15 @@ Stable IDs are never localized. Localized names/descriptions live only in locale
 
 Champion data stores only Builder-relevant facts: ID, display key, cost, Traits, weighted Trait points, board-slot cost, portrait and search aliases. Combat stats and ability numbers are intentionally excluded.
 
-Items store ID, localized name/description keys, PNG icon, category, component IDs, associated Trait IDs and source tags. Item equipping is not currently a Builder feature, but Set packages retain the complete Set-declared Item reference inventory.
+Items store ID, localized name/description keys, PNG icon, category, component IDs, associated Trait IDs and source tags. Recipe component order and multiplicity are preserved. Item equipping is not currently a Builder feature. Set 18 uses a reviewed canonical Item boundary because the broad upstream Set list also contains internal gameplay objects, temporary rewards and duplicate aliases.
 
-Traits store ID, localized name/description keys, PNG icon, display order, breakpoints, counting mode, activation mode and optional derived requirements.
+Traits store ID, localized name/description keys, PNG icon, display order, breakpoints, counting mode, activation mode and optional derived requirements. A breakpoint may carry its own localized `description_key`; runtime UI consumes that plain text directly and does not parse Riot tooltip markup.
 
 Builder-relevant exceptional behavior must use executable declarative fields rather than Champion-name branches or descriptive metadata files:
 
 - use `trait_points` when one unit contributes more than one point to a native Trait;
 - use `board_slots` when one logical unit consumes more than one board slot;
-- use `dynamic_traits` for player-selected Trait membership such as Lux or Kha'Zix;
+- use `dynamic_traits` for player-selected Trait membership such as Lux or Kha'Zix; optional `choice_images` map a selected Trait to a Set-owned Champion portrait;
 - use Trait `activation_mode=EXACT` when a Trait is active only at an exact count;
 - use Trait `derived_requirements` for states such as Eclipse that are activated by other Trait counts.
 
@@ -57,9 +58,9 @@ Do not add a generic mechanic record merely to store gameplay prose the Builder 
 
 ## Items
 
-Current-Set Item membership comes from the pinned CommunityDragon Set ItemLists. The importer keeps every Set-declared Item regardless of craftability and recursively adds every referenced component. Riot Data Dragon is used as a preferred localization/asset source where an exact record exists, but its global current-item catalog is not treated as Set membership because it can cover multiple active Sets/modes.
+Current-Set Item candidates come from the pinned CommunityDragon Set Item list. The importer preserves repeated recipe components, then applies the Set-specific reviewed retention policy. Set 18 exposes 770 broad records but retains exactly 136 canonical references: 10 components, 39 craftable items, 20 emblems, 31 current artifacts and 36 radiant items. The remaining records are source-accounted exclusions. Riot Data Dragon is used as a preferred localization/asset source where an exact record exists, but its global catalog is not treated as Set membership.
 
-The current Set source config defines expected Item families. Acquisition fails rather than silently producing an incomplete package when one disappears unexpectedly. Set 18 requires component, craftable, emblem, artifact, radiant, support, consumable and other families.
+The current Set source config defines exact expected retained Item category counts. Acquisition fails rather than silently accepting upstream drift. Support, temporary/utility and mechanic-only records are intentionally outside the Set 18 reference boundary until a concrete application feature requires them.
 
 ## Images
 
@@ -88,12 +89,16 @@ No code list needs editing after a valid package is copied into `src/assets/sets
 
 ## Current Set 18 source config
 
-`set_sources/sets/enchanted_wilds/source.json` targets Set 18, Enchanted Wilds, pinned client-data revision 18.3 / Data Dragon 16.19.1 / CommunityDragon 16.19, with English and German locale imports. Patch 18.3 received a September 24 B-patch; structural Set membership remains pinned and reproducible, while balance-only tooltip numbers must be reviewed when claiming exact live numeric descriptions.
+`set_sources/sets/enchanted_wilds/source.json` targets Set 18, Enchanted Wilds, package revision 18.3b / Data Dragon 16.19.1 / CommunityDragon 16.19, with English and German locale imports (`Enchanted Wilds` / `Verzauberte Wildnis`). Static tooltip variables are resolved at build time; reviewed Patch 18.3 differences for Coven, Defender, Hunter, Inferno and Invoker are explicit source-backed overrides with reasons. Data Dragon records are resolved by their stable `id`; visible assets are cropped from the pinned Data Dragon sprite sheets, avoiding hundreds of redundant HTTP requests while keeping source hashes reviewable.
 
-The only Builder-semantic normalizations are Lux's Avatar origin choice, Kha'Zix's Rival evolution choice, Elder Dragon's 2-slot/+2 Riftbeast contribution, exact one-Rival base activation and derived Eclipse activation from 3 Solar plus 3 Lunar. Rengar has no Champion-specific Builder state.
+The reviewed source roster contains 91 raw Champion records and normalizes to 65 logical player units. Seventeen helper/encounter/pseudo-unit records are explicitly excluded. Lux is represented by ten upstream records (base plus nine origins) but one logical Champion; its nine origin choices carry Set-owned portrait paths. Kha'Zix remains one logical Champion with four optional evolution Trait choices; the pinned source exposes no separate Kha'Zix Champion portrait records for those choices, so the base portrait is retained instead of inventing assets. Elder Dragon uses the actual `DA_18_ElderDragon` record and has the 2-slot/+2 Riftbeast adjustment. Rival and Eclipse remain declarative Trait rules.
 
 See `SET_18_ENCHANTED_WILDS_CHECKLIST.md` for the review roster and completeness gates.
 
 ## Review rule
 
 A generated package is not accepted merely because JSON parses. It must pass structural validation, source-candidate accounting, source-lock/hash checks, the normal test suite, and manual inspection of `SET_OVERVIEW.md`. The validator verifies structure and internal consistency; current gameplay truth still requires source review, especially after server-side B-patches.
+
+## GUI handoff for dynamic portraits
+
+`choice_images` is optional presentation data. A runtime consumer should use a choice portrait only when exactly one selected dynamic Trait maps to an image; otherwise it should preserve the logical Champion's base portrait. The selected choice must still be exposed textually so meaning never depends on artwork alone.

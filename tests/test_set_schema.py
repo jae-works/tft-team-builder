@@ -19,7 +19,7 @@ from tft_builder.set_schema import (
 
 def valid_manifest_payload() -> dict[str, object]:
     return {
-        "schema_version": 3,
+        "schema_version": 5,
         "set_id": "sample_set",
         "display_name_key": "set.sample.name",
         "revision": "1.0.0",
@@ -280,6 +280,36 @@ def test_dynamic_choices_must_be_unique() -> None:
         )
 
 
+def test_dynamic_choice_images_must_reference_declared_choices() -> None:
+    with pytest.raises(ValidationError, match="choice_images"):
+        DynamicTraitDefinition(
+            champion_id="champion_a",
+            selection_rule="EXACTLY_ONE",
+            choices=["trait_a"],
+            choice_images={"trait_b": "assets/champions/variant.png"},
+        )
+
+
+def test_dynamic_choice_images_require_portable_asset_paths() -> None:
+    with pytest.raises(ValidationError, match="POSIX-style"):
+        DynamicTraitDefinition(
+            champion_id="champion_a",
+            selection_rule="EXACTLY_ONE",
+            choices=["trait_a"],
+            choice_images={"trait_a": "assets\\champions\\variant.png"},
+        )
+
+
+def test_dynamic_choice_images_accept_optional_per_choice_portraits() -> None:
+    rule = DynamicTraitDefinition(
+        champion_id="champion_a",
+        selection_rule="ZERO_OR_ONE",
+        choices=["trait_a", "trait_b"],
+        choice_images={"trait_a": "assets/champions/variant_a.png"},
+    )
+    assert rule.choice_images == {"trait_a": "assets/champions/variant_a.png"}
+
+
 def test_team_planner_without_codec_rejects_mapping() -> None:
     with pytest.raises(ValidationError, match="require"):
         TeamPlannerData(codec=None, champion_ids={"champion_a": "123"})
@@ -363,7 +393,7 @@ def test_manifest_rejects_metadata_file_inside_assets_directory() -> None:
 
 def test_local_set_spec_requires_exact_supported_locale_inventory() -> None:
     payload = {
-        "schema_version": 3,
+        "schema_version": 5,
         "manifest": valid_manifest_payload(),
         "champions": [],
         "traits": [],
@@ -394,7 +424,7 @@ def test_manifest_rejects_metadata_file_inside_locales_directory() -> None:
 
 def valid_local_spec_payload() -> dict[str, object]:
     return {
-        "schema_version": 3,
+        "schema_version": 5,
         "manifest": valid_manifest_payload(),
         "champions": [
             {
@@ -495,6 +525,35 @@ def test_local_set_spec_requires_mapping_for_every_referenced_asset() -> None:
         LocalSetSpec.model_validate(payload)
 
 
+def test_local_set_spec_requires_mapping_for_dynamic_choice_image() -> None:
+    payload = valid_local_spec_payload()
+    payload["dynamic_traits"] = [
+        {
+            "champion_id": "champion_a",
+            "selection_rule": "EXACTLY_ONE",
+            "choices": ["trait_a"],
+            "choice_images": {"trait_a": "assets/champions/variant_a.png"},
+        }
+    ]
+    with pytest.raises(ValidationError, match="no asset mapping"):
+        LocalSetSpec.model_validate(payload)
+
+
+def test_local_set_spec_accepts_mapped_dynamic_choice_image() -> None:
+    payload = valid_local_spec_payload()
+    payload["dynamic_traits"] = [
+        {
+            "champion_id": "champion_a",
+            "selection_rule": "EXACTLY_ONE",
+            "choices": ["trait_a"],
+            "choice_images": {"trait_a": "assets/champions/variant_a.png"},
+        }
+    ]
+    payload["assets"]["assets/champions/variant_a.png"] = "assets/champions/a.png"
+    spec = LocalSetSpec.model_validate(payload)
+    assert spec.dynamic_traits[0].choice_images["trait_a"].endswith("variant_a.png")
+
+
 def test_local_set_spec_rejects_unreferenced_asset_mapping() -> None:
     payload = valid_local_spec_payload()
     payload["assets"]["assets/extra/background.png"] = "assets/traits/a.png"
@@ -563,10 +622,20 @@ def test_extended_set_schema_rejects_invalid_weighted_and_inventory_values() -> 
             id="a", name_key="a.name", cost=1, traits=["x"],
             trait_points={"y": 2}, image="assets/a.png", display_order=0,
         )
-    with pytest.raises(ValidationError, match="composition"):
+    repeated_recipe = ItemDefinition(
+        id="i", name_key="i.name", icon="assets/i.png",
+        category=ItemCategory.COMPONENT, composition=["a", "a"], display_order=0,
+    )
+    assert repeated_recipe.composition == ["a", "a"]
+    with pytest.raises(ValidationError, match="associated_traits"):
         ItemDefinition(
             id="i", name_key="i.name", icon="assets/i.png",
-            category=ItemCategory.COMPONENT, composition=["a", "a"], display_order=0,
+            category=ItemCategory.COMPONENT, associated_traits=["x", "x"], display_order=0,
+        )
+    with pytest.raises(ValidationError, match="tags"):
+        ItemDefinition(
+            id="i", name_key="i.name", icon="assets/i.png",
+            category=ItemCategory.COMPONENT, tags=["x", "x"], display_order=0,
         )
     with pytest.raises(ValidationError, match="choice_points"):
         DynamicTraitDefinition(
@@ -597,3 +666,17 @@ def test_source_candidate_accepts_valid_included_and_excluded_shapes() -> None:
     )
     assert included.target_id == "trait_a"
     assert excluded.reason == "not a Set item"
+
+
+def test_trait_breakpoint_accepts_optional_description_key() -> None:
+    breakpoint = TraitBreakpoint(
+        count=2,
+        style="bronze",
+        description_key="trait.guard.breakpoint.2.description",
+    )
+    assert breakpoint.description_key == "trait.guard.breakpoint.2.description"
+
+
+def test_trait_breakpoint_rejects_invalid_description_key() -> None:
+    with pytest.raises(ValidationError):
+        TraitBreakpoint(count=2, style="bronze", description_key="invalid key")

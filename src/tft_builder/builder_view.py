@@ -20,7 +20,9 @@ from .set_display import (
     asset_source,
     champion_details_text,
     champion_matches_query,
+    champion_portrait_path,
     champion_trait_ids,
+    dynamic_selection_text,
     localized_text,
 )
 from .set_loader import LoadedSet
@@ -788,6 +790,12 @@ class BuilderView:
         champion = slot.champion
         definition = self._champions_by_id[champion.champion_id]
         name = localized_text(self.loaded_set, definition.name_key)
+        portrait_path = champion_portrait_path(
+            self.loaded_set, definition, champion.trait_selection
+        )
+        selection_text = dynamic_selection_text(
+            self.loaded_set, definition, champion.trait_selection
+        )
         dynamic_rule = self._dynamic_by_champion.get(champion.champion_id)
         actions: list[Any] = [
             ft.IconButton(
@@ -853,12 +861,27 @@ class BuilderView:
                                     src=asset_source(
                                         self.loaded_set,
                                         self.assets_dir,
-                                        definition.image,
+                                        portrait_path,
                                     ),
                                     width=48,
                                     height=48,
                                 ),
                                 ft.Text(name, size=11, max_lines=2),
+                                *(
+                                    [
+                                        ft.Text(
+                                            selection_text,
+                                            key=f"slot-dynamic-{champion.instance_id}",
+                                            size=10,
+                                            max_lines=1,
+                                            overflow=ft.TextOverflow.ELLIPSIS,
+                                            color=ft.Colors.ON_SURFACE_VARIANT,
+                                            tooltip=selection_text,
+                                        )
+                                    ]
+                                    if selection_text
+                                    else []
+                                ),
                             ],
                         ),
                         content_feedback=ft.Container(

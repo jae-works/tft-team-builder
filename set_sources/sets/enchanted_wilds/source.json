@@ -3,68 +3,234 @@
   "set_number": 18,
   "mutator": "TFTSet18",
   "display_name": "Enchanted Wilds",
-  "revision": "18.3",
+  "revision": "18.3b",
   "ddragon_version": "16.19.1",
   "cdragon_version": "16.19",
   "default_locale": "en_US",
-  "locales": ["en_US", "de_DE"],
-  "exclude_champions": {},
+  "locales": [
+    "en_US",
+    "de_DE"
+  ],
+  "expected_source_champions": 91,
+  "expected_logical_champions": 65,
+  "expected_traits": 36,
+  "exclude_champions": {
+    "TFT_BlueGolem": "generic encounter helper, not a Set 18 shop unit",
+    "TFT9_SLIME_Crab": "generic encounter helper, not a Set 18 shop unit",
+    "TFT_TrainingDummy": "generic training helper, not a Set 18 shop unit",
+    "TFT_Voidspawn": "generic summon helper, not a Set 18 shop unit",
+    "TFT_Krug": "generic encounter unit duplicated by the Set 18 Riftbeast unit",
+    "TFT_Murkwolf": "generic encounter unit duplicated by the Set 18 Riftbeast unit",
+    "TFT_MurkwolfMini": "generic encounter helper, not a Set 18 shop unit",
+    "TFT_Razorbeak": "generic encounter unit, not a Set 18 shop unit",
+    "TFT_RazorbeakMini": "generic encounter helper, not a Set 18 shop unit",
+    "TFT_RiftHerald": "generic encounter unit, not a Set 18 shop unit",
+    "TFT_ElderDragon": "generic encounter unit duplicated by the Set 18 Elder Dragon unit",
+    "TFT5_EmblemArmoryKey": "armory pseudo-unit, not a Set 18 shop unit",
+    "TFT_ArmoryKeyCompleted": "armory pseudo-unit, not a Set 18 shop unit",
+    "TFT_ArmoryKeyComponent": "armory pseudo-unit, not a Set 18 shop unit",
+    "TFT_ArmoryKeyOrnn": "armory pseudo-unit, not a Set 18 shop unit",
+    "TFT_ArmoryKeySupport": "armory pseudo-unit, not a Set 18 shop unit",
+    "TFT6_MercenaryChest": "loot helper, not a Set 18 shop unit"
+  },
   "variant_groups": [
     {
-      "target_id": "TFT18_Lux",
+      "target_id": "DA_Lux18_Base",
       "display_name": "Lux",
-      "localized_names": {"en_US": "Lux", "de_DE": "Lux"},
+      "localized_names": {
+        "en_US": "Lux",
+        "de_DE": "Lux"
+      },
       "source_ids": [
-        "TFT18_LuxBlossom",
-        "TFT18_LuxCoven",
-        "TFT18_LuxElderwood",
-        "TFT18_LuxEldritch",
-        "TFT18_LuxFae",
-        "TFT18_LuxInferno",
-        "TFT18_LuxLunar",
-        "TFT18_LuxPrimal",
-        "TFT18_LuxSolar"
+        "DA_Lux18_Base",
+        "DA_Lux18_Blackthorn",
+        "DA_Lux18_Blossom",
+        "DA_18_Lux_Coven",
+        "DA_18_Lux_Elderwood",
+        "DA_18_Lux_Fae",
+        "DA_18_Lux_Inferno",
+        "DA_18_Lux_Moonbeam",
+        "DA_18_Lux_Primal",
+        "DA_18_Lux_Sunbeam"
       ],
-      "image_source_id": "TFT18_LuxBlossom",
+      "image_source_id": "DA_Lux18_Base",
       "selection_rule": "EXACTLY_ONE",
       "selection_scope": "PER_INSTANCE",
       "choice_points": 2,
-      "search_aliases": ["avatar"]
+      "search_aliases": [
+        "avatar"
+      ]
     }
   ],
   "champion_adjustments": {
-    "TFT18_ElderDragon": {
+    "DA_18_ElderDragon": {
       "board_slots": 2,
-      "trait_points_by_name": {"Riftbeast": 2}
+      "trait_points_by_name": {
+        "Riftbeast": 2
+      }
     }
   },
   "dynamic_traits": [
     {
-      "champion_id": "TFT18_KhaZix",
+      "champion_id": "DA_18_KhaZix",
       "selection_rule": "ZERO_OR_ONE",
       "selection_scope": "PER_CHAMPION",
-      "choice_trait_names": ["Executioner", "Rapidfire", "Ravager", "Spellweaver"],
+      "choice_trait_names": [
+        "Executioner",
+        "Rapidfire",
+        "Ravager",
+        "Spellweaver"
+      ],
       "choice_points": 1
     }
   ],
   "trait_adjustments_by_name": {
     "Rival": {
       "activation_mode": "EXACT",
-      "breakpoints": [{"count": 1, "style": "tier_1"}]
+      "breakpoints": [
+        {
+          "count": 1,
+          "style": "tier_1"
+        }
+      ]
     },
     "Eclipse": {
-      "breakpoints": [{"count": 1, "style": "tier_1"}],
-      "derived_requirements_by_name": {"Solar": 3, "Lunar": 3}
+      "breakpoints": [
+        {
+          "count": 1,
+          "style": "tier_1"
+        }
+      ],
+      "derived_requirements_by_name": {
+        "Solar": 3,
+        "Lunar": 3
+      }
     }
   },
-  "required_item_categories": [
-    "COMPONENT",
-    "CRAFTABLE",
-    "EMBLEM",
-    "ARTIFACT",
-    "RADIANT",
-    "SUPPORT",
-    "CONSUMABLE",
-    "OTHER"
-  ]
+  "trait_variable_overrides_by_name": {
+    "Coven": {
+      "source": "riot_patch_18_3",
+      "reason": "Patch 18.3 increases Essence gained from player-combat losses.",
+      "breakpoints": {
+        "3": {
+          "EssencePerLoss": 22
+        },
+        "4": {
+          "EssencePerLoss": 28
+        },
+        "5": {
+          "EssencePerLoss": 35
+        },
+        "7": {
+          "EssencePerLoss": 60
+        }
+      }
+    },
+    "Defender": {
+      "source": "riot_patch_18_3",
+      "reason": "Patch 18.3 reduces the maximum-breakpoint resist bonus.",
+      "breakpoints": {
+        "2": {
+          "DefenderDefenseGain": 25
+        },
+        "4": {
+          "DefenderDefenseGain": 60
+        },
+        "6": {
+          "DefenderDefenseGain": 115
+        }
+      }
+    },
+    "Hunter": {
+      "source": "riot_patch_18_3",
+      "reason": "Patch 18.3 reduces the two highest Attack Damage bonuses.",
+      "breakpoints": {
+        "2": {
+          "HunterAD": 0.2
+        },
+        "3": {
+          "HunterAD": 0.3
+        },
+        "4": {
+          "HunterAD": 0.4
+        },
+        "5": {
+          "HunterAD": 0.6
+        }
+      }
+    },
+    "Inferno": {
+      "source": "riot_patch_18_3",
+      "reason": "Patch 18.3 reduces Burn at the two highest breakpoints.",
+      "breakpoints": {
+        "2": {
+          "HPBurnPerSecond": 1
+        },
+        "3": {
+          "HPBurnPerSecond": 1
+        },
+        "5": {
+          "HPBurnPerSecond": 3
+        },
+        "7": {
+          "HPBurnPerSecond": 4
+        }
+      }
+    },
+    "Invoker": {
+      "source": "riot_patch_18_3",
+      "reason": "Patch 18.3 updates Invoker Mana Regen breakpoint values, including values that differ from the pinned static client payload.",
+      "breakpoints": {
+        "2": {
+          "InvokerManaBonus": 3
+        },
+        "3": {
+          "InvokerManaBonus": 4
+        },
+        "4": {
+          "InvokerManaBonus": 6
+        },
+        "5": {
+          "InvokerManaBonus": 8
+        }
+      }
+    }
+  },
+  "expected_items_by_category": {
+    "COMPONENT": 10,
+    "CRAFTABLE": 39,
+    "EMBLEM": 20,
+    "ARTIFACT": 31,
+    "RADIANT": 36
+  },
+  "item_retention": {
+    "component_prefix": "DA_Component_",
+    "craftable_prefix": "DA_",
+    "emblem_prefix": "DA_18_Emblem",
+    "artifact_prefixes": [
+      "DA_Artifact_",
+      "DA_Item_Artifact_"
+    ],
+    "radiant_prefix": "DA_",
+    "radiant_tag": "{6ef5c598}",
+    "explicit_ids": {
+      "ARTIFACT": [
+        "TFT4_Item_OrnnDeathsDefiance"
+      ]
+    },
+    "exclude_ids": [
+      "DA_18_EmblemFloraFatalisAugment"
+    ]
+  },
+  "trait_variable_override_sources": {
+    "riot_patch_18_3": {
+      "label": "Riot Games - Teamfight Tactics Patch 18.3",
+      "published": "2026-09-22",
+      "url": "https://teamfighttactics.leagueoflegends.com/en-au/news/game-updates/teamfight-tactics-patch-18-3/"
+    }
+  },
+  "localized_display_names": {
+    "en_US": "Enchanted Wilds",
+    "de_DE": "Verzauberte Wildnis"
+  }
 }

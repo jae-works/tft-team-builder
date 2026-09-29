@@ -125,12 +125,19 @@ def test_source_manifest_contains_spec_hash_and_all_asset_hashes(
         "assets/champions/sample_flex.png",
         "assets/champions/sample_guardian.png",
         "assets/champions/sample_mage.png",
+        "assets/champions/variants/sample_flex_arcane.png",
+        "assets/champions/variants/sample_flex_wildcard.png",
         "assets/items/sample_blade.png",
         "assets/traits/sample_arcane.png",
         "assets/traits/sample_guard.png",
         "assets/traits/sample_wildcard.png",
     }
     assert all(len(value) == 64 for value in payload["asset_sha256"].values())
+
+    overview = (output / "SET_OVERVIEW.md").read_text(encoding="utf-8")
+    assert "## Dynamic Trait choices" in overview
+    assert "Sample Flex | EXACTLY_ONE | PER_INSTANCE | Sample Arcane | 1" in overview
+    assert "assets/champions/variants/sample_flex_arcane.png" in overview
 
 
 def test_generated_json_files_end_with_newline(project_root: Path, tmp_path: Path) -> None:
@@ -242,7 +249,7 @@ def test_builder_rejects_duplicate_json_key_in_source_spec(
     path = spec / "set_spec.json"
     original = path.read_text(encoding="utf-8").rstrip()
     assert original.endswith("}")
-    broken = original[:-1] + ', "schema_version": 3}\n'
+    broken = original[:-1] + ', "schema_version": 5}\n'
     path.write_text(broken, encoding="utf-8")
 
     with pytest.raises(ValueError, match="duplicate JSON object key"):
@@ -447,3 +454,13 @@ def test_source_asset_resolver_rejects_defensive_parent_escape(tmp_path: Path) -
 
     with pytest.raises(ValueError, match="resolves outside source spec directory"):
         _resolve_source_asset(spec.resolve(), "../outside.png")
+
+
+def test_overview_includes_localized_breakpoint_descriptions(
+    project_root: Path, tmp_path: Path
+) -> None:
+    output = tmp_path / "output"
+    build_set_from_local_spec(project_root / "set_sources/specs/sample_set", output)
+    overview = (output / "SET_OVERVIEW.md").read_text(encoding="utf-8")
+    assert "2 (bronze): Gain a basic defensive bonus." in overview
+    assert "4 (silver): Gain an improved defensive bonus." in overview

@@ -628,3 +628,19 @@ Reasoning:
 - One authoritative installation mechanism avoids registry/folder drift.
 - Complete reference data makes Set review and future features possible without forcing those features into the current UI.
 - Data-driven mechanics keep future unusual Champions addable without rewriting the core Trait engine.
+
+
+## D036 - Set 18 visible assets use pinned Data Dragon sprite sheets
+
+Status: accepted during Block 7 data-completion Part 3.
+
+Decision:
+- Data Dragon TFT records are normalized by their stable `id` field rather than archive-path dictionary keys.
+- Champion, Lux-variant, Trait and retained Item icons are cropped from the pinned `image.sprite` sheets and coordinates supplied by Data Dragon.
+- Each shared sprite sheet is downloaded and source-hashed once; generated cropped PNGs are still individually hashed in the runtime package.
+- CommunityDragon remains the supplemental source for Set relationships and richer metadata, not the preferred visible-asset host when Riot Data Dragon already exposes the exact record.
+
+Reasoning:
+- Set 18 needs only 12 sprite downloads for 246 runtime PNGs, avoiding hundreds of redundant network requests and provenance records.
+- Stable Data Dragon IDs fix the previous archive-key lookup bug and cover all reviewed Set 18 Champions, Lux variants, Traits and Items.
+- Cropping declared rectangles is deterministic and keeps the runtime package fully local while preserving a compact, auditable source lock.

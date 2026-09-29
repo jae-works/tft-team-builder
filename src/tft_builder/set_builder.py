@@ -91,8 +91,8 @@ def _render_set_overview(spec: LocalSetSpec) -> str:
         "| Image | Champion | Cost | Traits | Trait points | Slots |",
         "| --- | --- | ---: | --- | --- | ---: |",
     ]
+    trait_names = {trait.id: catalog[trait.name_key] for trait in spec.traits}
     for champion in sorted(spec.champions, key=lambda item: (item.display_order, item.id)):
-        trait_names = {trait.id: catalog[trait.name_key] for trait in spec.traits}
         traits = ", ".join(trait_names[trait_id] for trait_id in champion.traits)
         points = ", ".join(
             f"{trait_id}={champion.trait_points.get(trait_id, 1)}" for trait_id in champion.traits
@@ -107,6 +107,27 @@ def _render_set_overview(spec: LocalSetSpec) -> str:
     lines.extend(
         [
             "",
+            "## Dynamic Trait choices",
+            "",
+            "| Champion | Rule | Scope | Choice | Points | Choice image |",
+            "| --- | --- | --- | --- | ---: | --- |",
+        ]
+    )
+    champions_by_id = {champion.id: champion for champion in spec.champions}
+    for rule in sorted(spec.dynamic_traits, key=lambda item: item.champion_id):
+        champion_name = catalog[champions_by_id[rule.champion_id].name_key]
+        for trait_id in rule.choices:
+            image = rule.choice_images.get(trait_id, "-")
+            image_cell = f"![{_markdown_cell(trait_names[trait_id])}]({image})" if image != "-" else "-"
+            lines.append(
+                f"| {_markdown_cell(champion_name)} | {rule.selection_rule.value} | "
+                f"{rule.selection_scope.value} | {_markdown_cell(trait_names[trait_id])} | "
+                f"{rule.choice_points.get(trait_id, 1)} | {image_cell} |"
+            )
+
+    lines.extend(
+        [
+            "",
             "## Traits",
             "",
             "| Icon | Trait | Breakpoints | Activation | Derived from | Description |",
@@ -114,9 +135,13 @@ def _render_set_overview(spec: LocalSetSpec) -> str:
         ]
     )
     for trait in sorted(spec.traits, key=lambda item: (item.display_order, item.id)):
-        breakpoints = ", ".join(
-            f"{breakpoint.count} ({breakpoint.style})" for breakpoint in trait.breakpoints
-        )
+        breakpoint_parts = []
+        for breakpoint in trait.breakpoints:
+            text = f"{breakpoint.count} ({breakpoint.style})"
+            if breakpoint.description_key:
+                text += f": {catalog[breakpoint.description_key]}"
+            breakpoint_parts.append(text)
+        breakpoints = " / ".join(breakpoint_parts)
         description = catalog.get(trait.description_key, "-") if trait.description_key else "-"
         derived = ", ".join(
             f"{trait_id}>={count}"

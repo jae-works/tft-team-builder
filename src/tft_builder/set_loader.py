@@ -680,6 +680,19 @@ def validate_set_directory(root: Path) -> ValidationReport:
                     )
                 )
 
+        for trait_id, image in dynamic_trait.choice_images.items():
+            location = f"dynamic_traits.{dynamic_trait.champion_id}.choice_images.{trait_id}"
+            if not image.startswith(f"{manifest.assets_dir}/"):
+                issues.append(
+                    ValidationIssue(
+                        "asset_outside_assets_dir",
+                        "dynamic Trait choice image must be stored under manifest.assets_dir",
+                        location,
+                    )
+                )
+            required_assets.add(image)
+            _validate_asset(root, image, issues, location)
+
     locales: dict[str, dict[str, str]] = {}
     required_name_keys = {manifest.display_name_key}
     required_name_keys.update(champion.name_key for champion in champions or [])
@@ -690,6 +703,11 @@ def validate_set_directory(root: Path) -> ValidationReport:
         for key in (
             *(item.description_key for item in items or []),
             *(trait.description_key for trait in traits or []),
+            *(
+                breakpoint.description_key
+                for trait in traits or []
+                for breakpoint in trait.breakpoints
+            ),
         )
         if key is not None
     )

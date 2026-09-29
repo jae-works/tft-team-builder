@@ -191,6 +191,7 @@ class SetManifest(StrictModel):
 class TraitBreakpoint(StrictModel):
     count: Annotated[int, Field(ge=1, strict=True)]
     style: Identifier
+    description_key: Identifier | None = None
 
 
 class TraitDefinition(StrictModel):
@@ -259,8 +260,10 @@ class ItemDefinition(StrictModel):
 
     @model_validator(mode="after")
     def validate_unique_values(self) -> ItemDefinition:
+        # Recipes may legitimately use two copies of the same component, so composition keeps
+        # multiplicity. Metadata-only collections still reject duplicates because repetition
+        # carries no meaning there.
         for field_name, values in (
-            ("composition", self.composition),
             ("associated_traits", self.associated_traits),
             ("tags", self.tags),
         ):
@@ -278,6 +281,16 @@ class DynamicTraitDefinition(StrictModel):
     choice_points: dict[Identifier, Annotated[int, Field(ge=1, strict=True)]] = Field(
         default_factory=dict
     )
+    choice_images: dict[Identifier, str] = Field(default_factory=dict)
+
+    @field_validator("choice_images")
+    @classmethod
+    def validate_choice_images(cls, value: dict[str, str]) -> dict[str, str]:
+        # Dynamic choices may optionally select a Champion portrait. Keeping the path in Set
+        # data lets Lux-like units change appearance without Champion-name branches in the UI.
+        for path in value.values():
+            validate_relative_path(path)
+        return value
 
     @model_validator(mode="after")
     def validate_rule(self) -> DynamicTraitDefinition:
@@ -285,10 +298,14 @@ class DynamicTraitDefinition(StrictModel):
             raise ValueError("dynamic Trait choices must not contain duplicates")
         if set(self.choice_points) - set(self.choices):
             raise ValueError("choice_points keys must also be present in choices")
+        if set(self.choice_images) - set(self.choices):
+            raise ValueError("choice_images keys must also be present in choices")
 
         if self.selection_rule is DynamicSelectionRule.NONE:
-            if self.choices or self.exact_count is not None or self.choice_points:
-                raise ValueError("NONE selection must not define choices or exact_count")
+            if self.choices or self.exact_count is not None or self.choice_points or self.choice_images:
+                raise ValueError(
+                    "NONE selection must not define choices, exact_count, choice_points or choice_images"
+                )
             return self
 
         if not self.choices:
@@ -429,6 +446,11 @@ class LocalSetSpec(StrictModel):
         referenced_assets = {champion.image for champion in self.champions}
         referenced_assets.update(item.icon for item in self.items)
         referenced_assets.update(trait.icon for trait in self.traits)
+        referenced_assets.update(
+            image
+            for dynamic_trait in self.dynamic_traits
+            for image in dynamic_trait.choice_images.values()
+        )
         mapped_assets = set(self.assets)
         missing_assets = sorted(referenced_assets - mapped_assets)
         unexpected_assets = sorted(mapped_assets - referenced_assets)

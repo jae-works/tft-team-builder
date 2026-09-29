@@ -105,6 +105,7 @@ def test_dynamic_rule_unknown_trait_is_reported(
     path = copied_valid_set / "data/dynamic_traits.json"
     payload = load_json(path)
     payload[0]["choices"] = ["missing_trait"]
+    payload[0]["choice_images"] = {}
     save_json(path, payload)
     assert "unknown_trait" in issue_codes(copied_valid_set)
 
@@ -224,6 +225,29 @@ def test_dynamic_rule_unknown_champion_is_reported(
     payload[0]["champion_id"] = "missing_champion"
     save_json(path, payload)
     assert "unknown_champion" in issue_codes(copied_valid_set)
+
+
+def test_dynamic_choice_image_must_stay_under_assets_dir(
+    copied_valid_set: Path, load_json, save_json
+) -> None:
+    path = copied_valid_set / "data/dynamic_traits.json"
+    payload = load_json(path)
+    payload[0]["choice_images"]["sample_arcane"] = "outside.png"
+    save_json(path, payload)
+    (copied_valid_set / "outside.png").write_bytes(
+        (copied_valid_set / "assets/champions/sample_flex.png").read_bytes()
+    )
+    assert "asset_outside_assets_dir" in issue_codes(copied_valid_set)
+
+
+def test_dynamic_choice_image_missing_file_is_reported(
+    copied_valid_set: Path, load_json, save_json
+) -> None:
+    path = copied_valid_set / "data/dynamic_traits.json"
+    payload = load_json(path)
+    payload[0]["choice_images"]["sample_arcane"] = "assets/champions/variants/missing.png"
+    save_json(path, payload)
+    assert "missing_asset" in issue_codes(copied_valid_set)
 
 
 def test_team_planner_unknown_champion_mapping_is_reported(
@@ -470,7 +494,7 @@ def test_empty_trait_catalog_is_rejected(copied_valid_set: Path, save_json) -> N
 
 def test_duplicate_json_object_key_is_reported(copied_valid_set: Path) -> None:
     path = copied_valid_set / "manifest.json"
-    path.write_text('{"schema_version": 3, "schema_version": 3}\n', encoding="utf-8")
+    path.write_text('{"schema_version": 5, "schema_version": 5}\n', encoding="utf-8")
     assert "duplicate_json_key" in issue_codes(copied_valid_set)
 
 
@@ -847,6 +871,17 @@ def test_dynamic_rule_cannot_directly_grant_derived_trait(
     dynamic_path = copied_valid_set / "data/dynamic_traits.json"
     dynamic = load_json(dynamic_path)
     dynamic[0]["choices"] = ["sample_wildcard"]
+    dynamic[0]["choice_images"] = {}
     save_json(dynamic_path, dynamic)
 
     assert "invalid_derived_trait" in issue_codes(copied_valid_set)
+
+
+def test_missing_breakpoint_translation_is_reported(
+    copied_valid_set: Path, load_json, save_json
+) -> None:
+    path = copied_valid_set / "locales/en.json"
+    payload = load_json(path)
+    payload.pop("trait.sample_guard.breakpoint.2.description")
+    save_json(path, payload)
+    assert "missing_translation" in issue_codes(copied_valid_set)

@@ -1,6 +1,10 @@
 [
   {
     "champion_id": "sample_flex",
+    "choice_images": {
+      "sample_arcane": "assets/champions/variants/sample_flex_arcane.png",
+      "sample_wildcard": "assets/champions/variants/sample_flex_wildcard.png"
+    },
     "choice_points": {},
     "choices": [
       "sample_arcane",

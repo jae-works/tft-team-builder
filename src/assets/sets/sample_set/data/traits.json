@@ -4,16 +4,18 @@
     "breakpoints": [
       {
         "count": 2,
+        "description_key": "trait.sample_guard.breakpoint.2.description",
         "style": "bronze"
       },
       {
         "count": 4,
+        "description_key": "trait.sample_guard.breakpoint.4.description",
         "style": "silver"
       }
     ],
     "counting_mode": "UNIQUE_CHAMPION",
     "derived_requirements": {},
-    "description_key": null,
+    "description_key": "trait.sample_guard.description",
     "display_order": 10,
     "icon": "assets/traits/sample_guard.png",
     "id": "sample_guard",
@@ -24,10 +26,12 @@
     "breakpoints": [
       {
         "count": 2,
+        "description_key": null,
         "style": "bronze"
       },
       {
         "count": 3,
+        "description_key": null,
         "style": "gold"
       }
     ],
@@ -44,6 +48,7 @@
     "breakpoints": [
       {
         "count": 1,
+        "description_key": null,
         "style": "unique"
       }
     ],

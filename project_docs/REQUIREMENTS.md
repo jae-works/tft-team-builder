@@ -91,8 +91,12 @@ Legend:
 - [x] Runtime Set validation rejects empty Champion or Trait catalogs.
 - [x] Set data contains no executable Python code.
 - [x] Set packages may carry complete Item reference inventories without enabling Item equipping in the Builder UI.
-- [x] Current-Set Item acquisition must not filter by craftability; Set-declared non-craftable, Artifact, Radiant, Support, Emblem, consumable/temporary and other valid entries are retained, with referenced base components added recursively.
+- [x] Current-Set Item acquisition uses a reviewed user-facing reference boundary rather than treating every CommunityDragon Set Item record as shippable. For Set 18 this retains canonical components, craftable items, emblems, current artifacts and radiant items; Wisps, temporary/utility engine objects and duplicate/legacy aliases stay excluded unless a later feature explicitly needs them.
 - [x] Builder-relevant exceptional Champion/Trait semantics are declarative and executable; descriptive generic mechanic metadata is not a second source of truth.
+- [x] Multiple upstream Champion records may normalize into one logical Champion when they represent selectable variants rather than separate units; every source record remains explicitly accounted for.
+- [x] Dynamic Trait choices may provide optional Set-owned Champion portrait paths so the GUI can change a logical Champion's displayed portrait without duplicating the Champion definition or hardcoding Champion names.
+- [x] Item recipe composition preserves component multiplicity; valid recipes containing the same component twice must not be rejected or silently deduplicated.
+- [x] Trait data stores localized breakpoint-specific display information sufficient to explain what each breakpoint does without parsing upstream placeholder markup in the runtime GUI.
 
 ## Set data acquisition and generation
 - [x] Runtime Set packages are generated local data; the normal app has no network dependency on Riot Data Dragon or CommunityDragon.
@@ -108,6 +112,12 @@ Legend:
 - [x] Set generation produces a source inventory/completeness report.
 - [x] Every source candidate is either included, explicitly excluded with a reason, or causes validation to fail.
 - [x] Completeness checks account for debug/summoned/alternate/legacy source records rather than assuming every raw record is a player-selectable champion.
+- [x] Pinned real-Set configs may declare reviewed expected raw Champion, logical Champion, Trait and retained Item-category counts; importer drift from those counts fails explicitly instead of silently changing the package.
+- [x] Variant-group source IDs are validated before normalization so missing or overlapping source records produce one readable acquisition error instead of a raw `KeyError`.
+- [x] Riot Data Dragon TFT payloads are indexed by each record's stable public `id`, not by archive-path map keys.
+- [x] Shared Data Dragon sprite sheets are pinned and downloaded once; referenced icon rectangles are cropped deterministically into package-owned PNGs with bounds validation and source hashes.
+- [x] Localized Set names come from explicit reviewed Set config when upstream client labels are stale/internal, and retained Item descriptions are emitted as plain localized text without unresolved Riot placeholders/HTML.
+- [x] The retained Set Item boundary is explicitly reviewed so internal gameplay objects/augment tokens are not shipped or downloaded merely because CommunityDragon exposes them in a broad Set item list.
 - [x] Normal unit tests for the importer/validator run offline against committed fixtures.
 - [x] Generated output from identical pinned inputs and overrides is deterministic.
 - [x] Block 1 local source specs record a SHA-256 source hash plus hashes for every generated runtime JSON/locale file and every required runtime asset.
@@ -211,6 +221,11 @@ Legend:
 - [x] Trait counting supports the concrete declarative modes UNIQUE_CHAMPION and UNIQUE_INSTANCE; undefined custom counting placeholders are not accepted.
 - [x] Trait results expose current count, active breakpoint, next breakpoint/progress and invalid-dynamic-selection state in UI-independent data.
 - [x] Dynamic Trait choices can be edited from the Builder using Set-defined rule/cardinality data and the shared Trait-engine validator.
+- [x] When a single selected dynamic Trait has a configured `choice_images` portrait, placed Champion slots use that portrait; missing optional choice portraits fall back to the logical Champion's base portrait without layout changes.
+- [ ] Lux/Kha'Zix dynamic-choice controls remain keyboard-operable, expose the selected choice textually, and do not rely on portrait differences alone.
+- [ ] Single-choice dynamic Trait editors visually communicate single-selection semantics; ZERO_OR_ONE exposes an explicit no-choice state rather than looking like unrestricted multi-select.
+- [ ] Trait details are available by click/focus and show the localized general description plus every Set-defined breakpoint/effect; essential explanations are not hover-only.
+- [ ] Champion/Trait layouts tolerate long localized names, three-or-more Trait labels and five-or-more breakpoints without hardcoded Set-18 maxima.
 - [x] Clicking a rendered Trait can filter the Champion library to Champions that can contribute to that Trait.
 
 ## Start page

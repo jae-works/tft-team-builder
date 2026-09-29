@@ -3,24 +3,26 @@
     "assets/champions/sample_flex.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/champions/sample_guardian.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/champions/sample_mage.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+    "assets/champions/variants/sample_flex_arcane.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+    "assets/champions/variants/sample_flex_wildcard.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/items/sample_blade.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/traits/sample_arcane.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/traits/sample_guard.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
     "assets/traits/sample_wildcard.png": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460"
   },
   "generated_file_sha256": {
-    "SET_OVERVIEW.md": "d6ef78351a6d298d592ca57a2eabeebbf44881b7674ad0e3392cee80f3adda80",
+    "SET_OVERVIEW.md": "f54c8b820b5db170fe29ed2b27d542cca64aad6442dc5f946c0891db480274e1",
     "data/champions.json": "829a0426036bf5165ed2707f0af1bf23e6803bc340d60deed78cef96273b3035",
-    "data/dynamic_traits.json": "a666cb33667153e76617752dc3f40e47b1a737377fa2151267a1320649b6eb28",
+    "data/dynamic_traits.json": "0cc84bba5ab4959b36ddbc0345fa0afb9c56030048d9fa1b4b414daf30611dcd",
     "data/items.json": "d6046ff7ebd26daa9730f0c3403f5c88bba8277002ec9a1b3f9c353b3ca7e7a8",
     "data/team_planner.json": "5b9bfcc73a7ce60b079371c92bfd7459ac884e9254ba715304345724ab234fa6",
-    "data/traits.json": "61bfd9dcb50f20acde49250c07a793baff6310a5bac7f88248f5e952ba84f4bc",
-    "locales/en.json": "e45c4547baa5c5a4a30e33fb77fd725704ec1bd7a01b8613f674dfe38d7b0072",
-    "manifest.json": "e10183df1416f6e42e4057b080ed59d6d288f8572baeda29098b8bb7db4702d9",
+    "data/traits.json": "68695a37c7ffcd45086d6853f488ad4170c8f05a8e2d64ac83c14eca52ef86f7",
+    "locales/en.json": "f834089c0f7d545a28a4724476cc73eabc875a69425777741e15192e7333ba2d",
+    "manifest.json": "328fad0ea5aecc00a5995fc1605a6ee1928042986d453873c4761feb81bb6d72",
     "reports/source_inventory.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
   },
   "schema_version": 2,
-  "source_sha256": "73b5b9d340dfc452af941099752cdbd3b4b9719070482e3b3705d29ec83f1e44",
+  "source_sha256": "709fb6b4d1d2e60c4417a6ad3f23a5d61cb2d50e85d74a32abad0a469f15a0af",
   "source_type": "local_spec",
   "sources": []
 }

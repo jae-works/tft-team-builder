@@ -13,7 +13,7 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
     assert payload["version"] == project_version
     assert (
         payload["current_state"]
-        == "block_7_corrected_pipeline_pending_live_set_18_generation_and_windows_gate"
+        == "block_7_data_completion_part_4_verified_official_sprite_run_pending"
     )
     assert payload["current_block"] == 7
     assert payload["next_block"] == 7
@@ -47,6 +47,7 @@ def test_manifest_includes_current_block_plans_and_report(project_root: Path) ->
         "BLOCK_06_PLAN.md",
         "BLOCK_06_REPORT.md",
         "BLOCK_07_PLAN.md",
+        "BLOCK_07_DATA_COMPLETION_PLAN.md",
     ):
         assert filename in payload["required_project_documents"]
         assert filename in payload["mirrored_project_documents"]
@@ -83,11 +84,11 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] == 652
+    assert verification["pytest_passed"] == 674
     assert verification["statement_coverage_percent"] == 100.0
     assert verification["branch_coverage_percent"] == 100.0
-    assert verification["production_statements"] == 2736
-    assert verification["production_branches"] == 810
+    assert verification["production_statements"] == 2955
+    assert verification["production_branches"] == 892
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
@@ -236,6 +237,9 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_6_2_local_statement_coverage_percent"] == 100.0
     assert verification["block_6_2_local_branch_coverage_percent"] == 100.0
     assert verification["block_6_2_exact_windows_pending"] is True
+    assert verification["block_7_data_completion_part_4_verified"] is True
+    assert verification["set18_gui_hci_handoff_prepared"] is True
+    assert verification["set18_post_acquisition_verifier_verified"] is True
 
 
 def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:

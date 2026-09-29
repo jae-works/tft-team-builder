@@ -2,7 +2,7 @@
 
 This document defines how TFT Set data and assets are collected, normalized, validated and shipped.
 
-Current implementation status: Block 7 implements schema v3, the pinned Riot Data Dragon + CommunityDragon acquisition path, source-candidate inventory/provenance, complete Set-declared Item reference data, executable declarative Trait/Champion exceptions, generated human review reports, and the deterministic offline runtime package boundary. Live binary acquisition remains a developer command and never runs in the application.
+Current implementation status: Block 7 data-completion Part 3 uses schema v5. Champion normalization, dynamic-choice portraits, the 136-reference Item boundary and localized breakpoint text are implemented. Data Dragon records are indexed by stable public ID and all visible Set 18 runtime icons are cropped deterministically from 12 pinned Riot sprite sheets. The complete 246-asset package shape validates in an offline synthetic-source harness; official binary acquisition remains a developer-only networked command and never runs in the application.
 
 ## Decision
 
@@ -35,10 +35,11 @@ Examples of intended ownership:
 - Localized display names and Riot-hosted champion/Trait assets: prefer Riot Data Dragon when available.
 - Champion cost/tier: compare available sources; a disagreement is a validation/review error rather than a silent overwrite.
 - Set membership and champion-to-Trait relationships when not adequately represented by Data Dragon: derive from the pinned supplemental TFT client metadata.
-- Trait breakpoints/styles: derive from the richest pinned source that exposes them, then validate them structurally.
+- Trait breakpoints/styles: derive from the richest pinned source that exposes them, then validate them structurally. Resolve tooltip variables at build time, including CommunityDragon BIN-field hashes (lowercase FNV-1a), and store plain localized breakpoint text so runtime UI never parses Riot markup.
 - Team Planner identifiers/mappings: derive from the pinned Team Planner metadata and verify with round-trip fixtures later.
 - Special selectable/dynamic Trait behavior, exact-count activation and derived Trait requirements: explicit project override unless a source exposes an unambiguous rule that we have tested.
-- Current-Set Item membership: the pinned CommunityDragon Set ItemLists; keep every declared entry regardless of craftability and recursively add referenced components. Riot Data Dragon may supply preferred localized fields/assets but is not used as an unfiltered Set-membership list.
+- Current-Set Item candidates: start from the pinned CommunityDragon Set Item list, then apply the reviewed source-configured canonical boundary. For Set 18 the retained inventory is 10 components, 39 craftable items, 20 emblems, 31 current artifacts and 36 radiant items. Broad Wisp/mechanic objects, temporary utilities and duplicate/legacy aliases remain in source accounting as exclusions instead of being shipped. Riot Data Dragon may supply preferred localized fields/assets but is not used as an unfiltered Set-membership list.
+- Alternate upstream Champion records that represent one player unit may normalize into one logical Champion. Source accounting remains explicit, and optional per-choice portrait paths stay in Set data rather than Champion-name GUI branches.
 
 If two trusted inputs disagree on a field that should agree, generation must stop with a readable conflict report. Overrides may resolve a conflict only when the override contains a human-readable reason.
 
@@ -101,7 +102,7 @@ The completeness report must verify at minimum:
 - expected player-selectable champions are all represented;
 - every included champion has a valid cost, display name, asset and valid Trait references;
 - every included Trait has a valid ID, display name, icon and structurally valid breakpoints;
-- dynamic Trait choices reference real Traits;
+- dynamic Trait choices reference real Traits and any optional choice portrait is a validated Set-owned asset;
 - Team Planner mappings are present when the Set declares Team Planner support;
 - no source candidate disappeared without either inclusion or an explicit exclusion reason;
 - no duplicate IDs are introduced during normalization;
@@ -109,7 +110,7 @@ The completeness report must verify at minimum:
 
 ## Asset policy
 
-- Prefer Riot Data Dragon/TFT assets for shipped visible assets when available.
+- Prefer Riot Data Dragon/TFT assets for shipped visible assets when available. Set 18 uses the `image.sprite` coordinates from Data Dragon so one pinned sprite sheet is downloaded once and deterministically cropped for every referenced Champion, Lux variant, Trait and Item icon.
 - Assets are copied into the generated Set package so the runtime works offline.
 - Generated asset paths must be local relative paths; the GUI must not hotlink remote images.
 - Missing required assets fail Set generation/validation. Runtime fallback behavior still exists for corruption after installation, but a Set should not be released in that state.
@@ -153,7 +154,8 @@ Block 7 extends this boundary with the following implemented capabilities:
 - pinned remote source configuration;
 - download/cache with hashes;
 - Riot Data Dragon and CommunityDragon source parsing;
-- Set candidate filtering;
+- Set candidate filtering and reviewed source-cardinality guards;
+- logical Champion variant normalization with optional per-choice portraits;
 - explicit exclusion inventory/reporting;
 - manual override application with reasons;
 - cross-source conflict detection and review;
@@ -186,3 +188,7 @@ Optional/manual network integration checks may be provided later, but they must 
 ## Runtime rule
 
 The normal application reads only generated Set packages from `src/assets/sets/`. It does not download source data or attempt to repair a Set from the internet. If an installed Set fails validation, the application reports the errors and refuses to partially load it.
+
+## Set 18 post-acquisition gate
+
+The Set-18 workflow has one intentionally set-specific final verifier: `tools/set_import/verify_enchanted_wilds.py`. It runs after normal package validation and checks the human-reviewed roster/category/source counts and exceptional semantics that a generic schema validator cannot know. It may also compare `source_lock.json` hashes with the provenance embedded in the generated package. This is a small explicit review gate, not a generic validation framework.

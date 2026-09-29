@@ -124,7 +124,7 @@ Regenerate it from the committed local source specification:
 uv run tft-builder-dev build-set set_sources/specs/sample_set src/assets/sets/sample_set --overwrite
 ```
 
-The normal application reads only local validated Set packages. Real Riot Data Dragon and CommunityDragon acquisition is deferred until Block 7.
+The normal application reads only local validated Set packages. Block 7 provides the developer-only pinned Riot Data Dragon + CommunityDragon acquisition path; remote data is never required by the running app.
 
 ## Important directories
 

@@ -1,8 +1,8 @@
 # TFT Team Builder - Progress
 
 Current version: 0.7.0
-Current status: Block 7 pipeline implementation is corrected in v0.7.0. Schema v3, complete Set-declared Item reference data, weighted/dynamic Trait contributions, exact/derived Trait activation, source provenance/inventory, Set overview generation, automatic folder discovery and the pinned Set 18 importer are implemented. Elder Dragon is 2 slots/+2 Riftbeast; Rengar has no separate Builder state. Live Set 18 asset acquisition and the Windows release gate remain pending because the implementation container cannot bulk-download the upstream binary assets.
-Next planned block: Finish the live Set 18 import/verification gate, then Block 8.
+Current status: Block 7 data-completion Part 3 acquisition code is verified on schema v5. The real Set shape is now exercised end-to-end with 65 logical Champions, 36 Traits, 136 Items, 2 dynamic rules, 246 runtime PNGs, 65 Team Planner mappings and 21 provenance sources. Data Dragon assets are resolved by stable record ID and cropped from 12 pinned Riot sprite sheets. Official binary acquisition/source-lock generation still needs a networked run; the later general build/warning correction pass remains pending.
+Next planned work: finish the official Part 3 binary acquisition/source-lock run in a networked environment, then Part 4 dataset verification/GUI-HCI handoff; only afterward run the separate general code/build/warning correction block.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
 
@@ -382,7 +382,34 @@ Version 0.7.0 corrections:
 - [x] `inspect-set` prints Champion/Trait/Item inventories.
 - [x] Adding a Set requires a valid folder only; no second activation registry exists.
 - [x] Rival exact-count activation and Eclipse derived activation are modeled generically instead of being forced through ordinary >= breakpoints.
-- [x] Set Item acquisition keeps every Set-declared entry, recursively adds components, and guards component/craftable/emblem/artifact/radiant/support/consumable/other families.
-- [x] Corrected audit suite passes 652 normal tests with 2907 production statements and 872 branches at 100 percent coverage.
-- [ ] Run the pinned Set 18 import on a networked machine and review the first generated `source_lock.json`.
+- [x] Set Item acquisition applies a reviewed canonical boundary instead of shipping all broad Set-declared engine records; the pinned Set 18 guard is 136 references across component/craftable/emblem/artifact/radiant families.
+- [x] Current Part 3 normal suite passes 669 tests with 2938 production statements and 888 branches at 100 percent statement/branch coverage.
+- [x] Verify the full Set 18 acquisition/build path with deterministic synthetic Data Dragon sprite sheets; 12 shared sprites produce 246 validated runtime PNGs and a 21-source lock shape.
+- [x] Correct Data Dragon indexing to stable record IDs and use shared sprite-sheet acquisition instead of per-asset HTTP requests.
+- [x] Normalize official localized Set names and Item descriptions before packaging; generated EN/DE catalogs contain no unresolved Riot markup in the verified harness.
+- [ ] Run the pinned Set 18 import with official Riot sprite bytes on a networked machine and review the first real `source_lock.json`.
 - [ ] Validate the generated `src/assets/sets/enchanted_wilds` package and run the Windows/Flet release gate.
+
+
+## Block 7 data-completion Part 1
+
+- [x] Reconciled the pinned Set 18 source roster instead of relying on guessed Champion IDs.
+- [x] Added reviewed cardinality guards for 91 raw Champion records, 65 logical Champions and 36 Traits.
+- [x] Added 17 explicit helper/encounter/pseudo-unit exclusions.
+- [x] Normalized base Lux plus nine origin source records into one logical Lux.
+- [x] Added optional dynamic-choice portrait assets and sample/runtime validation coverage.
+- [x] Kept Kha'Zix as one logical Champion with four Trait choices and base-portrait fallback.
+- [x] Corrected the Set 18 Kha'Zix and Elder Dragon source IDs.
+- [x] Preserved repeated Item recipe components discovered during real-source dry normalization.
+- [x] Completed Block 7 data-completion Part 2B on schema v5: Trait tooltip markup is resolved at build time, 76 of 89 breakpoints carry source-derived localized effect text, and current Patch 18.3 numeric differences are explicit source-backed overrides.
+
+## Block 7 data completion Part 4
+
+- Added the final Set-18 post-acquisition verifier and validated it against the complete synthetic-sprite package generated from the pinned real metadata.
+- Verified 65 Champions, 36 Traits, 136 Items, exact source accounting, 246 runtime PNGs, 21 provenance sources and the reviewed Lux/Kha'Zix/Elder Dragon/Rival/Eclipse semantics.
+- Added data-driven placed-slot portrait selection with safe base-image fallback and visible localized dynamic-selection text.
+- Added regression coverage for choice portraits/fallbacks, dynamic text, long names, unusual costs, two-slot semantics and dense Trait memberships.
+- Added `SET_18_GUI_HCI_HANDOFF.md` with the concrete keyboard, Trait-detail and layout requirements for the next GUI pass.
+- Official Riot sprite-byte acquisition and review of the resulting `source_lock.json` remain pending for the user's final networked verification run.
+
+Part 4 local gate: 674 tests passed; production coverage is 2,955/2,955 statements and 892/892 branches. The Set-18 reviewed verifier passes against the complete real-metadata acquisition harness. General Ruff/Flet warning work remains intentionally deferred.

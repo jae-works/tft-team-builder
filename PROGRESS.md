@@ -1,8 +1,8 @@
 # TFT Team Builder - Progress
 
 Current version: 0.7.0
-Current status: Block 7 data-completion Part 3 acquisition code is verified on schema v5. The real Set shape is now exercised end-to-end with 65 logical Champions, 36 Traits, 136 Items, 2 dynamic rules, 246 runtime PNGs, 65 Team Planner mappings and 21 provenance sources. Data Dragon assets are resolved by stable record ID and cropped from 12 pinned Riot sprite sheets. Official binary acquisition/source-lock generation still needs a networked run; the later general build/warning correction pass remains pending.
-Next planned work: finish the official Part 3 binary acquisition/source-lock run in a networked environment, then Part 4 dataset verification/GUI-HCI handoff; only afterward run the separate general code/build/warning correction block.
+Current status: Block 7 post-data hardening Part 1 corrections are implemented and locally verified; the next gate is the user Windows run. Release acquisition now uses individual Riot Data Dragon `image.full` assets for ordinary visible records and each variant source record's CommunityDragon `squareIcon` for dynamic portraits. Elder Dragon board usage is data-driven from `board_slots`, Lux uses one PER_CHAMPION origin per List, and a new/refreshed source lock is published only after a successful package build.
+Next planned work: the user Windows Part-1 verification closes any remaining concrete correction bugs. Parts 3-4 then generalize provenance verification, expand mutation/contract tests and run deterministic Windows/Flet/HCI gates.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
 
@@ -385,10 +385,10 @@ Version 0.7.0 corrections:
 - [x] Set Item acquisition applies a reviewed canonical boundary instead of shipping all broad Set-declared engine records; the pinned Set 18 guard is 136 references across component/craftable/emblem/artifact/radiant families.
 - [x] Current Part 3 normal suite passes 669 tests with 2938 production statements and 888 branches at 100 percent statement/branch coverage.
 - [x] Verify the full Set 18 acquisition/build path with deterministic synthetic Data Dragon sprite sheets; 12 shared sprites produce 246 validated runtime PNGs and a 21-source lock shape.
-- [x] Correct Data Dragon indexing to stable record IDs and use shared sprite-sheet acquisition instead of per-asset HTTP requests.
+- [x] Historical Part-3 harness corrected Data Dragon indexing to stable record IDs and tested shared sprite acquisition; post-data audit later superseded sprite acquisition for release assets.
 - [x] Normalize official localized Set names and Item descriptions before packaging; generated EN/DE catalogs contain no unresolved Riot markup in the verified harness.
-- [ ] Run the pinned Set 18 import with official Riot sprite bytes on a networked machine and review the first real `source_lock.json`.
-- [ ] Validate the generated `src/assets/sets/enchanted_wilds` package and run the Windows/Flet release gate.
+- [x] Run the first official networked acquisition; its sprite-bounds failure triggered the release-asset correction, and the later individual-image acquisition succeeded with a reviewed real `source_lock.json`.
+- [x] Validate the generated `src/assets/sets/enchanted_wilds` package and run the Set-18 reviewed verifier; the final Windows/Flet gate remains Part 4.
 
 
 ## Block 7 data-completion Part 1
@@ -410,6 +410,57 @@ Version 0.7.0 corrections:
 - Added data-driven placed-slot portrait selection with safe base-image fallback and visible localized dynamic-selection text.
 - Added regression coverage for choice portraits/fallbacks, dynamic text, long names, unusual costs, two-slot semantics and dense Trait memberships.
 - Added `SET_18_GUI_HCI_HANDOFF.md` with the concrete keyboard, Trait-detail and layout requirements for the next GUI pass.
-- Official Riot sprite-byte acquisition and review of the resulting `source_lock.json` remain pending for the user's final networked verification run.
+- The corrected official individual-image acquisition and review of the resulting `source_lock.json` now pass; final Windows/Flet and clean/warm-cache confidence work remains Part 4.
 
 Part 4 local gate: 674 tests passed; production coverage is 2,955/2,955 statements and 892/892 branches. The Set-18 reviewed verifier passes against the complete real-metadata acquisition harness. General Ruff/Flet warning work remains intentionally deferred.
+
+
+## Block 7 post-data hardening Part 1
+
+- [x] User Windows environment verified 674 normal tests with 2,955 production statements and 892 branches at 100 percent coverage before and after the failed acquisition attempt.
+- [x] Reproduced the official acquisition blocker from the user log: `DA_CrimsonRaptor18` exceeds the Data Dragon sprite bounds and no real `enchanted_wilds` package/source lock is accepted.
+- [x] Rejected sprite-atlas cropping as the release source of truth after cross-checking Riot's documented individual TFT image assets and the known upstream TFT sprite/coordinate inconsistency report.
+- [x] Re-audited Set 18 exceptional semantics: Kha'Zix, Rival base activation, Eclipse derivation and Elder Dragon data are structurally correct; runtime Elder board usage remains unimplemented and Lux duplicate-origin scope requires correction review.
+- [x] Audited the Set-18 verifier/source-lock flow and identified full-provenance comparison, positive complete-package tests and post-build lock finalization as hardening work.
+- [x] Restored `.github/workflows/quality.yml` to this replacement handoff because the user-created upload ZIP omitted hidden `.github` content even though the Windows repository test proved it existed locally.
+- [ ] Part 2: implement the corrections and clear the current 13-file Ruff format drift plus four lint findings.
+- [ ] Part 3: expand generic provenance verification and Set-18 semantic mutation tests.
+- [ ] Part 4: perform clean/warm official acquisitions, real-package GUI/HCI checks and the full Windows/Flet release gate.
+
+## Block 7 post-data hardening Part 1 corrections
+
+- [x] Replaced release sprite-atlas cropping with individual Data Dragon `image.group` + `image.full` acquisition for ordinary Champion, Trait and Item assets.
+- [x] Kept dynamic variant portraits data-driven: variant groups acquire each source Champion record's CommunityDragon `squareIcon`; no Lux/Kha'Zix name branches were added.
+- [x] Changed Lux to `PER_CHAMPION` in Set 18 source data; Kha'Zix remains `ZERO_OR_ONE` + `PER_CHAMPION`.
+- [x] Added generic board-usage calculation as the sum of each Champion definition's `board_slots`; Elder Dragon remains exactly 2 board slots and +2 Riftbeast in the dataset.
+- [x] Made new/refreshed source-lock publication post-build and atomic; a failed package build cannot publish a newly accepted lock.
+- [x] Removed the importer-only direct Pillow dependency because atlas cropping is gone; Flet may still install Pillow transitively.
+- [x] Corrected the four reported Ruff lint findings and manually aligned all 13 previously reported formatter-drift files to the Ruff 0.16.9 changes shown by the user's Windows run. Exact Windows Ruff rerun remains the external gate.
+- [x] Verified the full real-metadata acquisition path with deterministic image bytes: 65 Champions, 36 Traits, 136 Items, 2 dynamic rules, 246 runtime PNGs and 255 provenance sources; Set-18 semantic verifier reports no issues.
+- [x] Local normal suite now passes 679 tests with 2,967 production statements and 898 branches at 100 percent statement/branch coverage.
+- [x] User Windows verification completed official image-byte acquisition, generic/Set-18 validation and source-lock review; its remaining Ruff/test findings are corrected in Parts 2-3 and await the final Part-4 rerun.
+
+## Version 0.7.0 Block 7 post-data hardening Parts 2-3
+
+User Windows verification of the corrected acquisition path:
+- [x] 679 tests passed before the real acquisition with 100 percent statement/branch coverage.
+- [x] Official Enchanted Wilds acquisition completed from a clean output state.
+- [x] Generated Set validation and inspection passed with 65 Champions, 36 Traits and 136 Items.
+- [x] Set-18 reviewed verification passed with 246 runtime PNGs and 255 provenance sources.
+- [x] Database and Builder smokes passed.
+- [ ] Exact Ruff 0.16.9 still reported six formatter-drift files and three import-order findings in that run.
+- [ ] The post-acquisition full suite reported three startup-test failures because those tests assumed only `sample_set` was installed.
+
+Part 2 corrections:
+- [x] Apply the exact reported formatter/import-block corrections.
+- [x] Make startup integration tests own an isolated sample-only asset root instead of depending on the repository's installed Set inventory.
+
+Part 3 provenance/test hardening:
+- [x] Add generic source-lock verification reusable by future Sets.
+- [x] Compare complete provenance records: ID inventory, URL, revision, locale, SHA-256 and byte length.
+- [x] Reject duplicate source IDs in packaged `SourceManifest` data.
+- [x] Add a generic provenance CLI and make the Set-18 verifier reuse it.
+- [x] Use the real official Enchanted Wilds package as the positive complete Set-18 fixture.
+- [x] Add mutation coverage for reviewed special semantics, Team Planner mappings, Item/source counts, locale markup, asset inventory and provenance drift.
+- [x] Local normal suite passes 689 tests with 3,024 production statements and 922 branches at 100 percent statement/branch coverage.
+- [ ] Part 4 remains: exact Windows Ruff rerun, clean/warm-cache reproducibility, lightweight image sanity, Flet/GUI/HCI smoke and Block 8 preparation.

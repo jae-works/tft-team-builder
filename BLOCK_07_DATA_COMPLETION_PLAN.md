@@ -45,3 +45,8 @@ Status: implemented; official Riot sprite-byte acquisition remains the external 
 - [x] Add a Set-18-specific post-acquisition verifier for reviewed counts, special semantics, source accounting, assets and locale markup.
 - [x] Wire data-driven dynamic portrait selection plus textual selected-Trait display into placed Builder slots.
 - Only after this data block is accepted, continue with the separate general code/build/warning correction block requested by the project owner.
+
+
+## Post-data audit update
+
+The first official-byte Windows attempt did not complete: Data Dragon record `DA_CrimsonRaptor18` exceeded the downloaded sprite atlas bounds. More importantly, the audit found a known upstream class of TFT sprite-coordinate/sheet inconsistencies, so the 12-sprite optimization is no longer accepted as the release asset source of truth. Corrective work is tracked in `BLOCK_07_POST_DATA_HARDENING_PLAN.md`; the final real package/source lock remains unaccepted until that plan passes.

@@ -1,0 +1,925 @@
+[
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 10,
+    "id": "DA_Gromp18_AP",
+    "image": "assets/champions/da_gromp18_ap.png",
+    "name_key": "champion.da_gromp18_ap.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Riftbeast18",
+      "DA_18_Adaptor"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 20,
+    "id": "DA_Murkwolf18",
+    "image": "assets/champions/da_murkwolf18.png",
+    "name_key": "champion.da_murkwolf18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Riftbeast18",
+      "DA_18_Slayer"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 30,
+    "id": "DA_18_Sentry",
+    "image": "assets/champions/da_18_sentry.png",
+    "name_key": "champion.da_18_sentry.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Riftbeast18",
+      "DA_18_Invoker"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 40,
+    "id": "DA_Cinderling18",
+    "image": "assets/champions/da_cinderling18.png",
+    "name_key": "champion.da_cinderling18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Riftbeast18",
+      "DA_18_Hunter"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 50,
+    "id": "DA_Scuttlecrab18",
+    "image": "assets/champions/da_scuttlecrab18.png",
+    "name_key": "champion.da_scuttlecrab18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Riftbeast18",
+      "DA_Juggernaut18"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 60,
+    "id": "DA_Krug18",
+    "image": "assets/champions/da_krug18.png",
+    "name_key": "champion.da_krug18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Riftbeast18",
+      "DA_18_Brawler"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 70,
+    "id": "DA_Sentinel18",
+    "image": "assets/champions/da_sentinel18.png",
+    "name_key": "champion.da_sentinel18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Riftbeast18",
+      "DA_18_Vanguard",
+      "DA_18_Invoker"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 80,
+    "id": "DA_Brambleback18",
+    "image": "assets/champions/da_brambleback18.png",
+    "name_key": "champion.da_brambleback18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Riftbeast18",
+      "DA_18_Slayer"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 90,
+    "id": "DA_18_Xayah",
+    "image": "assets/champions/da_18_xayah.png",
+    "name_key": "champion.da_18_xayah.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Elderwood",
+      "DA_18_Fae",
+      "DA_18_Rapidfire"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 100,
+    "id": "DA_18_Ornn",
+    "image": "assets/champions/da_18_ornn.png",
+    "name_key": "champion.da_18_ornn.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Elderwood",
+      "DA_18_Defender"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 110,
+    "id": "DA_Nidalee18_AP",
+    "image": "assets/champions/da_nidalee18_ap.png",
+    "name_key": "champion.da_nidalee18_ap.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Primal18",
+      "DA_18_Adaptor"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 120,
+    "id": "DA_18_Hecarim",
+    "image": "assets/champions/da_18_hecarim.png",
+    "name_key": "champion.da_18_hecarim.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Elderwood",
+      "DA_18_Vanguard"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 130,
+    "id": "DA_18_Ezreal",
+    "image": "assets/champions/da_18_ezreal.png",
+    "name_key": "champion.da_18_ezreal.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Elderwood",
+      "DA_18_Executioner"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 140,
+    "id": "DA_18_Azir",
+    "image": "assets/champions/da_18_azir.png",
+    "name_key": "champion.da_18_azir.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blackthorn",
+      "DA_18_Executioner",
+      "DA_18_Summoner"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 150,
+    "id": "DA_18_RekSai",
+    "image": "assets/champions/da_18_reksai.png",
+    "name_key": "champion.da_18_reksai.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blackthorn",
+      "DA_18_Brawler"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 160,
+    "id": "DA_18_Veigar",
+    "image": "assets/champions/da_18_veigar.png",
+    "name_key": "champion.da_18_veigar.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blackthorn",
+      "DA_18_Sprykin",
+      "DA_18_Spellweaver"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 5,
+    "display_order": 170,
+    "id": "DA_18_Maokai",
+    "image": "assets/champions/da_18_maokai.png",
+    "name_key": "champion.da_18_maokai.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Maokai_UniqueTrait",
+      "DA_Juggernaut18"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 180,
+    "id": "DA_18_Malphite",
+    "image": "assets/champions/da_18_malphite.png",
+    "name_key": "champion.da_18_malphite.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blackthorn",
+      "DA_18_Battlemage"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 190,
+    "id": "DA_18_Yorick",
+    "image": "assets/champions/da_18_yorick.png",
+    "name_key": "champion.da_18_yorick.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blossom",
+      "DA_Juggernaut18",
+      "DA_18_Summoner"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 200,
+    "id": "DA_18_Yunara",
+    "image": "assets/champions/da_18_yunara.png",
+    "name_key": "champion.da_18_yunara.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blossom",
+      "DA_18_Executioner"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 210,
+    "id": "DA_18_Sett",
+    "image": "assets/champions/da_18_sett.png",
+    "name_key": "champion.da_18_sett.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blossom",
+      "DA_18_Brawler"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 220,
+    "id": "DA_18_Ahri",
+    "image": "assets/champions/da_18_ahri.png",
+    "name_key": "champion.da_18_ahri.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blossom",
+      "DA_18_Spellweaver"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 5,
+    "display_order": 230,
+    "id": "DA_18_Ashe",
+    "image": "assets/champions/da_18_ashe.png",
+    "name_key": "champion.da_18_ashe.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blossom",
+      "DA_18_Hunter"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 240,
+    "id": "DA_18_Elise",
+    "image": "assets/champions/da_18_elise.png",
+    "name_key": "champion.da_18_elise.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Coven",
+      "DA_18_Vanguard"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 250,
+    "id": "DA_18_Caitlyn",
+    "image": "assets/champions/da_18_caitlyn.png",
+    "name_key": "champion.da_18_caitlyn.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Coven",
+      "DA_18_Hunter"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 260,
+    "id": "DA_18_Cassiopeia",
+    "image": "assets/champions/da_18_cassiopeia.png",
+    "name_key": "champion.da_18_cassiopeia.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Coven",
+      "DA_18_Spellweaver"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 270,
+    "id": "DA_18_Morgana",
+    "image": "assets/champions/da_18_morgana.png",
+    "name_key": "champion.da_18_morgana.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Coven",
+      "DA_18_Invoker"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 280,
+    "id": "DA_18_Rakan",
+    "image": "assets/champions/da_18_rakan.png",
+    "name_key": "champion.da_18_rakan.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Fae",
+      "DA_Juggernaut18",
+      "DA_18_Vanguard"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 290,
+    "id": "DA_18_Lillia",
+    "image": "assets/champions/da_18_lillia.png",
+    "name_key": "champion.da_18_lillia.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Fae",
+      "DA_18_Defender"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 300,
+    "id": "DA_18_Kobuko",
+    "image": "assets/champions/da_18_kobuko.png",
+    "name_key": "champion.da_18_kobuko.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Sprykin",
+      "DA_18_Brawler"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 310,
+    "id": "DA_18_Teemo",
+    "image": "assets/champions/da_18_teemo.png",
+    "name_key": "champion.da_18_teemo.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Sprykin",
+      "DA_18_Invoker"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 320,
+    "id": "DA_18_Rammus",
+    "image": "assets/champions/da_18_rammus.png",
+    "name_key": "champion.da_18_rammus.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Sprykin",
+      "DA_18_Defender"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 5,
+    "display_order": 330,
+    "id": "DA_18_GnarSmall",
+    "image": "assets/champions/da_18_gnarsmall.png",
+    "name_key": "champion.da_18_gnarsmall.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Elderwood",
+      "DA_18_Sprykin",
+      "DA_18_Brawler"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 340,
+    "id": "DA_18_Tristana",
+    "image": "assets/champions/da_18_tristana.png",
+    "name_key": "champion.da_18_tristana.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Fae",
+      "DA_18_Sprykin",
+      "DA_18_Hunter"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 350,
+    "id": "DA_18_Sivir",
+    "image": "assets/champions/da_18_sivir.png",
+    "name_key": "champion.da_18_sivir.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Primal18",
+      "DA_18_Hunter"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 360,
+    "id": "DA_Vi18",
+    "image": "assets/champions/da_vi18.png",
+    "name_key": "champion.da_vi18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Primal18",
+      "DA_Juggernaut18"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 370,
+    "id": "DA_18_Akali_AD",
+    "image": "assets/champions/da_18_akali_ad.png",
+    "name_key": "champion.da_18_akali_ad.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Inferno",
+      "DA_18_Adaptor",
+      "DA_18_Slayer"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 380,
+    "id": "DA_18_Varus",
+    "image": "assets/champions/da_18_varus.png",
+    "name_key": "champion.da_18_varus.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Inferno",
+      "DA_18_Rapidfire"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 390,
+    "id": "DA_Amumu18",
+    "image": "assets/champions/da_amumu18.png",
+    "name_key": "champion.da_amumu18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Inferno",
+      "DA_Juggernaut18"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 5,
+    "display_order": 400,
+    "id": "DA_18_Kennen",
+    "image": "assets/champions/da_18_kennen.png",
+    "name_key": "champion.da_18_kennen.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Inferno",
+      "DA_18_Executioner"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 410,
+    "id": "DA_18_Aphelios",
+    "image": "assets/champions/da_18_aphelios.png",
+    "name_key": "champion.da_18_aphelios.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Lunar",
+      "DA_18_Rapidfire"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 420,
+    "id": "DA_18_Diana",
+    "image": "assets/champions/da_18_diana.png",
+    "name_key": "champion.da_18_diana.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Lunar",
+      "DA_18_Slayer",
+      "DA_18_Vanguard"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 5,
+    "display_order": 430,
+    "id": "DA_18_Alune",
+    "image": "assets/champions/da_18_alune.png",
+    "name_key": "champion.da_18_alune.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_AluneUniqueTrait18",
+      "DA_18_Lunar",
+      "DA_18_Spellweaver"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 440,
+    "id": "DA_18_Leona",
+    "image": "assets/champions/da_18_leona.png",
+    "name_key": "champion.da_18_leona.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Solar",
+      "DA_18_Defender"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 450,
+    "id": "DA_18_Kayle",
+    "image": "assets/champions/da_18_kayle.png",
+    "name_key": "champion.da_18_kayle.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Solar",
+      "DA_18_Rapidfire"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 460,
+    "id": "DA_18_Sejuani",
+    "image": "assets/champions/da_18_sejuani.png",
+    "name_key": "champion.da_18_sejuani.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Solar",
+      "DA_Juggernaut18"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 470,
+    "id": "DA_18_KhaZix",
+    "image": "assets/champions/da_18_khazix.png",
+    "name_key": "champion.da_18_khazix.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Rival"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 480,
+    "id": "DA_18_Rengar",
+    "image": "assets/champions/da_18_rengar.png",
+    "name_key": "champion.da_18_rengar.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Rival"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 490,
+    "id": "DA_KogMaw18_AD",
+    "image": "assets/champions/da_kogmaw18_ad.png",
+    "name_key": "champion.da_kogmaw18_ad.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Caustic",
+      "DA_18_Adaptor",
+      "DA_18_Invoker"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 500,
+    "id": "DA_18_Zyra",
+    "image": "assets/champions/da_18_zyra.png",
+    "name_key": "champion.da_18_zyra.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_ZyraUniqueTrait",
+      "DA_18_Summoner"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 510,
+    "id": "DA_Fiddlesticks18",
+    "image": "assets/champions/da_fiddlesticks18.png",
+    "name_key": "champion.da_fiddlesticks18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_FloraFatalis18",
+      "DA_18_Defender",
+      "DA_18_Spellweaver"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 4,
+    "display_order": 520,
+    "id": "DA_18_Soraka",
+    "image": "assets/champions/da_18_soraka.png",
+    "name_key": "champion.da_18_soraka.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_FloraFatalis18",
+      "DA_18_Executioner"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 5,
+    "display_order": 530,
+    "id": "DA_Taric18",
+    "image": "assets/champions/da_taric18.png",
+    "name_key": "champion.da_taric18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Emerald18",
+      "DA_18_Vanguard"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 5,
+    "display_order": 540,
+    "id": "DA_18_Ivern",
+    "image": "assets/champions/da_18_ivern.png",
+    "name_key": "champion.da_18_ivern.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Greenfather"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 550,
+    "id": "DA_18_Alistar",
+    "image": "assets/champions/da_18_alistar.png",
+    "name_key": "champion.da_18_alistar.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Elderwood",
+      "DA_18_Brawler"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 5,
+    "display_order": 560,
+    "id": "DA_Draven18",
+    "image": "assets/champions/da_draven18.png",
+    "name_key": "champion.da_draven18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_DravenUniqueTrait18"
+    ]
+  },
+  {
+    "board_slots": 2,
+    "cost": 5,
+    "display_order": 570,
+    "id": "DA_18_ElderDragon",
+    "image": "assets/champions/da_18_elderdragon.png",
+    "name_key": "champion.da_18_elderdragon.name",
+    "search_aliases": [],
+    "trait_points": {
+      "DA_Riftbeast18": 2
+    },
+    "traits": [
+      "DA_18_ApexPredator",
+      "DA_Riftbeast18"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 580,
+    "id": "DA_Karma18",
+    "image": "assets/champions/da_karma18.png",
+    "name_key": "champion.da_karma18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blossom",
+      "DA_18_Spellweaver"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 590,
+    "id": "DA_18_LeBlanc",
+    "image": "assets/champions/da_18_leblanc.png",
+    "name_key": "champion.da_18_leblanc.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Elderwood",
+      "DA_18_Spellweaver"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 600,
+    "id": "DA_18_MasterYi_AD",
+    "image": "assets/champions/da_18_masteryi_ad.png",
+    "name_key": "champion.da_18_masteryi_ad.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blossom",
+      "DA_18_Adaptor"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 610,
+    "id": "DA_18_Shen",
+    "image": "assets/champions/da_18_shen.png",
+    "name_key": "champion.da_18_shen.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Inferno",
+      "DA_18_Defender"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 2,
+    "display_order": 620,
+    "id": "DA_18_Warwick",
+    "image": "assets/champions/da_18_warwick.png",
+    "name_key": "champion.da_18_warwick.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Blackthorn",
+      "DA_18_Slayer"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 1,
+    "display_order": 630,
+    "id": "DA_18_Camille",
+    "image": "assets/champions/da_18_camille.png",
+    "name_key": "champion.da_18_camille.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_18_Coven",
+      "DA_18_Slayer"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 3,
+    "display_order": 640,
+    "id": "DA_CrimsonRaptor18",
+    "image": "assets/champions/da_crimsonraptor18.png",
+    "name_key": "champion.da_crimsonraptor18.name",
+    "search_aliases": [],
+    "trait_points": {},
+    "traits": [
+      "DA_Riftbeast18",
+      "DA_18_Summoner",
+      "DA_18_Rapidfire"
+    ]
+  },
+  {
+    "board_slots": 1,
+    "cost": 5,
+    "display_order": 650,
+    "id": "DA_Lux18_Base",
+    "image": "assets/champions/da_lux18_base.png",
+    "name_key": "champion.da_lux18_base.name",
+    "search_aliases": [
+      "avatar"
+    ],
+    "trait_points": {},
+    "traits": [
+      "DA_18_LuxUniqueTrait"
+    ]
+  }
+]

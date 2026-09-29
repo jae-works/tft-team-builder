@@ -89,7 +89,7 @@ No code list needs editing after a valid package is copied into `src/assets/sets
 
 ## Current Set 18 source config
 
-`set_sources/sets/enchanted_wilds/source.json` targets Set 18, Enchanted Wilds, package revision 18.3b / Data Dragon 16.19.1 / CommunityDragon 16.19, with English and German locale imports (`Enchanted Wilds` / `Verzauberte Wildnis`). Static tooltip variables are resolved at build time; reviewed Patch 18.3 differences for Coven, Defender, Hunter, Inferno and Invoker are explicit source-backed overrides with reasons. Data Dragon records are resolved by their stable `id`; visible assets are cropped from the pinned Data Dragon sprite sheets, avoiding hundreds of redundant HTTP requests while keeping source hashes reviewable.
+`set_sources/sets/enchanted_wilds/source.json` targets Set 18, Enchanted Wilds, package revision 18.3b / Data Dragon 16.19.1 / CommunityDragon 16.19, with English and German locale imports (`Enchanted Wilds` / `Verzauberte Wildnis`). Static tooltip variables are resolved at build time; reviewed Patch 18.3 differences for Coven, Defender, Hunter, Inferno and Invoker are explicit source-backed overrides with reasons. Data Dragon records are resolved by their stable `id`. The post-data audit rejected sprite-atlas cropping as the release image source after the real Windows acquisition exposed inconsistent TFT sprite metadata; The corrected acquisition uses documented individual Riot TFT image files for ordinary records and generic source-record `squareIcon` assets for dynamic variants.
 
 The reviewed source roster contains 91 raw Champion records and normalizes to 65 logical player units. Seventeen helper/encounter/pseudo-unit records are explicitly excluded. Lux is represented by ten upstream records (base plus nine origins) but one logical Champion; its nine origin choices carry Set-owned portrait paths. Kha'Zix remains one logical Champion with four optional evolution Trait choices; the pinned source exposes no separate Kha'Zix Champion portrait records for those choices, so the base portrait is retained instead of inventing assets. Elder Dragon uses the actual `DA_18_ElderDragon` record and has the 2-slot/+2 Riftbeast adjustment. Rival and Eclipse remain declarative Trait rules.
 
@@ -102,3 +102,13 @@ A generated package is not accepted merely because JSON parses. It must pass str
 ## GUI handoff for dynamic portraits
 
 `choice_images` is optional presentation data. A runtime consumer should use a choice portrait only when exactly one selected dynamic Trait maps to an image; otherwise it should preserve the logical Champion's base portrait. The selected choice must still be exposed textually so meaning never depends on artwork alone.
+
+## Provenance lock gate
+
+When an acquisition workflow produces `source_lock.json`, verify it against the built package with the generic gate before accepting the Set:
+
+```text
+uv run python tools/set_import/verify_source_lock.py src/assets/sets/<set_id> set_sources/sets/<set_id>/source_lock.json
+```
+
+The comparison is intentionally stricter than a hash-only check: source ID inventory, URL, revision, locale, SHA-256 and byte length must all match the provenance embedded in `source_manifest.json`. Set-specific review scripts may add roster or mechanic assertions, but should reuse this generic comparison.

@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from enum import StrEnum
 from pathlib import PurePosixPath
-from typing import Annotated, Literal, TypeAlias
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -32,7 +32,7 @@ Identifier = Annotated[str, Field(min_length=1, pattern=ID_PATTERN)]
 LocaleCode = Annotated[str, Field(min_length=2, pattern=LOCALE_PATTERN)]
 NonEmptyText = Annotated[str, Field(min_length=1)]
 Sha256 = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
-ScalarValue: TypeAlias = str | int | float | bool | None
+type ScalarValue = str | int | float | bool | None
 
 
 def validate_relative_path(value: str) -> str:
@@ -149,7 +149,9 @@ class SetManifest(StrictModel):
     _validate_traits_file = field_validator("traits_file")(validate_relative_path)
     _validate_dynamic_traits_file = field_validator("dynamic_traits_file")(validate_relative_path)
     _validate_team_planner_file = field_validator("team_planner_file")(validate_relative_path)
-    _validate_source_inventory_file = field_validator("source_inventory_file")(validate_relative_path)
+    _validate_source_inventory_file = field_validator("source_inventory_file")(
+        validate_relative_path
+    )
     _validate_overview_file = field_validator("overview_file")(validate_relative_path)
     _validate_source_manifest_file = field_validator("source_manifest_file")(validate_relative_path)
     _validate_locales_dir = field_validator("locales_dir")(validate_relative_path)
@@ -302,7 +304,12 @@ class DynamicTraitDefinition(StrictModel):
             raise ValueError("choice_images keys must also be present in choices")
 
         if self.selection_rule is DynamicSelectionRule.NONE:
-            if self.choices or self.exact_count is not None or self.choice_points or self.choice_images:
+            if (
+                self.choices
+                or self.exact_count is not None
+                or self.choice_points
+                or self.choice_images
+            ):
                 raise ValueError(
                     "NONE selection must not define choices, exact_count, choice_points or choice_images"
                 )
@@ -376,6 +383,13 @@ class SourceManifest(StrictModel):
         for path in value:
             validate_relative_path(path)
         return value
+
+    @model_validator(mode="after")
+    def validate_source_ids(self) -> SourceManifest:
+        source_ids = [record.id for record in self.sources]
+        if len(source_ids) != len(set(source_ids)):
+            raise ValueError("sources must not contain duplicate IDs")
+        return self
 
 
 class LocalSetSpec(StrictModel):

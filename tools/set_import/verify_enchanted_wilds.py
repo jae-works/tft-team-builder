@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import re
 from collections import Counter
 from pathlib import Path
@@ -17,6 +16,7 @@ from tft_builder.set_schema import (
     ItemCategory,
     TraitActivationMode,
 )
+from tft_builder.source_verification import verify_source_lock_file
 
 _EXPECTED_COST_COUNTS = {1: 14, 2: 13, 3: 14, 4: 14, 5: 10}
 _EXPECTED_ITEM_COUNTS = {
@@ -64,7 +64,11 @@ def verify_loaded_set(loaded: LoadedSet) -> list[str]:
     _add_if(issues, len(loaded.dynamic_traits) != 2, "expected 2 dynamic Trait rules")
 
     cost_counts = Counter(champion.cost for champion in loaded.champions)
-    _add_if(issues, dict(sorted(cost_counts.items())) != _EXPECTED_COST_COUNTS, "Champion cost counts drifted")
+    _add_if(
+        issues,
+        dict(sorted(cost_counts.items())) != _EXPECTED_COST_COUNTS,
+        "Champion cost counts drifted",
+    )
     item_counts = Counter(item.category for item in loaded.items)
     _add_if(
         issues,
@@ -118,8 +122,8 @@ def verify_loaded_set(loaded: LoadedSet) -> list[str]:
         )
         _add_if(
             issues,
-            lux.selection_scope is not DynamicSelectionScope.PER_INSTANCE,
-            "Lux origin selection must be per instance",
+            lux.selection_scope is not DynamicSelectionScope.PER_CHAMPION,
+            "Lux origin selection must be shared per Champion",
         )
         _add_if(issues, set(lux.choices) != _LUX_CHOICES, "Lux origin choices drifted")
         _add_if(
@@ -177,14 +181,16 @@ def verify_loaded_set(loaded: LoadedSet) -> list[str]:
     )
     _add_if(
         issues,
-        len(loaded.source_manifest.sources) != 21,
-        "expected 21 pinned provenance sources",
+        len(loaded.source_manifest.sources) != 255,
+        "expected 255 pinned provenance sources",
     )
 
     for locale, catalog in loaded.locales.items():
         bad_keys = sorted(key for key, value in catalog.items() if _MARKUP_PATTERN.search(value))
         if bad_keys:
-            issues.append(f"locale {locale} still contains Riot markup in: {', '.join(bad_keys[:5])}")
+            issues.append(
+                f"locale {locale} still contains Riot markup in: {', '.join(bad_keys[:5])}"
+            )
 
     # These are deliberate layout stress points for the GUI handoff. Do not turn them into
     # runtime limits: future Sets may exceed all of them.
@@ -210,26 +216,6 @@ def verify_loaded_set(loaded: LoadedSet) -> list[str]:
     return issues
 
 
-def verify_source_lock(loaded: LoadedSet, source_lock: Path) -> list[str]:
-    """Compare the reviewed acquisition lock with provenance embedded in the Set package."""
-
-    payload = json.loads(source_lock.read_text(encoding="utf-8"))
-    issues: list[str] = []
-    _add_if(issues, payload.get("set_id") != loaded.manifest.set_id, "source lock Set ID differs")
-    _add_if(
-        issues,
-        payload.get("revision") != loaded.manifest.revision,
-        "source lock revision differs",
-    )
-    locked = {record["id"]: record for record in payload.get("sources", [])}
-    packaged = {record.id: record for record in loaded.source_manifest.sources}
-    _add_if(issues, set(locked) != set(packaged), "source lock provenance IDs differ")
-    for source_id in sorted(set(locked) & set(packaged)):
-        if locked[source_id].get("sha256") != packaged[source_id].sha256:
-            issues.append(f"source lock hash differs for {source_id}")
-    return issues
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("set_dir", type=Path)
@@ -239,7 +225,7 @@ def main() -> int:
     loaded = load_set_directory(args.set_dir)
     issues = verify_loaded_set(loaded)
     if args.source_lock is not None:
-        issues.extend(verify_source_lock(loaded, args.source_lock))
+        issues.extend(verify_source_lock_file(loaded, args.source_lock))
 
     if issues:
         print("INVALID Set 18 review")
@@ -248,7 +234,7 @@ def main() -> int:
         return 1
 
     print("VALID Set 18 review")
-    print("Champions: 65 | Traits: 36 | Items: 136 | PNGs: 246 | Sources: 21")
+    print("Champions: 65 | Traits: 36 | Items: 136 | PNGs: 246 | Sources: 255")
     return 0
 
 

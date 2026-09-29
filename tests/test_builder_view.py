@@ -14,11 +14,12 @@ from tft_builder.builder import TeamEditor
 from tft_builder.builder_view import (
     BuilderView,
     asset_source,
+    board_slot_usage,
     champion_details_text,
     champion_portrait_path,
     champion_trait_ids,
-    dynamic_selection_text,
     dynamic_rule_summary,
+    dynamic_selection_text,
     filtered_champion_groups,
     localized_text,
     parse_drag_source_key,
@@ -202,9 +203,7 @@ def test_dynamic_portrait_and_text_helpers_use_choice_data_and_safe_fallbacks(lo
     )
     assert dynamic_selection_text(loaded_set, flex, arcane) == "Sample Arcane"
 
-    rule_without_portraits = loaded_set.dynamic_traits[0].model_copy(
-        update={"choice_images": {}}
-    )
+    rule_without_portraits = loaded_set.dynamic_traits[0].model_copy(update={"choice_images": {}})
     fallback_set = replace(loaded_set, dynamic_traits=(rule_without_portraits,))
     assert champion_portrait_path(fallback_set, flex, arcane) == flex.image
     assert dynamic_selection_text(fallback_set, flex, arcane) == "Sample Arcane"
@@ -234,8 +233,7 @@ def test_slot_renders_selected_dynamic_portrait_and_text(
     slot = by_key(root, f"slot-{view.team.primary_list_id}-0")
     images = [item for item in walk(slot) if getattr(item, "src", None)]
     assert any(
-        item.src.endswith("assets/champions/variants/sample_flex_arcane.png")
-        for item in images
+        item.src.endswith("assets/champions/variants/sample_flex_arcane.png") for item in images
     )
 
 
@@ -259,7 +257,9 @@ def test_hci_edge_fixture_does_not_assume_short_names_or_normal_costs(loaded_set
     )
 
     details = champion_details_text(edge_set, flex)
-    assert details.startswith("A Champion Name Designed to Wrap Across Narrow Desktop Cards | Cost 11")
+    assert details.startswith(
+        "A Champion Name Designed to Wrap Across Narrow Desktop Cards | Cost 11"
+    )
     assert champion_trait_ids(edge_set, flex) == (
         "sample_guard",
         "sample_arcane",
@@ -267,6 +267,28 @@ def test_hci_edge_fixture_does_not_assume_short_names_or_normal_costs(loaded_set
     )
     assert flex.board_slots == 2
     assert flex.trait_points == {"sample_guard": 2}
+
+
+def test_board_slot_usage_is_data_driven_and_rejects_unknown_champions(loaded_set) -> None:
+    flex = loaded_set.champions_by_id["sample_flex"].model_copy(update={"board_slots": 2})
+    edge_set = replace(
+        loaded_set,
+        champions=tuple(flex if item.id == flex.id else item for item in loaded_set.champions),
+    )
+    team_list = TeamList(
+        name="Main",
+        slots=[
+            Slot(0),
+            Slot(1, ChampionInstance("sample_guardian")),
+            Slot(2, ChampionInstance("sample_flex")),
+        ],
+    )
+
+    assert board_slot_usage(edge_set, team_list) == 3
+
+    invalid = TeamList(name="Invalid", slots=[Slot(0, ChampionInstance("missing"))])
+    with pytest.raises(ValueError, match="unknown Champion ID"):
+        board_slot_usage(edge_set, invalid)
 
 
 def test_visible_trait_results_filters_only_below_first_breakpoint(loaded_set) -> None:

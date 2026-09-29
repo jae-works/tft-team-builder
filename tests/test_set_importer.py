@@ -4,7 +4,6 @@ import importlib.util
 from pathlib import Path
 
 import pytest
-from PIL import Image
 
 
 def load_importer():
@@ -81,9 +80,7 @@ def test_retained_item_categories_rejects_missing_or_incoherent_policy(importer)
         "legacy_component": {"apiName": "legacy_component"},
     }
     with pytest.raises(ValueError, match="non-retained component"):
-        importer._retained_item_categories(
-            {"items": list(all_items)}, all_items, policy
-        )
+        importer._retained_item_categories({"items": list(all_items)}, all_items, policy)
 
     policy["explicit_ids"] = {"ARTIFACT": ["missing"]}
     with pytest.raises(ValueError, match="explicit retained Item IDs"):
@@ -159,7 +156,9 @@ def test_enchanted_wilds_source_config_matches_reviewed_set18_ids(project_root) 
     }
     assert config["expected_traits"] == 36
     assert config["trait_variable_override_sources"]["riot_patch_18_3"]["published"] == "2026-09-22"
-    assert config["trait_variable_overrides_by_name"]["Hunter"]["breakpoints"]["5"]["HunterAD"] == 0.6
+    assert (
+        config["trait_variable_overrides_by_name"]["Hunter"]["breakpoints"]["5"]["HunterAD"] == 0.6
+    )
     assert config["expected_items_by_category"] == {
         "COMPONENT": 10,
         "CRAFTABLE": 39,
@@ -167,15 +166,12 @@ def test_enchanted_wilds_source_config_matches_reviewed_set18_ids(project_root) 
         "ARTIFACT": 31,
         "RADIANT": 36,
     }
-    assert config["item_retention"]["explicit_ids"]["ARTIFACT"] == [
-        "TFT4_Item_OrnnDeathsDefiance"
-    ]
-    assert config["item_retention"]["exclude_ids"] == [
-        "DA_18_EmblemFloraFatalisAugment"
-    ]
+    assert config["item_retention"]["explicit_ids"]["ARTIFACT"] == ["TFT4_Item_OrnnDeathsDefiance"]
+    assert config["item_retention"]["exclude_ids"] == ["DA_18_EmblemFloraFatalisAugment"]
     assert len(config["exclude_champions"]) == 17
     assert group["target_id"] == "DA_Lux18_Base"
     assert group["image_source_id"] == "DA_Lux18_Base"
+    assert group["selection_scope"] == "PER_CHAMPION"
     assert len(group["source_ids"]) == 10
     assert "DA_Lux18_Blackthorn" in group["source_ids"]
     assert "DA_18_Lux_Moonbeam" in group["source_ids"]
@@ -183,9 +179,9 @@ def test_enchanted_wilds_source_config_matches_reviewed_set18_ids(project_root) 
     assert "DA_18_ElderDragon" in config["champion_adjustments"]
 
 
-
-
-def test_dd_data_indexes_archive_records_by_stable_id_and_rejects_malformed_payloads(importer) -> None:
+def test_dd_data_indexes_archive_records_by_stable_id_and_rejects_malformed_payloads(
+    importer,
+) -> None:
     payload = {
         "data": {
             "archive/path/a": {"id": "stable_a", "name": "A"},
@@ -204,33 +200,30 @@ def test_dd_data_indexes_archive_records_by_stable_id_and_rejects_malformed_payl
     with pytest.raises(ValueError, match="has no stable id"):
         importer._dd_data({"data": {"bad": None}})
     with pytest.raises(ValueError, match="duplicate record id"):
-        importer._dd_data(
-            {"data": {"a": {"id": "same"}, "b": {"id": "same"}}}
-        )
+        importer._dd_data({"data": {"a": {"id": "same"}, "b": {"id": "same"}}})
 
 
-def test_dd_sprite_url_requires_complete_sprite_metadata(importer) -> None:
+def test_dd_asset_url_requires_full_image_metadata_and_uses_individual_asset(importer) -> None:
     record = {
         "id": "unit",
         "image": {
+            "full": "Unit Name.TFT_Set18.png",
             "group": "tft-champion",
             "sprite": "tft-champion10.png",
-            "x": 0,
-            "y": 0,
+            "x": 9999,
+            "y": 9999,
             "w": 48,
             "h": 48,
         },
     }
-    source_id, url = importer._dd_sprite_url("16.19.1", record)
-    assert source_id == "ddragon_sprite_tft_champion_tft_champion10_png"
-    assert url.endswith("/16.19.1/img/sprite/tft-champion10.png")
+    source_id, url = importer._dd_asset_url("16.19.1", record)
+    assert source_id.startswith("ddragon_asset_tft_champion_unit_name_tft_set18_png_")
+    assert url.endswith("/16.19.1/img/tft-champion/Unit%20Name.TFT_Set18.png")
 
-    with pytest.raises(ValueError, match="no sprite metadata"):
-        importer._dd_sprite_url("16.19.1", {"id": "unit", "image": {}})
-    with pytest.raises(ValueError, match="no sprite metadata"):
-        importer._dd_sprite_url(
-            "16.19.1", {"id": "unit", "image": {"group": "tft-champion"}}
-        )
+    with pytest.raises(ValueError, match="no full image metadata"):
+        importer._dd_asset_url("16.19.1", {"id": "unit", "image": {}})
+    with pytest.raises(ValueError, match="no full image metadata"):
+        importer._dd_asset_url("16.19.1", {"id": "unit", "image": {"group": "tft-champion"}})
 
 
 def test_append_source_once_deduplicates_identical_sources_and_rejects_collision(importer) -> None:
@@ -253,99 +246,161 @@ def test_append_source_once_deduplicates_identical_sources_and_rejects_collision
         importer._append_source_once(sources, changed)
 
 
-def test_dd_sprite_asset_crops_shared_sheet_and_records_provenance_once(
+def test_dd_full_asset_copies_individual_png_and_deduplicates_shared_source(
     importer, tmp_path, monkeypatch
 ) -> None:
-    sprite = tmp_path / "sprite.png"
-    image = Image.new("RGB", (96, 48))
-    for x in range(48, 96):
-        for y in range(48):
-            image.putpixel((x, y), (255, 255, 255))
-    image.save(sprite, format="PNG")
-
-    monkeypatch.setattr(importer, "_download", lambda *_args: sprite)
+    source = tmp_path / "source.png"
+    payload = importer.PNG_SIGNATURE + b"individual-image-bytes"
+    source.write_bytes(payload)
+    monkeypatch.setattr(importer, "_download", lambda *_args: source)
     sources = []
-    first = {
-        "id": "first",
-        "image": {
-            "group": "tft-item",
-            "sprite": "sheet.png",
-            "x": 0,
-            "y": 0,
-            "w": 48,
-            "h": 48,
-        },
+    record = {
+        "id": "unit",
+        "image": {"group": "tft-champion", "full": "unit.png"},
     }
-    second = {
-        "id": "second",
-        "image": {**first["image"], "x": 48},
-    }
-    importer._dd_sprite_asset(
-        object(), tmp_path, tmp_path, sources, "16.19.1", first, "assets/first.png"
+
+    importer._dd_full_asset(
+        object(), tmp_path, tmp_path, sources, "16.19.1", record, "assets/first.png"
     )
-    importer._dd_sprite_asset(
-        object(), tmp_path, tmp_path, sources, "16.19.1", second, "assets/second.png"
+    importer._dd_full_asset(
+        object(), tmp_path, tmp_path, sources, "16.19.1", record, "assets/second.png"
     )
 
     assert len(sources) == 1
-    with Image.open(tmp_path / "assets/first.png") as first_output:
-        assert first_output.size == (48, 48)
-        assert first_output.getpixel((0, 0)) == (0, 0, 0)
-    with Image.open(tmp_path / "assets/second.png") as second_output:
-        assert second_output.size == (48, 48)
-        assert second_output.getpixel((0, 0)) == (255, 255, 255)
+    assert (tmp_path / "assets/first.png").read_bytes() == payload
+    assert (tmp_path / "assets/second.png").read_bytes() == payload
 
 
-def test_dd_sprite_asset_rejects_invalid_png_metadata_and_bounds(
-    importer, tmp_path, monkeypatch
-) -> None:
+def test_dd_full_asset_rejects_non_png(importer, tmp_path, monkeypatch) -> None:
     bad = tmp_path / "bad.bin"
     bad.write_bytes(b"not a png")
     monkeypatch.setattr(importer, "_download", lambda *_args: bad)
-    record = {
-        "id": "unit",
-        "image": {
-            "group": "tft-item",
-            "sprite": "sheet.png",
-            "x": 0,
-            "y": 0,
-            "w": 48,
-            "h": 48,
-        },
-    }
+    record = {"id": "unit", "image": {"group": "tft-item", "full": "unit.png"}}
     with pytest.raises(ValueError, match="not a PNG"):
-        importer._dd_sprite_asset(
-            object(), tmp_path, tmp_path, [], "16.19.1", record, "asset.png"
+        importer._dd_full_asset(object(), tmp_path, tmp_path, [], "16.19.1", record, "asset.png")
+
+
+def test_cdragon_game_asset_converts_tex_path_and_copies_png(
+    importer, tmp_path, monkeypatch
+) -> None:
+    source_id, url = importer._cdragon_game_asset_url(
+        "16.19",
+        "ASSETS/Characters/TFT18_Lux/HUD/Splashes/T_18_Lux_Coven_TeamPlanner.tex",
+    )
+    assert source_id.startswith("cdragon_asset_t_18_lux_coven_teamplanner_png_")
+    assert url.endswith(
+        "/16.19/game/assets/characters/tft18_lux/hud/splashes/t_18_lux_coven_teamplanner.png"
+    )
+
+    source = tmp_path / "variant.png"
+    payload = importer.PNG_SIGNATURE + b"variant-image-bytes"
+    source.write_bytes(payload)
+    monkeypatch.setattr(importer, "_download", lambda *_args: source)
+    sources = []
+    importer._cdragon_game_asset(
+        object(),
+        tmp_path,
+        tmp_path,
+        sources,
+        "16.19",
+        "assets/characters/tft18_lux/hud/splashes/t_18_lux_coven_teamplanner.tex",
+        "assets/variant.png",
+    )
+    assert (tmp_path / "assets/variant.png").read_bytes() == payload
+    assert len(sources) == 1
+
+    with pytest.raises(ValueError, match="must start with assets"):
+        importer._cdragon_game_asset_url("16.19", "characters/lux.tex")
+    with pytest.raises(ValueError, match="not an exported PNG"):
+        importer._cdragon_game_asset_url("16.19", "assets/characters/lux.bin")
+
+
+def test_source_lock_is_only_committed_after_explicit_commit(importer, tmp_path) -> None:
+    config_path = tmp_path / "source.json"
+    config_path.write_text("{}", encoding="ascii")
+    spec_dir = tmp_path / "spec"
+    spec_dir.mkdir()
+    (spec_dir / "set_spec.json").write_text(
+        '{"manifest":{"set_id":"set","revision":"1"},'
+        '"sources":[{"id":"source","url":"https://example.invalid/a",'
+        '"revision":"1","locale":null,"sha256":"' + "0" * 64 + '","byte_length":1}]}',
+        encoding="ascii",
+    )
+
+    lock_path, payload = importer._prepare_source_lock(config_path, spec_dir, False)
+    assert payload is not None
+    assert not lock_path.exists()
+
+    importer._commit_source_lock(lock_path, payload)
+    assert lock_path.is_file()
+    assert importer._prepare_source_lock(config_path, spec_dir, False) == (lock_path, None)
+
+
+def test_source_lock_rejects_inventory_or_hash_drift(importer, tmp_path) -> None:
+    config_path = tmp_path / "source.json"
+    config_path.write_text("{}", encoding="ascii")
+    spec_dir = tmp_path / "spec"
+    spec_dir.mkdir()
+    set_spec = spec_dir / "set_spec.json"
+    set_spec.write_text(
+        '{"manifest":{"set_id":"set","revision":"1"},'
+        '"sources":[{"id":"source","url":"https://example.invalid/a",'
+        '"revision":"1","locale":null,"sha256":"' + "0" * 64 + '","byte_length":1}]}',
+        encoding="ascii",
+    )
+    lock_path, payload = importer._prepare_source_lock(config_path, spec_dir, False)
+    importer._commit_source_lock(lock_path, payload)
+
+    set_spec.write_text(
+        '{"manifest":{"set_id":"set","revision":"1"},'
+        '"sources":[{"id":"other","url":"https://example.invalid/a",'
+        '"revision":"1","locale":null,"sha256":"' + "0" * 64 + '","byte_length":1}]}',
+        encoding="ascii",
+    )
+    with pytest.raises(ValueError, match="source inventory differs"):
+        importer._prepare_source_lock(config_path, spec_dir, False)
+
+    set_spec.write_text(
+        '{"manifest":{"set_id":"set","revision":"1"},'
+        '"sources":[{"id":"source","url":"https://example.invalid/a",'
+        '"revision":"1","locale":null,"sha256":"' + "1" * 64 + '","byte_length":1}]}',
+        encoding="ascii",
+    )
+    with pytest.raises(ValueError, match="source hashes differ"):
+        importer._prepare_source_lock(config_path, spec_dir, False)
+
+
+def test_main_does_not_publish_source_lock_when_package_build_fails(
+    importer, tmp_path, monkeypatch
+) -> None:
+    config_path = tmp_path / "source.json"
+    config_path.write_text('{"set_id":"set"}', encoding="ascii")
+    output = tmp_path / "output"
+
+    def fake_build_spec(config, cache_dir, spec_dir) -> None:
+        del config, cache_dir
+        (spec_dir / "set_spec.json").write_text(
+            '{"manifest":{"set_id":"set","revision":"1"},"sources":[]}',
+            encoding="ascii",
         )
 
-    sprite = tmp_path / "sprite.png"
-    Image.new("RGB", (48, 48)).save(sprite, format="PNG")
-    monkeypatch.setattr(importer, "_download", lambda *_args: sprite)
+    monkeypatch.setattr(importer, "_build_spec", fake_build_spec)
 
-    missing_bounds = {"id": "unit", "image": {"group": "x", "sprite": "sheet.png"}}
-    with pytest.raises(ValueError, match="invalid sprite bounds"):
-        importer._dd_sprite_asset(
-            object(), tmp_path, tmp_path, [], "16.19.1", missing_bounds, "asset.png"
-        )
+    def fail_build(*args, **kwargs) -> None:
+        del args, kwargs
+        raise RuntimeError("build failed")
 
-    for field, value in (("x", -1), ("y", -1), ("w", 0), ("h", 0)):
-        invalid = {"id": "unit", "image": dict(record["image"])}
-        invalid["image"][field] = value
-        with pytest.raises(ValueError, match="invalid sprite bounds"):
-            importer._dd_sprite_asset(
-                object(), tmp_path, tmp_path, [], "16.19.1", invalid, "asset.png"
-            )
+    monkeypatch.setattr(importer, "build_set_from_local_spec", fail_build)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["import_cdragon_set.py", str(config_path), str(output)],
+    )
 
-    too_wide = {"id": "unit", "image": {**record["image"], "x": 1}}
-    with pytest.raises(ValueError, match="exceeds sprite bounds"):
-        importer._dd_sprite_asset(
-            object(), tmp_path, tmp_path, [], "16.19.1", too_wide, "asset.png"
-        )
-    too_tall = {"id": "unit", "image": {**record["image"], "y": 1}}
-    with pytest.raises(ValueError, match="exceeds sprite bounds"):
-        importer._dd_sprite_asset(
-            object(), tmp_path, tmp_path, [], "16.19.1", too_tall, "asset.png"
-        )
+    with pytest.raises(RuntimeError, match="build failed"):
+        importer.main()
+
+    assert not config_path.with_name("source_lock.json").exists()
+
 
 def test_fnv1a_32_matches_known_communitydragon_bin_field_hashes(importer) -> None:
     assert importer._fnv1a_32("BonusDamagePercentBase") == "a9a813e7"
@@ -439,7 +494,9 @@ def test_trait_display_texts_keeps_last_duplicate_source_row_and_skips_empty_row
     assert breakpoints == {}
 
 
-def test_trait_variable_overrides_require_reviewed_source_reason_and_known_breakpoint(importer) -> None:
+def test_trait_variable_overrides_require_reviewed_source_reason_and_known_breakpoint(
+    importer,
+) -> None:
     config = {
         "trait_variable_override_sources": {"patch": {"label": "Patch"}},
         "trait_variable_overrides_by_name": {
@@ -450,9 +507,7 @@ def test_trait_variable_overrides_require_reviewed_source_reason_and_known_break
             }
         },
     }
-    assert importer._trait_variable_overrides(config, "Trait", {"2"}) == {
-        "2": {"Value": 12}
-    }
+    assert importer._trait_variable_overrides(config, "Trait", {"2"}) == {"2": {"Value": 12}}
     assert importer._trait_variable_overrides(config, "Other", {"2"}) == {}
 
     config["trait_variable_overrides_by_name"]["Trait"]["source"] = "missing"

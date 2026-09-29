@@ -64,9 +64,9 @@ A complete generated package contains one current TFT PNG for every logical Cham
 
 ## Human review gate
 
-The Part 3 acquisition harness already verifies the exact generated shape before official-byte acquisition: 65 Champions, 36 Traits, 136 Items, 2 dynamic rules, 246 package PNGs, 65 Team Planner mappings and 21 provenance sources. Data Dragon supplies those PNGs through 12 shared sprite sheets. The remaining gate is to run the identical path against the official Riot sprite bytes and review the real source lock.
+The corrected official-byte Windows acquisition completed successfully using individual Riot TFT image files plus the nine configured CommunityDragon Lux variant portraits. The generated package contains 65 Champions, 36 Traits, 136 Items, 2 dynamic rules, 246 runtime PNGs, 65 Team Planner mappings and 255 pinned provenance sources. Generic Set validation and the Set-18 reviewed verifier both pass against the generated package and `source_lock.json`.
 
-After acquisition, inspect `src/assets/sets/enchanted_wilds/SET_OVERVIEW.md` and verify at minimum:
+The current package should still be manually reviewed through `src/assets/sets/enchanted_wilds/SET_OVERVIEW.md` and the GUI in Part 4. Verify at minimum:
 
 1. all 65 logical Champions and their Trait memberships;
 2. all 36 logical Trait definitions, especially Rival and derived Eclipse;
@@ -78,4 +78,13 @@ After acquisition, inspect `src/assets/sets/enchanted_wilds/SET_OVERVIEW.md` and
 
 ## Part 4 post-acquisition verification
 
-After the real sprite acquisition, run `tools/set_import/verify_enchanted_wilds.py` against the generated package and reviewed `source_lock.json`. This is the executable counterpart to the checklist and must pass before the package is accepted. GUI-specific stress cases and interaction expectations are recorded separately in `SET_18_GUI_HCI_HANDOFF.md` so the dataset checklist does not become a second UI specification.
+The real image acquisition and Set-specific verifier now pass. Part 4 repeats the gate from clean/warm caches, runs the generic `verify_source_lock.py` comparison, adds lightweight image sanity checks and performs the real GUI/HCI smoke. GUI-specific stress cases and interaction expectations remain in `SET_18_GUI_HCI_HANDOFF.md` so the dataset checklist does not become a second UI specification.
+
+
+## Post-data special-rule audit
+
+- Elder Dragon's 2-slot/+2 Riftbeast data is correct and runtime board usage is calculated generically from `board_slots`; one Elder Dragon remains one Champion instance/card.
+- Kha'Zix zero-or-one PER_CHAMPION evolution remains accepted.
+- Rival exact-one is the ordinary base-Set state. The two-Rival effect is tied to the Unrivaled Augment and is intentionally not normal base activation.
+- Eclipse remains a derived 3 Solar + 3 Lunar state and must not be direct Champion membership.
+- Lux remains one logical Avatar with a chosen origin worth 2 Trait points. Set 18 uses PER_CHAMPION scope so duplicate Lux copies within one List cannot represent conflicting origins.

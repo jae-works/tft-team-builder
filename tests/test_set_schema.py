@@ -331,6 +331,27 @@ def test_source_manifest_rejects_invalid_sha256() -> None:
         )
 
 
+
+
+def test_source_manifest_rejects_duplicate_source_ids() -> None:
+    source = {
+        "id": "source",
+        "url": "https://example.invalid/source",
+        "revision": "1",
+        "locale": None,
+        "sha256": "0" * 64,
+        "byte_length": 1,
+    }
+    with pytest.raises(ValidationError, match="duplicate IDs"):
+        SourceManifest(
+            schema_version=2,
+            source_type="local_spec",
+            source_sha256="0" * 64,
+            generated_file_sha256={},
+            asset_sha256={},
+            sources=[source, source],
+        )
+
 def test_champion_cost_rejects_numeric_string_coercion() -> None:
     with pytest.raises(ValidationError):
         ChampionDefinition.model_validate(
@@ -619,36 +640,59 @@ def test_extended_set_schema_rejects_invalid_weighted_and_inventory_values() -> 
 
     with pytest.raises(ValidationError, match="trait_points"):
         ChampionDefinition(
-            id="a", name_key="a.name", cost=1, traits=["x"],
-            trait_points={"y": 2}, image="assets/a.png", display_order=0,
+            id="a",
+            name_key="a.name",
+            cost=1,
+            traits=["x"],
+            trait_points={"y": 2},
+            image="assets/a.png",
+            display_order=0,
         )
     repeated_recipe = ItemDefinition(
-        id="i", name_key="i.name", icon="assets/i.png",
-        category=ItemCategory.COMPONENT, composition=["a", "a"], display_order=0,
+        id="i",
+        name_key="i.name",
+        icon="assets/i.png",
+        category=ItemCategory.COMPONENT,
+        composition=["a", "a"],
+        display_order=0,
     )
     assert repeated_recipe.composition == ["a", "a"]
     with pytest.raises(ValidationError, match="associated_traits"):
         ItemDefinition(
-            id="i", name_key="i.name", icon="assets/i.png",
-            category=ItemCategory.COMPONENT, associated_traits=["x", "x"], display_order=0,
+            id="i",
+            name_key="i.name",
+            icon="assets/i.png",
+            category=ItemCategory.COMPONENT,
+            associated_traits=["x", "x"],
+            display_order=0,
         )
     with pytest.raises(ValidationError, match="tags"):
         ItemDefinition(
-            id="i", name_key="i.name", icon="assets/i.png",
-            category=ItemCategory.COMPONENT, tags=["x", "x"], display_order=0,
+            id="i",
+            name_key="i.name",
+            icon="assets/i.png",
+            category=ItemCategory.COMPONENT,
+            tags=["x", "x"],
+            display_order=0,
         )
     with pytest.raises(ValidationError, match="choice_points"):
         DynamicTraitDefinition(
-            champion_id="a", selection_rule=DynamicSelectionRule.ZERO_OR_ONE,
-            choices=["x"], choice_points={"y": 2},
+            champion_id="a",
+            selection_rule=DynamicSelectionRule.ZERO_OR_ONE,
+            choices=["x"],
+            choice_points={"y": 2},
         )
     with pytest.raises(ValidationError, match="INCLUDED"):
         SourceCandidate(
-            kind=CandidateKind.CHAMPION, source_id="raw", status=CandidateStatus.INCLUDED,
+            kind=CandidateKind.CHAMPION,
+            source_id="raw",
+            status=CandidateStatus.INCLUDED,
         )
     with pytest.raises(ValidationError, match="EXCLUDED"):
         SourceCandidate(
-            kind=CandidateKind.ITEM, source_id="raw", status=CandidateStatus.EXCLUDED,
+            kind=CandidateKind.ITEM,
+            source_id="raw",
+            status=CandidateStatus.EXCLUDED,
             target_id="target",
         )
 
@@ -657,12 +701,16 @@ def test_source_candidate_accepts_valid_included_and_excluded_shapes() -> None:
     from tft_builder.set_schema import CandidateKind, CandidateStatus, SourceCandidate
 
     included = SourceCandidate(
-        kind=CandidateKind.TRAIT, source_id="raw_trait",
-        status=CandidateStatus.INCLUDED, target_id="trait_a",
+        kind=CandidateKind.TRAIT,
+        source_id="raw_trait",
+        status=CandidateStatus.INCLUDED,
+        target_id="trait_a",
     )
     excluded = SourceCandidate(
-        kind=CandidateKind.ITEM, source_id="raw_item",
-        status=CandidateStatus.EXCLUDED, reason="not a Set item",
+        kind=CandidateKind.ITEM,
+        source_id="raw_item",
+        status=CandidateStatus.EXCLUDED,
+        reason="not a Set item",
     )
     assert included.target_id == "trait_a"
     assert excluded.reason == "not a Set item"

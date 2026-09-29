@@ -99,6 +99,10 @@ Legend:
 - [x] Trait data stores localized breakpoint-specific display information sufficient to explain what each breakpoint does without parsing upstream placeholder markup in the runtime GUI.
 
 ## Set data acquisition and generation
+- [x] Board usage is calculated generically from Set-declared `board_slots`; Champion-specific board-slot values stay in Set data.
+- [x] New/refreshed source locks are atomically published only after the generated package has built and validated successfully.
+- [x] Set 18 Lux uses PER_CHAMPION origin scope; Kha'Zix remains ZERO_OR_ONE + PER_CHAMPION.
+
 - [x] Runtime Set packages are generated local data; the normal app has no network dependency on Riot Data Dragon or CommunityDragon.
 - [x] Riot Data Dragon is the preferred official source for supported localized TFT data and shipped visible assets.
 - [x] CommunityDragon may be used only as a pinned build-time supplemental/cross-check source for TFT metadata not exposed adequately by Data Dragon.
@@ -115,7 +119,7 @@ Legend:
 - [x] Pinned real-Set configs may declare reviewed expected raw Champion, logical Champion, Trait and retained Item-category counts; importer drift from those counts fails explicitly instead of silently changing the package.
 - [x] Variant-group source IDs are validated before normalization so missing or overlapping source records produce one readable acquisition error instead of a raw `KeyError`.
 - [x] Riot Data Dragon TFT payloads are indexed by each record's stable public `id`, not by archive-path map keys.
-- [x] Shared Data Dragon sprite sheets are pinned and downloaded once; referenced icon rectangles are cropped deterministically into package-owned PNGs with bounds validation and source hashes.
+- [x] Release asset acquisition uses individual Riot Data Dragon `image.full` files for ordinary visible assets and source-record CommunityDragon `squareIcon` files for distinct dynamic variants; unverified sprite-atlas coordinates are not trusted as package image truth.
 - [x] Localized Set names come from explicit reviewed Set config when upstream client labels are stale/internal, and retained Item descriptions are emitted as plain localized text without unresolved Riot placeholders/HTML.
 - [x] The retained Set Item boundary is explicitly reviewed so internal gameplay objects/augment tokens are not shipped or downloaded merely because CommunityDragon exposes them in a broad Set item list.
 - [x] Normal unit tests for the importer/validator run offline against committed fixtures.
@@ -396,3 +400,15 @@ Legend:
 - [x] The current implementation blocks are documented and their completion status is maintained.
 - [ ] Future implementation blocks may be adjusted after completed blocks when justified by the actual code; planning changes are documented rather than silently changed.
 - [x] Every delivered version includes a ready-to-copy Git add/commit/push command block.
+
+
+## Block 7 post-data hardening requirements
+
+- [x] A failed Set acquisition/build leaves no partial runtime Set and does not create or refresh the accepted `source_lock.json`.
+- [x] Generic package verification reuses the existing Set loader and can compare a reviewed source lock against complete packaged provenance without a second schema/framework.
+- [x] Set-18-specific verification has a positive complete-package fixture plus mutation tests for every reviewed exceptional semantic and provenance field.
+- [x] Elder Dragon remains one logical/visual Champion instance while board usage is computed from `board_slots`; the Builder must not fake multi-slot units by duplicating Champion instances.
+- [x] Lux duplicate copies cannot silently represent impossible conflicting Avatar origins; the final selection scope is source-reviewed and regression-tested.
+- [x] Rival count 2 remains unavailable as ordinary base-Set activation unless the application explicitly models the Unrivaled Augment state.
+- [x] Official asset acquisition tests validate the documented Data Dragon individual-image URL contract rather than only mocking successful sprite crops.
+- [ ] A clean-cache and warm-cache acquisition of identical pinned inputs produce equivalent validated runtime package/provenance content.

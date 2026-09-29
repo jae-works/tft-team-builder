@@ -24,8 +24,17 @@ def test_startup_summary_reports_no_sets_for_empty_directory(tmp_path: Path) -> 
     assert startup_set_summary(empty) == ("No bundled Sets found.",)
 
 
-def test_startup_summary_reports_valid_sample(project_root: Path) -> None:
-    summary = startup_set_summary(project_root / "src" / "assets" / "sets")
+def sample_assets_dir(tmp_path: Path, valid_set_dir: Path) -> Path:
+    """Return an isolated assets root containing only the canonical sample Set."""
+
+    assets = tmp_path / "assets"
+    shutil.copytree(valid_set_dir, assets / "sets" / "sample_set")
+    return assets
+
+
+def test_startup_summary_reports_valid_sample(tmp_path: Path, valid_set_dir: Path) -> None:
+    assets = sample_assets_dir(tmp_path, valid_set_dir)
+    summary = startup_set_summary(assets / "sets")
     assert summary == ("sample_set: valid - 3 champions, 3 traits",)
 
 
@@ -51,13 +60,18 @@ def close_application_logging() -> None:
 
 
 def test_initialize_application_creates_runtime_dirs_logging_and_set_summary(
-    project_root: Path, tmp_path: Path
+    project_root: Path, tmp_path: Path, valid_set_dir: Path
 ) -> None:
     data_dir = tmp_path / "runtime"
+    assets = sample_assets_dir(tmp_path, valid_set_dir)
     try:
-        state = initialize_application(project_root=project_root, data_dir_override=data_dir)
+        state = initialize_application(
+            project_root=project_root,
+            data_dir_override=data_dir,
+            assets_dir_override=assets,
+        )
         assert state.paths.user_data_dir == data_dir.resolve()
-        assert state.paths.bundled_assets_dir == project_root / "src" / "assets"
+        assert state.paths.bundled_assets_dir == assets.resolve()
         assert state.paths.user_log_dir.is_dir()
         assert state.paths.backups_dir.is_dir()
         assert state.paths.exports_dir.is_dir()
@@ -90,18 +104,19 @@ def test_initialize_application_supports_explicit_packaged_assets(tmp_path: Path
         close_application_logging()
 
 
-def runtime_state(project_root: Path, tmp_path: Path):
+def runtime_state(project_root: Path, tmp_path: Path, valid_set_dir: Path):
     return initialize_application(
         project_root=project_root,
         data_dir_override=tmp_path / "runtime",
+        assets_dir_override=sample_assets_dir(tmp_path, valid_set_dir),
     )
 
 
 def test_runtime_exposes_valid_sets_and_shared_repository(
-    project_root: Path, tmp_path: Path
+    project_root: Path, tmp_path: Path, valid_set_dir: Path
 ) -> None:
     try:
-        state = runtime_state(project_root, tmp_path)
+        state = runtime_state(project_root, tmp_path, valid_set_dir)
         runtime = initialize_runtime(state)
         assert [item.manifest.set_id for item in runtime.loaded_sets] == ["sample_set"]
         team = Team.create(set_id="sample_set", name="Persisted")
@@ -126,9 +141,11 @@ def test_runtime_rejects_no_valid_sets(project_root: Path, tmp_path: Path) -> No
         close_application_logging()
 
 
-def test_runtime_rejects_duplicate_set_ids(project_root: Path, tmp_path: Path) -> None:
+def test_runtime_rejects_duplicate_set_ids(
+    project_root: Path, tmp_path: Path, valid_set_dir: Path
+) -> None:
     try:
-        state = runtime_state(project_root, tmp_path)
+        state = runtime_state(project_root, tmp_path, valid_set_dir)
         loaded = state.loaded_sets[0]
         duplicate_state = replace(state, loaded_sets=(loaded, loaded))
         with pytest.raises(ApplicationStartupError, match="Duplicate bundled Set ID"):
@@ -138,7 +155,7 @@ def test_runtime_rejects_duplicate_set_ids(project_root: Path, tmp_path: Path) -
 
 
 def test_application_startup_validates_bundled_sets_once(
-    project_root: Path, tmp_path: Path, monkeypatch
+    project_root: Path, tmp_path: Path, valid_set_dir: Path, monkeypatch
 ) -> None:
     import tft_builder.app as app_module
 
@@ -153,7 +170,9 @@ def test_application_startup_validates_bundled_sets_once(
     monkeypatch.setattr(app_module, "validate_all_sets", tracked_validate)
     try:
         state = initialize_application(
-            project_root=project_root, data_dir_override=tmp_path / "runtime"
+            project_root=project_root,
+            data_dir_override=tmp_path / "runtime",
+            assets_dir_override=sample_assets_dir(tmp_path, valid_set_dir),
         )
         initialize_runtime(state)
         assert calls == 1

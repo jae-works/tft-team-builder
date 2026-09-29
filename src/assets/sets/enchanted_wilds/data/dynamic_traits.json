@@ -1,0 +1,60 @@
+[
+  {
+    "champion_id": "DA_Lux18_Base",
+    "choice_images": {
+      "DA_18_Blackthorn": "assets/champions/variants/da_lux18_base--da_18_blackthorn.png",
+      "DA_18_Blossom": "assets/champions/variants/da_lux18_base--da_18_blossom.png",
+      "DA_18_Coven": "assets/champions/variants/da_lux18_base--da_18_coven.png",
+      "DA_18_Elderwood": "assets/champions/variants/da_lux18_base--da_18_elderwood.png",
+      "DA_18_Fae": "assets/champions/variants/da_lux18_base--da_18_fae.png",
+      "DA_18_Inferno": "assets/champions/variants/da_lux18_base--da_18_inferno.png",
+      "DA_18_Lunar": "assets/champions/variants/da_lux18_base--da_18_lunar.png",
+      "DA_18_Solar": "assets/champions/variants/da_lux18_base--da_18_solar.png",
+      "DA_Primal18": "assets/champions/variants/da_lux18_base--da_primal18.png"
+    },
+    "choice_points": {
+      "DA_18_Blackthorn": 2,
+      "DA_18_Blossom": 2,
+      "DA_18_Coven": 2,
+      "DA_18_Elderwood": 2,
+      "DA_18_Fae": 2,
+      "DA_18_Inferno": 2,
+      "DA_18_Lunar": 2,
+      "DA_18_Solar": 2,
+      "DA_Primal18": 2
+    },
+    "choices": [
+      "DA_18_Blackthorn",
+      "DA_18_Blossom",
+      "DA_18_Coven",
+      "DA_18_Elderwood",
+      "DA_18_Fae",
+      "DA_18_Inferno",
+      "DA_18_Lunar",
+      "DA_18_Solar",
+      "DA_Primal18"
+    ],
+    "exact_count": null,
+    "selection_rule": "EXACTLY_ONE",
+    "selection_scope": "PER_CHAMPION"
+  },
+  {
+    "champion_id": "DA_18_KhaZix",
+    "choice_images": {},
+    "choice_points": {
+      "DA_18_Executioner": 1,
+      "DA_18_Rapidfire": 1,
+      "DA_18_Slayer": 1,
+      "DA_18_Spellweaver": 1
+    },
+    "choices": [
+      "DA_18_Executioner",
+      "DA_18_Rapidfire",
+      "DA_18_Slayer",
+      "DA_18_Spellweaver"
+    ],
+    "exact_count": null,
+    "selection_rule": "ZERO_OR_ONE",
+    "selection_scope": "PER_CHAMPION"
+  }
+]

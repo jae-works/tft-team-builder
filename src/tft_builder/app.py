@@ -86,9 +86,7 @@ def initialize_application(
     reports = validate_all_sets(paths.bundled_sets_dir)
     set_summary = _summarize_set_reports(reports)
     loaded_sets = tuple(
-        report.loaded_set
-        for report in reports
-        if report.is_valid and report.loaded_set is not None
+        report.loaded_set for report in reports if report.is_valid and report.loaded_set is not None
     )
 
     logger = logging.getLogger("tft_builder.app")

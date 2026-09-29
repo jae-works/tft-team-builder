@@ -124,7 +124,14 @@ Regenerate it from the committed local source specification:
 uv run tft-builder-dev build-set set_sources/specs/sample_set src/assets/sets/sample_set --overwrite
 ```
 
-The normal application reads only local validated Set packages. Block 7 provides the developer-only pinned Riot Data Dragon + CommunityDragon acquisition path; remote data is never required by the running app.
+The normal application reads only local validated Set packages. Block 7 provides the developer-only pinned Riot Data Dragon + CommunityDragon acquisition path; remote data is never required by the running app. The repository now also carries the reviewed Enchanted Wilds package generated from the pinned official-byte acquisition.
+
+Verify its acquisition provenance with:
+
+```text
+uv run python tools/set_import/verify_source_lock.py src/assets/sets/enchanted_wilds set_sources/sets/enchanted_wilds/source_lock.json
+uv run python tools/set_import/verify_enchanted_wilds.py src/assets/sets/enchanted_wilds --source-lock set_sources/sets/enchanted_wilds/source_lock.json
+```
 
 ## Important directories
 

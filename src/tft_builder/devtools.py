@@ -139,10 +139,13 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Traits: {len(loaded.traits)}")
         for trait in loaded.traits:
             breakpoints = ", ".join(str(item.count) for item in trait.breakpoints)
-            derived = ", ".join(
-                f"{trait_id}>={count}"
-                for trait_id, count in sorted(trait.derived_requirements.items())
-            ) or "-"
+            derived = (
+                ", ".join(
+                    f"{trait_id}>={count}"
+                    for trait_id, count in sorted(trait.derived_requirements.items())
+                )
+                or "-"
+            )
             print(
                 f"  {catalog[trait.name_key]} [{trait.id}] | "
                 f"breakpoints={breakpoints} | activation={trait.activation_mode.value} | "

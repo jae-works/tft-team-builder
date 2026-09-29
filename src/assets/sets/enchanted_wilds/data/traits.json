@@ -1,0 +1,882 @@
+[
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 3,
+        "description_key": "trait.da_18_elderwood.breakpoint.3.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_18_elderwood.breakpoint.5.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 7,
+        "description_key": "trait.da_18_elderwood.breakpoint.7.description",
+        "style": "tier_5"
+      },
+      {
+        "count": 9,
+        "description_key": "trait.da_18_elderwood.breakpoint.9.description",
+        "style": "tier_5"
+      },
+      {
+        "count": 11,
+        "description_key": "trait.da_18_elderwood.breakpoint.11.description",
+        "style": "tier_6"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_elderwood.description",
+    "display_order": 10,
+    "icon": "assets/traits/da_18_elderwood.png",
+    "id": "DA_18_Elderwood",
+    "name_key": "trait.da_18_elderwood.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_luxuniquetrait.description",
+    "display_order": 20,
+    "icon": "assets/traits/da_18_luxuniquetrait.png",
+    "id": "DA_18_LuxUniqueTrait",
+    "name_key": "trait.da_18_luxuniquetrait.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_slayer.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_slayer.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 6,
+        "description_key": "trait.da_18_slayer.breakpoint.6.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_slayer.description",
+    "display_order": 30,
+    "icon": "assets/traits/da_18_slayer.png",
+    "id": "DA_18_Slayer",
+    "name_key": "trait.da_18_slayer.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_dravenuniquetrait18.description",
+    "display_order": 40,
+    "icon": "assets/traits/da_dravenuniquetrait18.png",
+    "id": "DA_DravenUniqueTrait18",
+    "name_key": "trait.da_dravenuniquetrait18.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 3,
+        "description_key": "trait.da_18_solar.breakpoint.3.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_solar.description",
+    "display_order": 50,
+    "icon": "assets/traits/da_18_solar.png",
+    "id": "DA_18_Solar",
+    "name_key": "trait.da_18_solar.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 3,
+        "description_key": "trait.da_18_sprykin.breakpoint.3.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_18_sprykin.breakpoint.5.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 7,
+        "description_key": "trait.da_18_sprykin.breakpoint.7.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_sprykin.description",
+    "display_order": 60,
+    "icon": "assets/traits/da_18_sprykin.png",
+    "id": "DA_18_Sprykin",
+    "name_key": "trait.da_18_sprykin.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_adaptor.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 3,
+        "description_key": "trait.da_18_adaptor.breakpoint.3.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_adaptor.breakpoint.4.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_adaptor.description",
+    "display_order": 70,
+    "icon": "assets/traits/da_18_adaptor.png",
+    "id": "DA_18_Adaptor",
+    "name_key": "trait.da_18_adaptor.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 3,
+        "description_key": "trait.da_18_coven.breakpoint.3.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_coven.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_18_coven.breakpoint.5.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 7,
+        "description_key": "trait.da_18_coven.breakpoint.7.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_coven.description",
+    "display_order": 80,
+    "icon": "assets/traits/da_18_coven.png",
+    "id": "DA_18_Coven",
+    "name_key": "trait.da_18_coven.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_1"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {
+      "DA_18_Lunar": 3,
+      "DA_18_Solar": 3
+    },
+    "description_key": "trait.da_18_eclipse.description",
+    "display_order": 90,
+    "icon": "assets/traits/da_18_eclipse.png",
+    "id": "DA_18_Eclipse",
+    "name_key": "trait.da_18_eclipse.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_hunter.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 3,
+        "description_key": "trait.da_18_hunter.breakpoint.3.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_hunter.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_18_hunter.breakpoint.5.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_hunter.description",
+    "display_order": 100,
+    "icon": "assets/traits/da_18_hunter.png",
+    "id": "DA_18_Hunter",
+    "name_key": "trait.da_18_hunter.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_maokai_uniquetrait.description",
+    "display_order": 110,
+    "icon": "assets/traits/da_18_maokai_uniquetrait.png",
+    "id": "DA_18_Maokai_UniqueTrait",
+    "name_key": "trait.da_18_maokai_uniquetrait.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_battlemage.description",
+    "display_order": 120,
+    "icon": "assets/traits/da_18_battlemage.png",
+    "id": "DA_18_Battlemage",
+    "name_key": "trait.da_18_battlemage.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": null,
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": null,
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_primal18.description",
+    "display_order": 130,
+    "icon": "assets/traits/da_primal18.png",
+    "id": "DA_Primal18",
+    "name_key": "trait.da_primal18.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_greenfather.description",
+    "display_order": 140,
+    "icon": "assets/traits/da_18_greenfather.png",
+    "id": "DA_18_Greenfather",
+    "name_key": "trait.da_18_greenfather.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_invoker.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 3,
+        "description_key": "trait.da_18_invoker.breakpoint.3.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_invoker.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_18_invoker.breakpoint.5.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_invoker.description",
+    "display_order": 150,
+    "icon": "assets/traits/da_18_invoker.png",
+    "id": "DA_18_Invoker",
+    "name_key": "trait.da_18_invoker.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_rapidfire.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 3,
+        "description_key": "trait.da_18_rapidfire.breakpoint.3.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_rapidfire.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_18_rapidfire.breakpoint.5.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_rapidfire.description",
+    "display_order": 160,
+    "icon": "assets/traits/da_18_rapidfire.png",
+    "id": "DA_18_Rapidfire",
+    "name_key": "trait.da_18_rapidfire.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_juggernaut18.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_juggernaut18.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 6,
+        "description_key": "trait.da_juggernaut18.breakpoint.6.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_juggernaut18.description",
+    "display_order": 170,
+    "icon": "assets/traits/da_juggernaut18.png",
+    "id": "DA_Juggernaut18",
+    "name_key": "trait.da_juggernaut18.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_inferno.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 3,
+        "description_key": "trait.da_18_inferno.breakpoint.3.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_18_inferno.breakpoint.5.description",
+        "style": "tier_5"
+      },
+      {
+        "count": 7,
+        "description_key": "trait.da_18_inferno.breakpoint.7.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_inferno.description",
+    "display_order": 180,
+    "icon": "assets/traits/da_18_inferno.png",
+    "id": "DA_18_Inferno",
+    "name_key": "trait.da_18_inferno.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_aluneuniquetrait18.description",
+    "display_order": 190,
+    "icon": "assets/traits/da_aluneuniquetrait18.png",
+    "id": "DA_AluneUniqueTrait18",
+    "name_key": "trait.da_aluneuniquetrait18.name"
+  },
+  {
+    "activation_mode": "EXACT",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": "trait.da_18_rival.breakpoint.1.description",
+        "style": "tier_1"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_rival.description",
+    "display_order": 200,
+    "icon": "assets/traits/da_18_rival.png",
+    "id": "DA_18_Rival",
+    "name_key": "trait.da_18_rival.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_vanguard.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_vanguard.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 6,
+        "description_key": "trait.da_18_vanguard.breakpoint.6.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_vanguard.description",
+    "display_order": 210,
+    "icon": "assets/traits/da_18_vanguard.png",
+    "id": "DA_18_Vanguard",
+    "name_key": "trait.da_18_vanguard.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_brawler.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_brawler.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 6,
+        "description_key": "trait.da_18_brawler.breakpoint.6.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_brawler.description",
+    "display_order": 220,
+    "icon": "assets/traits/da_18_brawler.png",
+    "id": "DA_18_Brawler",
+    "name_key": "trait.da_18_brawler.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_blackthorn.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_blackthorn.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 6,
+        "description_key": "trait.da_18_blackthorn.breakpoint.6.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_blackthorn.description",
+    "display_order": 230,
+    "icon": "assets/traits/da_18_blackthorn.png",
+    "id": "DA_18_Blackthorn",
+    "name_key": "trait.da_18_blackthorn.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_executioner.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 3,
+        "description_key": "trait.da_18_executioner.breakpoint.3.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_executioner.breakpoint.4.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_executioner.description",
+    "display_order": 240,
+    "icon": "assets/traits/da_18_executioner.png",
+    "id": "DA_18_Executioner",
+    "name_key": "trait.da_18_executioner.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_apexpredator.description",
+    "display_order": 250,
+    "icon": "assets/traits/da_18_apexpredator.png",
+    "id": "DA_18_ApexPredator",
+    "name_key": "trait.da_18_apexpredator.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 3,
+        "description_key": "trait.da_riftbeast18.breakpoint.3.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_riftbeast18.breakpoint.5.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 7,
+        "description_key": "trait.da_riftbeast18.breakpoint.7.description",
+        "style": "tier_5"
+      },
+      {
+        "count": 10,
+        "description_key": "trait.da_riftbeast18.breakpoint.10.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_riftbeast18.description",
+    "display_order": 260,
+    "icon": "assets/traits/da_riftbeast18.png",
+    "id": "DA_Riftbeast18",
+    "name_key": "trait.da_riftbeast18.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_caustic.description",
+    "display_order": 270,
+    "icon": "assets/traits/da_18_caustic.png",
+    "id": "DA_18_Caustic",
+    "name_key": "trait.da_18_caustic.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_fae.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_fae.breakpoint.4.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_fae.description",
+    "display_order": 280,
+    "icon": "assets/traits/da_18_fae.png",
+    "id": "DA_18_Fae",
+    "name_key": "trait.da_18_fae.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_lunar.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 3,
+        "description_key": "trait.da_18_lunar.breakpoint.3.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_lunar.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_18_lunar.breakpoint.5.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_lunar.description",
+    "display_order": 290,
+    "icon": "assets/traits/da_18_lunar.png",
+    "id": "DA_18_Lunar",
+    "name_key": "trait.da_18_lunar.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_defender.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_defender.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 6,
+        "description_key": "trait.da_18_defender.breakpoint.6.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_defender.description",
+    "display_order": 300,
+    "icon": "assets/traits/da_18_defender.png",
+    "id": "DA_18_Defender",
+    "name_key": "trait.da_18_defender.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_spellweaver.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 4,
+        "description_key": "trait.da_18_spellweaver.breakpoint.4.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 6,
+        "description_key": "trait.da_18_spellweaver.breakpoint.6.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_spellweaver.description",
+    "display_order": 310,
+    "icon": "assets/traits/da_18_spellweaver.png",
+    "id": "DA_18_Spellweaver",
+    "name_key": "trait.da_18_spellweaver.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_zyrauniquetrait.description",
+    "display_order": 320,
+    "icon": "assets/traits/da_18_zyrauniquetrait.png",
+    "id": "DA_18_ZyraUniqueTrait",
+    "name_key": "trait.da_18_zyrauniquetrait.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": "trait.da_florafatalis18.breakpoint.1.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 2,
+        "description_key": "trait.da_florafatalis18.breakpoint.2.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_florafatalis18.description",
+    "display_order": 330,
+    "icon": "assets/traits/da_florafatalis18.png",
+    "id": "DA_FloraFatalis18",
+    "name_key": "trait.da_florafatalis18.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 2,
+        "description_key": "trait.da_18_summoner.breakpoint.2.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 3,
+        "description_key": "trait.da_18_summoner.breakpoint.3.description",
+        "style": "tier_5"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_summoner.description",
+    "display_order": 340,
+    "icon": "assets/traits/da_18_summoner.png",
+    "id": "DA_18_Summoner",
+    "name_key": "trait.da_18_summoner.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 3,
+        "description_key": "trait.da_18_blossom.breakpoint.3.description",
+        "style": "tier_1"
+      },
+      {
+        "count": 5,
+        "description_key": "trait.da_18_blossom.breakpoint.5.description",
+        "style": "tier_3"
+      },
+      {
+        "count": 7,
+        "description_key": "trait.da_18_blossom.breakpoint.7.description",
+        "style": "tier_5"
+      },
+      {
+        "count": 9,
+        "description_key": "trait.da_18_blossom.breakpoint.9.description",
+        "style": "tier_5"
+      },
+      {
+        "count": 11,
+        "description_key": "trait.da_18_blossom.breakpoint.11.description",
+        "style": "tier_6"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_18_blossom.description",
+    "display_order": 350,
+    "icon": "assets/traits/da_18_blossom.png",
+    "id": "DA_18_Blossom",
+    "name_key": "trait.da_18_blossom.name"
+  },
+  {
+    "activation_mode": "AT_LEAST",
+    "breakpoints": [
+      {
+        "count": 1,
+        "description_key": null,
+        "style": "tier_4"
+      }
+    ],
+    "counting_mode": "UNIQUE_CHAMPION",
+    "derived_requirements": {},
+    "description_key": "trait.da_emerald18.description",
+    "display_order": 360,
+    "icon": "assets/traits/da_emerald18.png",
+    "id": "DA_Emerald18",
+    "name_key": "trait.da_emerald18.name"
+  }
+]

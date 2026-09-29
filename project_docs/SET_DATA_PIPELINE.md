@@ -2,7 +2,7 @@
 
 This document defines how TFT Set data and assets are collected, normalized, validated and shipped.
 
-Current implementation status: Block 7 data-completion Part 3 uses schema v5. Champion normalization, dynamic-choice portraits, the 136-reference Item boundary and localized breakpoint text are implemented. Data Dragon records are indexed by stable public ID and all visible Set 18 runtime icons are cropped deterministically from 12 pinned Riot sprite sheets. The complete 246-asset package shape validates in an offline synthetic-source harness; official binary acquisition remains a developer-only networked command and never runs in the application.
+Current implementation status: schema v5 Champion/Item/Trait normalization and corrected release acquisition are implemented. Ordinary visible assets use individual Data Dragon `image.full` files, while dynamic variant portraits use each configured source record's CommunityDragon `squareIcon` when Data Dragon lacks distinct variant art. New/refreshed source locks are published only after a successful package build. The next gate is the real Windows acquisition and lock review.
 
 ## Decision
 
@@ -110,7 +110,7 @@ The completeness report must verify at minimum:
 
 ## Asset policy
 
-- Prefer Riot Data Dragon/TFT assets for shipped visible assets when available. Set 18 uses the `image.sprite` coordinates from Data Dragon so one pinned sprite sheet is downloaded once and deterministically cropped for every referenced Champion, Lux variant, Trait and Item icon.
+- Prefer Riot Data Dragon/TFT assets for shipped visible assets when available. Release acquisition must use a documented/content-verifiable individual asset path; TFT sprite atlas metadata is not trusted as the content source of truth because upstream coordinates/sheets can be inconsistent.
 - Assets are copied into the generated Set package so the runtime works offline.
 - Generated asset paths must be local relative paths; the GUI must not hotlink remote images.
 - Missing required assets fail Set generation/validation. Runtime fallback behavior still exists for corruption after installation, but a Set should not be released in that state.
@@ -192,3 +192,30 @@ The normal application reads only generated Set packages from `src/assets/sets/`
 ## Set 18 post-acquisition gate
 
 The Set-18 workflow has one intentionally set-specific final verifier: `tools/set_import/verify_enchanted_wilds.py`. It runs after normal package validation and checks the human-reviewed roster/category/source counts and exceptional semantics that a generic schema validator cannot know. It may also compare `source_lock.json` hashes with the provenance embedded in the generated package. This is a small explicit review gate, not a generic validation framework.
+
+
+## Post-data acquisition hardening
+
+The generic runtime validator remains authoritative for package structure, hashes and references. Accepted source locks are finalized only after the generated package has completed its transactional build and validation. Part 3 adds reusable complete source-lock/provenance comparison around the generic loader; the Set-18 reviewed verifier reuses that comparison and adds only human-reviewed Set-specific facts.
+
+## Generic provenance lock verification
+
+Block 7 post-data hardening adds a reusable provenance check without adding another Set schema or verifier framework. `tft_builder.source_verification` compares a validated runtime package with a reviewed acquisition `source_lock.json` and requires exact agreement for:
+
+- Set ID and revision;
+- provenance source IDs;
+- source URL;
+- source revision;
+- locale;
+- SHA-256;
+- byte length.
+
+Malformed JSON, malformed source records, duplicate source IDs, missing sources and unexpected sources are errors. `SourceManifest` also rejects duplicate packaged provenance IDs during normal Set loading.
+
+Use the generic developer command for future Sets:
+
+```text
+uv run python tools/set_import/verify_source_lock.py src/assets/sets/<set_id> set_sources/sets/<set_id>/source_lock.json
+```
+
+A Set-specific reviewed verifier may add semantic expectations, but it should call the generic provenance comparison instead of implementing a second lock parser. Enchanted Wilds follows this pattern in `verify_enchanted_wilds.py`.

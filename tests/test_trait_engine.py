@@ -573,9 +573,7 @@ def test_exact_activation_trait_deactivates_above_its_only_breakpoint() -> None:
 def test_derived_trait_activates_from_required_trait_counts() -> None:
     champions = tuple(
         champion(f"solar_{index}", "solar", order=index) for index in range(3)
-    ) + tuple(
-        champion(f"lunar_{index}", "lunar", order=index + 3) for index in range(3)
-    )
+    ) + tuple(champion(f"lunar_{index}", "lunar", order=index + 3) for index in range(3))
     set_data = loaded_set(
         champions=champions,
         traits=(
@@ -590,14 +588,21 @@ def test_derived_trait_activates_from_required_trait_counts() -> None:
         ),
     )
     incomplete = team_list(
-        ("solar_0", ()), ("solar_1", ()), ("solar_2", ()),
-        ("lunar_0", ()), ("lunar_1", ()),
+        ("solar_0", ()),
+        ("solar_1", ()),
+        ("solar_2", ()),
+        ("lunar_0", ()),
+        ("lunar_1", ()),
     )
     assert "eclipse" not in result_by_id(calculate_traits(set_data, incomplete))
 
     complete = team_list(
-        ("solar_0", ()), ("solar_1", ()), ("solar_2", ()),
-        ("lunar_0", ()), ("lunar_1", ()), ("lunar_2", ()),
+        ("solar_0", ()),
+        ("solar_1", ()),
+        ("solar_2", ()),
+        ("lunar_0", ()),
+        ("lunar_1", ()),
+        ("lunar_2", ()),
     )
     eclipse = result_by_id(calculate_traits(set_data, complete))["eclipse"]
     assert eclipse.count == 1
@@ -616,9 +621,7 @@ def test_exact_activation_reports_a_future_exact_breakpoint() -> None:
             ),
         ),
     )
-    result = result_by_id(
-        calculate_traits(set_data, team_list(("a", ()), ("b", ())))
-    )["rival"]
+    result = result_by_id(calculate_traits(set_data, team_list(("a", ()), ("b", ()))))["rival"]
     assert result.active_breakpoint is None
     assert result.next_breakpoint is not None
     assert result.next_breakpoint.count == 3

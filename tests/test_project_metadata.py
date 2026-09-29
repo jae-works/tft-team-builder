@@ -13,7 +13,7 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
     assert payload["version"] == project_version
     assert (
         payload["current_state"]
-        == "block_7_data_completion_part_4_verified_official_sprite_run_pending"
+        == "block_7_post_data_hardening_part_3_local_verified_pending_windows_verification"
     )
     assert payload["current_block"] == 7
     assert payload["next_block"] == 7
@@ -84,11 +84,11 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] == 674
+    assert verification["pytest_passed"] == 689
     assert verification["statement_coverage_percent"] == 100.0
     assert verification["branch_coverage_percent"] == 100.0
-    assert verification["production_statements"] == 2955
-    assert verification["production_branches"] == 892
+    assert verification["production_statements"] == 3024
+    assert verification["production_branches"] == 922
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
@@ -240,6 +240,19 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_7_data_completion_part_4_verified"] is True
     assert verification["set18_gui_hci_handoff_prepared"] is True
     assert verification["set18_post_acquisition_verifier_verified"] is True
+    assert verification["windows_0_7_0_official_set18_acquisition_passed"] is True
+    assert verification["set18_official_binary_acquisition_pending"] is False
+    assert verification["set18_provenance_sources_expected"] == 255
+    assert verification["set18_generic_provenance_verification_hardening_pending"] is False
+    assert verification["set18_board_slot_runtime_usage_pending"] is False
+    assert verification["set18_lux_scope_recheck_pending"] is False
+    assert verification["set18_source_lock_post_build_finalization_pending"] is False
+    assert verification["block_7_post_data_part_2_windows_acquisition_verified"] is True
+    assert verification["block_7_post_data_part_2_reported_findings_corrected"] is True
+    assert verification["block_7_post_data_part_3_generic_provenance_verified"] is True
+    assert verification["block_7_post_data_part_3_complete_set18_fixture_verified"] is True
+    assert verification["block_7_post_data_part_3_mutation_tests_verified"] is True
+    assert verification["block_7_post_data_part_3_local_pytest_passed"] == 689
 
 
 def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:

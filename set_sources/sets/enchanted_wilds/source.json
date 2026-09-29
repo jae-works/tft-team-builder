@@ -55,7 +55,7 @@
       ],
       "image_source_id": "DA_Lux18_Base",
       "selection_rule": "EXACTLY_ONE",
-      "selection_scope": "PER_INSTANCE",
+      "selection_scope": "PER_CHAMPION",
       "choice_points": 2,
       "search_aliases": [
         "avatar"

@@ -479,7 +479,9 @@ def validate_set_directory(root: Path) -> ValidationReport:
         else None
     )
     if paths["overview"] is not None and not paths["overview"].is_file():
-        issues.append(ValidationIssue("missing_file", "required file does not exist", manifest.overview_file))
+        issues.append(
+            ValidationIssue("missing_file", "required file does not exist", manifest.overview_file)
+        )
 
     source_manifest_payload = (
         _json_load(paths["source_manifest"], issues, manifest.source_manifest_file)
@@ -622,7 +624,6 @@ def validate_set_directory(root: Path) -> ValidationReport:
             )
         required_assets.add(item.icon)
         _validate_asset(root, item.icon, issues, f"items.{item.id}.icon")
-
 
     for trait in traits or []:
         for required_trait_id in trait.derived_requirements:

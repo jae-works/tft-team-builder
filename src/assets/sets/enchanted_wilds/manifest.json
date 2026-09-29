@@ -1,0 +1,22 @@
+{
+  "assets_dir": "assets",
+  "champions_file": "data/champions.json",
+  "default_locale": "en_US",
+  "display_name_key": "set.enchanted_wilds.name",
+  "dynamic_traits_file": "data/dynamic_traits.json",
+  "items_file": "data/items.json",
+  "locales_dir": "locales",
+  "overview_file": "SET_OVERVIEW.md",
+  "revision": "18.3b",
+  "schema_version": 5,
+  "set_id": "enchanted_wilds",
+  "source_inventory_file": "reports/source_inventory.json",
+  "source_manifest_file": "source_manifest.json",
+  "supported_locales": [
+    "en_US",
+    "de_DE"
+  ],
+  "team_planner_file": "data/team_planner.json",
+  "team_planner_supported": true,
+  "traits_file": "data/traits.json"
+}

@@ -118,7 +118,9 @@ def _render_set_overview(spec: LocalSetSpec) -> str:
         champion_name = catalog[champions_by_id[rule.champion_id].name_key]
         for trait_id in rule.choices:
             image = rule.choice_images.get(trait_id, "-")
-            image_cell = f"![{_markdown_cell(trait_names[trait_id])}]({image})" if image != "-" else "-"
+            image_cell = (
+                f"![{_markdown_cell(trait_names[trait_id])}]({image})" if image != "-" else "-"
+            )
             lines.append(
                 f"| {_markdown_cell(champion_name)} | {rule.selection_rule.value} | "
                 f"{rule.selection_scope.value} | {_markdown_cell(trait_names[trait_id])} | "
@@ -143,10 +145,13 @@ def _render_set_overview(spec: LocalSetSpec) -> str:
             breakpoint_parts.append(text)
         breakpoints = " / ".join(breakpoint_parts)
         description = catalog.get(trait.description_key, "-") if trait.description_key else "-"
-        derived = ", ".join(
-            f"{trait_id}>={count}"
-            for trait_id, count in sorted(trait.derived_requirements.items())
-        ) or "-"
+        derived = (
+            ", ".join(
+                f"{trait_id}>={count}"
+                for trait_id, count in sorted(trait.derived_requirements.items())
+            )
+            or "-"
+        )
         lines.append(
             f"| ![{_markdown_cell(catalog[trait.name_key])}]({trait.icon}) | "
             f"{_markdown_cell(catalog[trait.name_key])} | {_markdown_cell(breakpoints)} | "

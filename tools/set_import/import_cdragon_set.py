@@ -12,14 +12,12 @@ import hashlib
 import html
 import json
 import re
-import shutil
 import tempfile
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 import httpx
-from PIL import Image
 
 from tft_builder.constants import SET_SCHEMA_VERSION, SOURCE_SPEC_SCHEMA_VERSION
 from tft_builder.json_utils import canonical_json_bytes
@@ -66,7 +64,7 @@ def _format_trait_number(value: float) -> str:
 
     rounded = round(value, 4)
     if abs(rounded - round(rounded)) < 1e-4:
-        return str(int(round(rounded)))
+        return str(round(rounded))
     return f"{rounded:.4f}".rstrip("0").rstrip(".")
 
 
@@ -231,8 +229,7 @@ def _trait_variable_overrides(
     override_source_id = record.get("source")
     if override_source_id not in config.get("trait_variable_override_sources", {}):
         raise ValueError(
-            f"Trait variable override for {trait_name!r} has unknown source: "
-            f"{override_source_id!r}"
+            f"Trait variable override for {trait_name!r} has unknown source: {override_source_id!r}"
         )
     reason = record.get("reason")
     if not isinstance(reason, str) or not reason.strip():
@@ -336,16 +333,21 @@ def _dd_data(payload: dict) -> dict[str, dict]:
     return records
 
 
-def _dd_sprite_url(version: str, record: dict) -> tuple[str, str]:
-    """Return one pinned Data Dragon sprite source ID and URL for an image record."""
+def _dd_asset_url(version: str, record: dict) -> tuple[str, str]:
+    """Return one pinned individual Data Dragon asset URL for an image record."""
 
     image = record.get("image") or {}
     group = image.get("group")
-    sprite = image.get("sprite")
-    if not group or not sprite:
-        raise ValueError(f"Data Dragon record {record.get('id')!r} has no sprite metadata")
-    source_id = f"ddragon_sprite_{_slug(group)}_{_slug(sprite)}"
-    url = f"https://ddragon.leagueoflegends.com/cdn/{version}/img/sprite/{sprite}"
+    full = image.get("full")
+    if not group or not full:
+        raise ValueError(f"Data Dragon record {record.get('id')!r} has no full image metadata")
+    source_key = f"{group}/{full}"
+    suffix = hashlib.sha256(source_key.encode("utf-8")).hexdigest()[:12]
+    source_id = f"ddragon_asset_{_slug(group)}_{_slug(full)}_{suffix}"
+    url = (
+        f"https://ddragon.leagueoflegends.com/cdn/{version}/img/"
+        f"{quote(str(group), safe='')}/{quote(str(full), safe='')}"
+    )
     return source_id, url
 
 
@@ -359,7 +361,7 @@ def _append_source_once(sources: list[dict], record: dict) -> None:
         raise ValueError(f"source id {record['id']!r} resolves to inconsistent metadata")
 
 
-def _dd_sprite_asset(
+def _dd_full_asset(
     client: httpx.Client,
     cache_dir: Path,
     spec_dir: Path,
@@ -368,33 +370,57 @@ def _dd_sprite_asset(
     record: dict,
     target: str,
 ) -> None:
-    """Crop one deterministic 48px-style asset from a pinned Data Dragon sprite sheet."""
+    """Copy one pinned individual Data Dragon PNG into the local Set source spec."""
 
-    source_id, url = _dd_sprite_url(version, record)
+    source_id, url = _dd_asset_url(version, record)
     downloaded = _download(client, cache_dir, source_id, url, MAX_IMAGE_BYTES)
-    if downloaded.read_bytes()[:8] != PNG_SIGNATURE:
-        raise ValueError(f"Data Dragon sprite is not a PNG: {url}")
+    payload = downloaded.read_bytes()
+    if payload[:8] != PNG_SIGNATURE:
+        raise ValueError(f"Data Dragon asset is not a PNG: {url}")
     _append_source_once(sources, _source_record(source_id, url, version, None, downloaded))
-
-    image_meta = record["image"]
-    try:
-        x = int(image_meta["x"])
-        y = int(image_meta["y"])
-        width = int(image_meta["w"])
-        height = int(image_meta["h"])
-    except (KeyError, TypeError, ValueError) as error:
-        raise ValueError(f"Data Dragon record {record.get('id')!r} has invalid sprite bounds") from error
-    if x < 0 or y < 0 or width <= 0 or height <= 0:
-        raise ValueError(f"Data Dragon record {record.get('id')!r} has invalid sprite bounds")
 
     destination = spec_dir / target
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with Image.open(downloaded) as sprite_image:
-        sprite_image.load()
-        if x + width > sprite_image.width or y + height > sprite_image.height:
-            raise ValueError(f"Data Dragon record {record.get('id')!r} exceeds sprite bounds")
-        cropped = sprite_image.crop((x, y, x + width, y + height))
-        cropped.save(destination, format="PNG", optimize=False, compress_level=9)
+    destination.write_bytes(payload)
+
+
+def _cdragon_game_asset_url(version: str, game_path: str) -> tuple[str, str]:
+    """Return a pinned CommunityDragon PNG URL for one exported game texture path."""
+
+    normalized = game_path.replace("\\", "/").casefold()
+    if not normalized.startswith("assets/"):
+        raise ValueError(f"CommunityDragon game asset path must start with assets/: {game_path!r}")
+    if normalized.endswith(".tex"):
+        normalized = normalized[:-4] + ".png"
+    if not normalized.endswith(".png"):
+        raise ValueError(f"CommunityDragon game asset is not an exported PNG path: {game_path!r}")
+    suffix = hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:12]
+    source_id = f"cdragon_asset_{_slug(Path(normalized).name)}_{suffix}"
+    url = f"https://raw.communitydragon.org/{version}/game/{quote(normalized, safe='/')}"
+    return source_id, url
+
+
+def _cdragon_game_asset(
+    client: httpx.Client,
+    cache_dir: Path,
+    spec_dir: Path,
+    sources: list[dict],
+    version: str,
+    game_path: str,
+    target: str,
+) -> None:
+    """Copy one pinned exported CommunityDragon game PNG into the local Set source spec."""
+
+    source_id, url = _cdragon_game_asset_url(version, game_path)
+    downloaded = _download(client, cache_dir, source_id, url, MAX_IMAGE_BYTES)
+    payload = downloaded.read_bytes()
+    if payload[:8] != PNG_SIGNATURE:
+        raise ValueError(f"CommunityDragon asset is not a PNG: {url}")
+    _append_source_once(sources, _source_record(source_id, url, version, None, downloaded))
+
+    destination = spec_dir / target
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_bytes(payload)
 
 
 def _trait_name_map(set_data: dict) -> tuple[dict[str, dict], dict[str, str]]:
@@ -431,14 +457,12 @@ def _retained_item_categories(
     unknown_explicit = sorted(set(explicit) - declared)
     if unknown_explicit:
         raise ValueError(
-            "explicit retained Item IDs are missing from the Set: "
-            + ", ".join(unknown_explicit)
+            "explicit retained Item IDs are missing from the Set: " + ", ".join(unknown_explicit)
         )
     unknown_excluded = sorted(excluded - declared)
     if unknown_excluded:
         raise ValueError(
-            "explicit excluded Item IDs are missing from the Set: "
-            + ", ".join(unknown_excluded)
+            "explicit excluded Item IDs are missing from the Set: " + ", ".join(unknown_excluded)
         )
 
     component_prefix = policy["component_prefix"]
@@ -532,7 +556,9 @@ def _load_remote_sources(config: dict, cache_dir: Path) -> tuple[dict, dict, dic
     cdragon: dict[str, dict] = {}
     ddragon: dict[str, dict[str, dict]] = {}
 
-    with httpx.Client(timeout=REQUEST_TIMEOUT, headers={"User-Agent": "tft-team-builder-set-import/0.7"}) as client:
+    with httpx.Client(
+        timeout=REQUEST_TIMEOUT, headers={"User-Agent": "tft-team-builder-set-import/0.7"}
+    ) as client:
         for locale in locales:
             cd_locale = locale.casefold()
             url = f"https://raw.communitydragon.org/{cdragon_version}/cdragon/tft/{cd_locale}.json"
@@ -549,9 +575,7 @@ def _load_remote_sources(config: dict, cache_dir: Path) -> tuple[dict, dict, dic
                 path = _download(client, cache_dir, f"ddragon_{kind}_{locale}", url, MAX_JSON_BYTES)
                 ddragon[f"{kind}:{locale}"] = _dd_data(_json(path))
                 sources.append(
-                    _source_record(
-                        f"ddragon_{kind}_{locale}", url, ddragon_version, locale, path
-                    )
+                    _source_record(f"ddragon_{kind}_{locale}", url, ddragon_version, locale, path)
                 )
 
         planner_url = (
@@ -580,14 +604,14 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
     }
 
     all_items = {item["apiName"]: item for item in cdragon[default_locale].get("items", [])}
-    item_categories = _retained_item_categories(
-        source_set, all_items, config["item_retention"]
-    )
+    item_categories = _retained_item_categories(source_set, all_items, config["item_retention"])
     _require_item_category_counts(item_categories, config["expected_items_by_category"])
 
     excluded = config.get("exclude_champions", {})
     variant_groups = config.get("variant_groups", [])
-    variant_source_ids = {source_id for group in variant_groups for source_id in group["source_ids"]}
+    variant_source_ids = {
+        source_id for group in variant_groups for source_id in group["source_ids"]
+    }
     raw_champions = {champion["apiName"]: champion for champion in source_set["champions"]}
     _require_expected_count(
         "raw Champion records", len(raw_champions), config.get("expected_source_champions")
@@ -659,7 +683,12 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
         row.update(adjustment)
         champion_rows.append(row)
         inventory.append(
-            {"kind": "CHAMPION", "source_id": source_id, "status": "INCLUDED", "target_id": source_id}
+            {
+                "kind": "CHAMPION",
+                "source_id": source_id,
+                "status": "INCLUDED",
+                "target_id": source_id,
+            }
         )
 
     for group in variant_groups:
@@ -688,12 +717,12 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
                 )
             choice_sources[trait_id] = variant["apiName"]
         if set(choice_sources) != set(choice_traits):
-            raise ValueError(f"variant group {target_id!r} cannot map every choice to one source image")
+            raise ValueError(
+                f"variant group {target_id!r} cannot map every choice to one source image"
+            )
         variant_choice_sources[target_id] = choice_sources
         choice_images = {
-            trait_id: (
-                f"assets/champions/variants/{_slug(target_id)}--{_slug(trait_id)}.png"
-            )
+            trait_id: (f"assets/champions/variants/{_slug(target_id)}--{_slug(trait_id)}.png")
             for trait_id in choice_traits
         }
 
@@ -776,9 +805,7 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
             breakpoints = [{"count": 1, "style": "tier_1"}]
 
         known_counts = {str(value["count"]) for value in breakpoints}
-        variable_overrides = _trait_variable_overrides(
-            config, trait["name"], known_counts
-        )
+        variable_overrides = _trait_variable_overrides(config, trait["name"], known_counts)
         _summary, breakpoint_texts = _trait_display_texts(
             localized_traits[default_locale][source_id],
             breakpoints,
@@ -835,7 +862,9 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
                 "icon": f"assets/items/{_slug(source_id)}.png",
                 "category": item_categories[source_id],
                 "composition": item.get("composition") or [],
-                "associated_traits": [value for value in item.get("associatedTraits") or [] if value in traits_by_api],
+                "associated_traits": [
+                    value for value in item.get("associatedTraits") or [] if value in traits_by_api
+                ],
                 "display_order": index * 10 + 10,
                 "tags": [_slug(str(tag)) for tag in item.get("tags") or [] if str(tag).strip()],
             }
@@ -844,22 +873,25 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
             {"kind": "ITEM", "source_id": source_id, "status": "INCLUDED", "target_id": source_id}
         )
 
-
     locale_catalogs: dict[str, dict[str, str]] = {}
     for locale in locales:
-        set_name_key = f"set.{_slug(config["set_id"])}.name"
-        display_name = config.get("localized_display_names", {}).get(
-            locale, config["display_name"]
-        )
+        set_name_key = f"set.{_slug(config['set_id'])}.name"
+        display_name = config.get("localized_display_names", {}).get(locale, config["display_name"])
         catalog = {set_name_key: display_name}
-        source_champs = {champion["apiName"]: champion for champion in localized_sets[locale]["champions"]}
+        source_champs = {
+            champion["apiName"]: champion for champion in localized_sets[locale]["champions"]
+        }
         source_items = {item["apiName"]: item for item in cdragon[locale].get("items", [])}
         for row in champion_rows:
-            group = next((value for value in variant_groups if value["target_id"] == row["id"]), None)
+            group = next(
+                (value for value in variant_groups if value["target_id"] == row["id"]), None
+            )
             source_id = group["image_source_id"] if group else row["id"]
             name = source_champs[source_id].get("name") or source_champs[source_id]["apiName"]
             if group:
-                name = group.get("localized_names", {}).get(locale, group.get("display_name", "Lux"))
+                name = group.get("localized_names", {}).get(
+                    locale, group.get("display_name", "Lux")
+                )
             catalog[row["name_key"]] = name
         for row in trait_rows:
             trait = localized_traits[locale][row["id"]]
@@ -887,21 +919,27 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
     planner_by_character = {row.get("character_id"): row for row in planner_rows}
     planner_ids: dict[str, str] = {}
     for champion in champion_rows:
-        group = next((value for value in variant_groups if value["target_id"] == champion["id"]), None)
+        group = next(
+            (value for value in variant_groups if value["target_id"] == champion["id"]), None
+        )
         source_id = group["image_source_id"] if group else champion["id"]
         planner = planner_by_character.get(source_id)
         if planner and planner.get("team_planner_code") is not None:
             planner_ids[champion["id"]] = format(int(planner["team_planner_code"]), "03x")
 
     spec_dir.mkdir(parents=True, exist_ok=True)
-    with httpx.Client(timeout=REQUEST_TIMEOUT, headers={"User-Agent": "tft-team-builder-set-import/0.7"}) as client:
+    with httpx.Client(
+        timeout=REQUEST_TIMEOUT, headers={"User-Agent": "tft-team-builder-set-import/0.7"}
+    ) as client:
         for champion in champion_rows:
-            group = next((value for value in variant_groups if value["target_id"] == champion["id"]), None)
+            group = next(
+                (value for value in variant_groups if value["target_id"] == champion["id"]), None
+            )
             source_id = group["image_source_id"] if group else champion["id"]
             dd_record = ddragon[f"champion:{default_locale}"].get(source_id)
             if dd_record is None:
                 raise ValueError(f"Data Dragon has no Champion image record for {source_id!r}")
-            _dd_sprite_asset(
+            _dd_full_asset(
                 client,
                 cache_dir,
                 spec_dir,
@@ -918,19 +956,21 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
                     rule for rule in dynamic_rows if rule["champion_id"] == champion["id"]
                 )
                 for trait_id, variant_source_id in sorted(choice_sources.items()):
-                    dd_variant = ddragon[f"champion:{default_locale}"].get(variant_source_id)
-                    if dd_variant is None:
+                    variant_record = raw_champions[variant_source_id]
+                    variant_image = variant_record.get("squareIcon")
+                    if not variant_image:
                         raise ValueError(
-                            f"Data Dragon has no Champion variant image for {variant_source_id!r}"
+                            f"CommunityDragon has no squareIcon for Champion variant "
+                            f"{variant_source_id!r}"
                         )
                     target = dynamic_rule["choice_images"][trait_id]
-                    _dd_sprite_asset(
+                    _cdragon_game_asset(
                         client,
                         cache_dir,
                         spec_dir,
                         sources,
-                        config["ddragon_version"],
-                        dd_variant,
+                        config["cdragon_version"],
+                        variant_image,
                         target,
                     )
                     assets[target] = target
@@ -939,7 +979,7 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
             dd_record = ddragon[f"trait:{default_locale}"].get(trait["id"])
             if dd_record is None:
                 raise ValueError(f"Data Dragon has no Trait image record for {trait['id']!r}")
-            _dd_sprite_asset(
+            _dd_full_asset(
                 client,
                 cache_dir,
                 spec_dir,
@@ -954,7 +994,7 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
             dd_record = ddragon[f"item:{default_locale}"].get(item["id"])
             if dd_record is None:
                 raise ValueError(f"Data Dragon has no Item image record for {item['id']!r}")
-            _dd_sprite_asset(
+            _dd_full_asset(
                 client,
                 cache_dir,
                 spec_dir,
@@ -990,7 +1030,10 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
         "items": item_rows,
         "traits": trait_rows,
         "dynamic_traits": dynamic_rows,
-        "team_planner": {"codec": "riot_v2_12bit" if planner_ids else None, "champion_ids": planner_ids},
+        "team_planner": {
+            "codec": "riot_v2_12bit" if planner_ids else None,
+            "champion_ids": planner_ids,
+        },
         "source_inventory": inventory,
         "sources": sources,
         "locales": locale_catalogs,
@@ -999,8 +1042,10 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
     (spec_dir / "set_spec.json").write_bytes(canonical_json_bytes(spec))
 
 
-def _check_or_write_lock(config_path: Path, spec_dir: Path, refresh: bool) -> None:
-    """Pin every downloaded payload and asset by SHA-256 after the first reviewed import."""
+def _prepare_source_lock(
+    config_path: Path, spec_dir: Path, refresh: bool
+) -> tuple[Path, bytes | None]:
+    """Validate an existing source lock or prepare bytes to commit after a successful build."""
 
     spec = _json(spec_dir / "set_spec.json")
     current = {record["id"]: record for record in spec["sources"]}
@@ -1009,7 +1054,9 @@ def _check_or_write_lock(config_path: Path, spec_dir: Path, refresh: bool) -> No
         locked = _json(lock_path)
         expected = {record["id"]: record for record in locked["sources"]}
         if set(expected) != set(current):
-            raise ValueError("source inventory differs from source_lock.json; review with --refresh-lock")
+            raise ValueError(
+                "source inventory differs from source_lock.json; review with --refresh-lock"
+            )
         changed = [
             source_id
             for source_id in sorted(current)
@@ -1019,14 +1066,32 @@ def _check_or_write_lock(config_path: Path, spec_dir: Path, refresh: bool) -> No
             raise ValueError(
                 "downloaded source hashes differ from source_lock.json: " + ", ".join(changed)
             )
-        return
+        return lock_path, None
 
     payload = {
         "set_id": spec["manifest"]["set_id"],
         "revision": spec["manifest"]["revision"],
         "sources": [current[source_id] for source_id in sorted(current)],
     }
-    lock_path.write_bytes(canonical_json_bytes(payload))
+    return lock_path, canonical_json_bytes(payload)
+
+
+def _commit_source_lock(lock_path: Path, payload: bytes | None) -> None:
+    """Atomically publish a prepared source lock after the runtime package is valid."""
+
+    if payload is None:
+        return
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(
+        prefix=f".{lock_path.name}.", suffix=".tmp", dir=lock_path.parent, delete=False
+    ) as handle:
+        temporary = Path(handle.name)
+        handle.write(payload)
+        handle.flush()
+    try:
+        temporary.replace(lock_path)
+    finally:
+        temporary.unlink(missing_ok=True)
     print(f"Wrote source lock: {lock_path}")
 
 
@@ -1043,8 +1108,9 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix=f"{config['set_id']}-source-") as temporary:
         spec_dir = Path(temporary)
         _build_spec(config, args.cache_dir, spec_dir)
-        _check_or_write_lock(args.config, spec_dir, args.refresh_lock)
+        lock_path, lock_payload = _prepare_source_lock(args.config, spec_dir, args.refresh_lock)
         build_set_from_local_spec(spec_dir, args.output, overwrite=args.overwrite)
+        _commit_source_lock(lock_path, lock_payload)
     print(f"Built validated Set package: {args.output.resolve()}")
     return 0
 

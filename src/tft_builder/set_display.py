@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .models import TraitSelection
+from .models import TeamList, TraitSelection
 from .search import normalize_search_text
 from .set_loader import LoadedSet
 from .set_schema import ChampionDefinition, DynamicTraitDefinition
@@ -44,6 +44,22 @@ def _dynamic_rule(
         (rule for rule in loaded_set.dynamic_traits if rule.champion_id == champion.id),
         None,
     )
+
+
+def board_slot_usage(loaded_set: LoadedSet, team_list: TeamList) -> int:
+    """Return occupied board capacity from data-driven Champion slot weights."""
+
+    champions_by_id = loaded_set.champions_by_id
+    usage = 0
+    for slot in team_list.slots:
+        champion = slot.champion
+        if champion is None:
+            continue
+        definition = champions_by_id.get(champion.champion_id)
+        if definition is None:
+            raise ValueError(f"unknown Champion ID in List: {champion.champion_id}")
+        usage += definition.board_slots
+    return usage
 
 
 def champion_trait_ids(loaded_set: LoadedSet, champion: ChampionDefinition) -> tuple[str, ...]:

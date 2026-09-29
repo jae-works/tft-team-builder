@@ -56,3 +56,10 @@ The final GUI verification should explicitly cover:
 - focus return after closing the dynamic editor and Trait details.
 
 `tools/set_import/verify_enchanted_wilds.py` is the final post-acquisition dataset gate. It verifies the reviewed counts, special semantics, source accounting, asset inventory and locale markup before the real Set package is accepted.
+
+
+## Post-data hardening clarification
+
+Elder Dragon should render as one Champion card/instance. Its special rule affects board-capacity usage, not visual/list identity: board usage must sum each placed Champion definition's `board_slots` value, so Elder Dragon contributes 2 while ordinary units contribute 1. Do not represent this by inserting a duplicate hidden/visible Slot.
+
+Lux duplicate-origin behavior is under final Part 2 review. The UI must follow the eventual Set-level selection scope and must never allow two duplicate Lux instances to display conflicting origins if the reviewed mechanic requires one shared Avatar origin.

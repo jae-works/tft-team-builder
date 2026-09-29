@@ -644,3 +644,43 @@ Reasoning:
 - Set 18 needs only 12 sprite downloads for 246 runtime PNGs, avoiding hundreds of redundant network requests and provenance records.
 - Stable Data Dragon IDs fix the previous archive-key lookup bug and cover all reviewed Set 18 Champions, Lux variants, Traits and Items.
 - Cropping declared rectangles is deterministic and keeps the runtime package fully local while preserving a compact, auditable source lock.
+
+
+## D037 - Release Set assets use individual Data Dragon TFT image files
+
+Status: implemented during Block 7 post-data hardening Part 1. This supersedes D036 for release acquisition.
+
+Decision:
+- Keep Data Dragon as the preferred official visible-asset source and keep stable record-ID normalization.
+- Use each ordinary reviewed record's documented `image.group` + `image.full` asset as the release image source of truth.
+- Do not trust TFT `image.sprite` atlas coordinates as sufficient content proof for shipped Champion/Trait/Item images.
+- Keep bounded HTTPS downloads, local cache reuse, PNG checks and SHA-256 provenance. The larger source-lock inventory is acceptable because acquisition is developer-only and correctness is more important than minimizing request count.
+- For dynamic variant portraits, use the configured variant source record's CommunityDragon `squareIcon` when Data Dragon does not expose distinct `image.full` content. This stays generic to variant groups and does not branch on Champion names.
+
+Reasoning:
+- The user's first official Windows Set 18 acquisition fails because `DA_CrimsonRaptor18` exceeds the downloaded sprite bounds.
+- Riot documents individual TFT icon directories and `image.full` metadata.
+- Riot's developer-relations tracker has an open report for TFT Data Dragon missing sprite sheets and wrong Champion sprite coordinates, including wrong in-bounds mappings that simple bounds checks cannot detect.
+- The previous 12-sprite synthetic harness verified our crop code, not the correctness of Riot's live atlas metadata.
+
+Revisit when:
+- Riot explicitly guarantees TFT atlas correctness and we can verify atlas crops against an independent official content identity without re-downloading each individual icon.
+
+## D038 - Source locks use one generic complete-provenance verifier
+
+Status: accepted during Block 7 post-data hardening Part 3.
+
+Decision:
+- Keep `load_set_directory()` as the authoritative generic runtime-package validator.
+- Add one small generic source-lock comparison around an already validated `LoadedSet`; do not introduce another Set schema, adapter hierarchy or verifier framework.
+- Compare exact source ID inventory plus URL, source revision, locale, SHA-256 and byte length, not only content hashes.
+- Reject duplicate packaged provenance IDs during normal schema validation.
+- Set-specific review tools may add domain expectations but must reuse the generic lock comparison.
+
+Reasoning:
+- A matching hash alone does not prove that the reviewed source identity, revision or locale is still the one intended by the acquisition configuration.
+- Future Sets need the same provenance gate, while roster counts and exceptional semantics remain Set-specific review facts.
+- Keeping the generic layer as two small functions plus a CLI matches the project's no-framework/no-unnecessary-abstraction rule.
+
+Revisit when:
+- the acquisition-lock format gains a deliberate versioned schema or a second independent acquisition system requires materially different provenance semantics.

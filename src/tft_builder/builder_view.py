@@ -18,6 +18,7 @@ from .persistence import AutosaveService
 from .search import normalize_search_text
 from .set_display import (
     asset_source,
+    board_slot_usage,
     champion_details_text,
     champion_matches_query,
     champion_portrait_path,
@@ -709,6 +710,11 @@ class BuilderView:
                             ),
                             actions,
                         ]
+                    ),
+                    ft.Text(
+                        key=f"list-board-usage-{team_list.list_id}",
+                        value=f"Board slots: {board_slot_usage(self.loaded_set, team_list)}",
+                        size=12,
                     ),
                     ft.Row(scroll=ft.ScrollMode.AUTO, controls=slots),
                 ]

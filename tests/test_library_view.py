@@ -342,10 +342,13 @@ def test_similarity_panel_reports_when_results_are_capped(
     assert by_key(root, "library-similarity-limit-note").value == (
         "Showing the first 20 matches. Search to narrow the list."
     )
-    assert sum(
-        str(getattr(item, "key", "")).startswith("library-similarity-add-")
-        for item in walk(root)
-    ) == 20
+    assert (
+        sum(
+            str(getattr(item, "key", "")).startswith("library-similarity-add-")
+            for item in walk(root)
+        )
+        == 20
+    )
 
 
 def test_event_and_text_handlers_forward_values() -> None:

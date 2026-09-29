@@ -173,9 +173,7 @@ def _apply_per_instance_rule(
             issues.append(issue)
             continue
         for trait_id in champion.trait_selection.trait_ids:
-            _add_contribution(
-                contributors[trait_id], champion, rule.choice_points.get(trait_id, 1)
-            )
+            _add_contribution(contributors[trait_id], champion, rule.choice_points.get(trait_id, 1))
 
 
 def _apply_per_champion_rule(
@@ -220,9 +218,7 @@ def _apply_per_champion_rule(
     selected = next(iter(selections))
     for champion in instances:
         for trait_id in selected:
-            _add_contribution(
-                contributors[trait_id], champion, rule.choice_points.get(trait_id, 1)
-            )
+            _add_contribution(contributors[trait_id], champion, rule.choice_points.get(trait_id, 1))
 
 
 def validate_dynamic_selection(

@@ -1,0 +1,2064 @@
+[
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_GiantsBelt"
+    ],
+    "description_key": "item.da_18_emblemblackthorn.description",
+    "display_order": 10,
+    "icon": "assets/items/da_18_emblemblackthorn.png",
+    "id": "DA_18_EmblemBlackthorn",
+    "name_key": "item.da_18_emblemblackthorn.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_NeedlesslyLargeRod"
+    ],
+    "description_key": "item.da_18_emblemblossom.description",
+    "display_order": 20,
+    "icon": "assets/items/da_18_emblemblossom.png",
+    "id": "DA_18_EmblemBlossom",
+    "name_key": "item.da_18_emblemblossom.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_FryingPan",
+      "DA_Component_GiantsBelt"
+    ],
+    "description_key": "item.da_18_emblembrawler.description",
+    "display_order": 30,
+    "icon": "assets/items/da_18_emblembrawler.png",
+    "id": "DA_18_EmblemBrawler",
+    "name_key": "item.da_18_emblembrawler.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [],
+    "description_key": "item.da_18_emblemcoven.description",
+    "display_order": 40,
+    "icon": "assets/items/da_18_emblemcoven.png",
+    "id": "DA_18_EmblemCoven",
+    "name_key": "item.da_18_emblemcoven.name",
+    "tags": []
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [],
+    "description_key": "item.da_18_emblemdefender.description",
+    "display_order": 50,
+    "icon": "assets/items/da_18_emblemdefender.png",
+    "id": "DA_18_EmblemDefender",
+    "name_key": "item.da_18_emblemdefender.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_ChainVest"
+    ],
+    "description_key": "item.da_18_emblemelderwood.description",
+    "display_order": 60,
+    "icon": "assets/items/da_18_emblemelderwood.png",
+    "id": "DA_18_EmblemElderwood",
+    "name_key": "item.da_18_emblemelderwood.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_FryingPan",
+      "DA_Component_SparringGloves"
+    ],
+    "description_key": "item.da_18_emblemexecutioner.description",
+    "display_order": 70,
+    "icon": "assets/items/da_18_emblemexecutioner.png",
+    "id": "DA_18_EmblemExecutioner",
+    "name_key": "item.da_18_emblemexecutioner.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_BFSword"
+    ],
+    "description_key": "item.da_18_emblemfae.description",
+    "display_order": 80,
+    "icon": "assets/items/da_18_emblemfae.png",
+    "id": "DA_18_EmblemFae",
+    "name_key": "item.da_18_emblemfae.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [],
+    "description_key": "item.da_18_emblemflorafatalis.description",
+    "display_order": 90,
+    "icon": "assets/items/da_18_emblemflorafatalis.png",
+    "id": "DA_18_EmblemFloraFatalis",
+    "name_key": "item.da_18_emblemflorafatalis.name",
+    "tags": []
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_FryingPan",
+      "DA_Component_BFSword"
+    ],
+    "description_key": "item.da_18_emblemhunter.description",
+    "display_order": 100,
+    "icon": "assets/items/da_18_emblemhunter.png",
+    "id": "DA_18_EmblemHunter",
+    "name_key": "item.da_18_emblemhunter.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_RecurveBow"
+    ],
+    "description_key": "item.da_18_embleminferno.description",
+    "display_order": 110,
+    "icon": "assets/items/da_18_embleminferno.png",
+    "id": "DA_18_EmblemInferno",
+    "name_key": "item.da_18_embleminferno.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_FryingPan",
+      "DA_Component_TearOfTheGoddess"
+    ],
+    "description_key": "item.da_18_embleminvoker.description",
+    "display_order": 120,
+    "icon": "assets/items/da_18_embleminvoker.png",
+    "id": "DA_18_EmblemInvoker",
+    "name_key": "item.da_18_embleminvoker.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [],
+    "description_key": "item.da_18_emblemjuggernaut.description",
+    "display_order": 130,
+    "icon": "assets/items/da_18_emblemjuggernaut.png",
+    "id": "DA_18_EmblemJuggernaut",
+    "name_key": "item.da_18_emblemjuggernaut.name",
+    "tags": []
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_TearOfTheGoddess"
+    ],
+    "description_key": "item.da_18_emblemlunar.description",
+    "display_order": 140,
+    "icon": "assets/items/da_18_emblemlunar.png",
+    "id": "DA_18_EmblemLunar",
+    "name_key": "item.da_18_emblemlunar.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_SparringGloves"
+    ],
+    "description_key": "item.da_18_emblemprimal.description",
+    "display_order": 150,
+    "icon": "assets/items/da_18_emblemprimal.png",
+    "id": "DA_18_EmblemPrimal",
+    "name_key": "item.da_18_emblemprimal.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_FryingPan",
+      "DA_Component_RecurveBow"
+    ],
+    "description_key": "item.da_18_emblemrapidfire.description",
+    "display_order": 160,
+    "icon": "assets/items/da_18_emblemrapidfire.png",
+    "id": "DA_18_EmblemRapidfire",
+    "name_key": "item.da_18_emblemrapidfire.name",
+    "tags": [
+      "ebcd1bac",
+      "d8d00bcc"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_FryingPan",
+      "DA_Component_NegatronCloak"
+    ],
+    "description_key": "item.da_18_emblemslayer.description",
+    "display_order": 170,
+    "icon": "assets/items/da_18_emblemslayer.png",
+    "id": "DA_18_EmblemSlayer",
+    "name_key": "item.da_18_emblemslayer.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_FryingPan",
+      "DA_Component_NeedlesslyLargeRod"
+    ],
+    "description_key": "item.da_18_emblemspellweaver.description",
+    "display_order": 180,
+    "icon": "assets/items/da_18_emblemspellweaver.png",
+    "id": "DA_18_EmblemSpellweaver",
+    "name_key": "item.da_18_emblemspellweaver.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_NegatronCloak"
+    ],
+    "description_key": "item.da_18_emblemsprykin.description",
+    "display_order": 190,
+    "icon": "assets/items/da_18_emblemsprykin.png",
+    "id": "DA_18_EmblemSprykin",
+    "name_key": "item.da_18_emblemsprykin.name",
+    "tags": [
+      "ebcd1bac"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "EMBLEM",
+    "composition": [
+      "DA_Component_FryingPan",
+      "DA_Component_ChainVest"
+    ],
+    "description_key": "item.da_18_emblemvanguard.description",
+    "display_order": 200,
+    "icon": "assets/items/da_18_emblemvanguard.png",
+    "id": "DA_18_EmblemVanguard",
+    "name_key": "item.da_18_emblemvanguard.name",
+    "tags": [
+      "ebcd1bac",
+      "d8d00bcc"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_TearOfTheGoddess",
+      "DA_Component_NegatronCloak"
+    ],
+    "description_key": "item.da_adaptivehelm.description",
+    "display_order": 210,
+    "icon": "assets/items/da_adaptivehelm.png",
+    "id": "DA_AdaptiveHelm",
+    "name_key": "item.da_adaptivehelm.name",
+    "tags": [
+      "7ea41d13",
+      "mana",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_adaptivehelm_radiant.description",
+    "display_order": 220,
+    "icon": "assets/items/da_adaptivehelm_radiant.png",
+    "id": "DA_AdaptiveHelm_Radiant",
+    "name_key": "item.da_adaptivehelm_radiant.name",
+    "tags": [
+      "6ef5c598"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_NeedlesslyLargeRod",
+      "DA_Component_TearOfTheGoddess"
+    ],
+    "description_key": "item.da_archangelsstaff.description",
+    "display_order": 230,
+    "icon": "assets/items/da_archangelsstaff.png",
+    "id": "DA_ArchangelsStaff",
+    "name_key": "item.da_archangelsstaff.name",
+    "tags": [
+      "7ea41d13",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_archangelsstaffradiant.description",
+    "display_order": 240,
+    "icon": "assets/items/da_archangelsstaffradiant.png",
+    "id": "DA_ArchangelsStaffRadiant",
+    "name_key": "item.da_archangelsstaffradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_aegisofdawn.description",
+    "display_order": 250,
+    "icon": "assets/items/da_artifact_aegisofdawn.png",
+    "id": "DA_Artifact_AegisOfDawn",
+    "name_key": "item.da_artifact_aegisofdawn.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_aegisofdusk.description",
+    "display_order": 260,
+    "icon": "assets/items/da_artifact_aegisofdusk.png",
+    "id": "DA_Artifact_AegisOfDusk",
+    "name_key": "item.da_artifact_aegisofdusk.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_blightingjewel.description",
+    "display_order": 270,
+    "icon": "assets/items/da_artifact_blightingjewel.png",
+    "id": "DA_Artifact_BlightingJewel",
+    "name_key": "item.da_artifact_blightingjewel.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_dawncore.description",
+    "display_order": 280,
+    "icon": "assets/items/da_artifact_dawncore.png",
+    "id": "DA_Artifact_Dawncore",
+    "name_key": "item.da_artifact_dawncore.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_eternalpact.description",
+    "display_order": 290,
+    "icon": "assets/items/da_artifact_eternalpact.png",
+    "id": "DA_Artifact_EternalPact",
+    "name_key": "item.da_artifact_eternalpact.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_fishbones.description",
+    "display_order": 300,
+    "icon": "assets/items/da_artifact_fishbones.png",
+    "id": "DA_Artifact_Fishbones",
+    "name_key": "item.da_artifact_fishbones.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_forbiddenidol.description",
+    "display_order": 310,
+    "icon": "assets/items/da_artifact_forbiddenidol.png",
+    "id": "DA_Artifact_ForbiddenIdol",
+    "name_key": "item.da_artifact_forbiddenidol.name",
+    "tags": [
+      "44ace175"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_gamblersblade.description",
+    "display_order": 320,
+    "icon": "assets/items/da_artifact_gamblersblade.png",
+    "id": "DA_Artifact_GamblersBlade",
+    "name_key": "item.da_artifact_gamblersblade.name",
+    "tags": [
+      "d8d00bcc",
+      "ec243f6b",
+      "44ace175"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_goldcollector.description",
+    "display_order": 330,
+    "icon": "assets/items/da_artifact_goldcollector.png",
+    "id": "DA_Artifact_GoldCollector",
+    "name_key": "item.da_artifact_goldcollector.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_hellfirehatchet.description",
+    "display_order": 340,
+    "icon": "assets/items/da_artifact_hellfirehatchet.png",
+    "id": "DA_Artifact_HellfireHatchet",
+    "name_key": "item.da_artifact_hellfirehatchet.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_horizonfocus.description",
+    "display_order": 350,
+    "icon": "assets/items/da_artifact_horizonfocus.png",
+    "id": "DA_Artifact_HorizonFocus",
+    "name_key": "item.da_artifact_horizonfocus.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_hullcrusher.description",
+    "display_order": 360,
+    "icon": "assets/items/da_artifact_hullcrusher.png",
+    "id": "DA_Artifact_Hullcrusher",
+    "name_key": "item.da_artifact_hullcrusher.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_infinityforce.description",
+    "display_order": 370,
+    "icon": "assets/items/da_artifact_infinityforce.png",
+    "id": "DA_Artifact_InfinityForce",
+    "name_key": "item.da_artifact_infinityforce.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_lichbane.description",
+    "display_order": 380,
+    "icon": "assets/items/da_artifact_lichbane.png",
+    "id": "DA_Artifact_LichBane",
+    "name_key": "item.da_artifact_lichbane.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_lightshieldcrest.description",
+    "display_order": 390,
+    "icon": "assets/items/da_artifact_lightshieldcrest.png",
+    "id": "DA_Artifact_LightshieldCrest",
+    "name_key": "item.da_artifact_lightshieldcrest.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_ludenstempest.description",
+    "display_order": 400,
+    "icon": "assets/items/da_artifact_ludenstempest.png",
+    "id": "DA_Artifact_LudensTempest",
+    "name_key": "item.da_artifact_ludenstempest.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_manazane.description",
+    "display_order": 410,
+    "icon": "assets/items/da_artifact_manazane.png",
+    "id": "DA_Artifact_Manazane",
+    "name_key": "item.da_artifact_manazane.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_mittens.description",
+    "display_order": 420,
+    "icon": "assets/items/da_artifact_mittens.png",
+    "id": "DA_Artifact_Mittens",
+    "name_key": "item.da_artifact_mittens.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_mogulsmail.description",
+    "display_order": 430,
+    "icon": "assets/items/da_artifact_mogulsmail.png",
+    "id": "DA_Artifact_MogulsMail",
+    "name_key": "item.da_artifact_mogulsmail.name",
+    "tags": [
+      "d8d00bcc",
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_navoriflickerblade.description",
+    "display_order": 440,
+    "icon": "assets/items/da_artifact_navoriflickerblade.png",
+    "id": "DA_Artifact_NavoriFlickerblade",
+    "name_key": "item.da_artifact_navoriflickerblade.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_rapidfirecannon.description",
+    "display_order": 450,
+    "icon": "assets/items/da_artifact_rapidfirecannon.png",
+    "id": "DA_Artifact_RapidFireCannon",
+    "name_key": "item.da_artifact_rapidfirecannon.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_seekersarmguard.description",
+    "display_order": 460,
+    "icon": "assets/items/da_artifact_seekersarmguard.png",
+    "id": "DA_Artifact_SeekersArmguard",
+    "name_key": "item.da_artifact_seekersarmguard.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_silvermeredawn.description",
+    "display_order": 470,
+    "icon": "assets/items/da_artifact_silvermeredawn.png",
+    "id": "DA_Artifact_SilvermereDawn",
+    "name_key": "item.da_artifact_silvermeredawn.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_statikkshiv.description",
+    "display_order": 480,
+    "icon": "assets/items/da_artifact_statikkshiv.png",
+    "id": "DA_Artifact_StatikkShiv",
+    "name_key": "item.da_artifact_statikkshiv.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_theindomitable.description",
+    "display_order": 490,
+    "icon": "assets/items/da_artifact_theindomitable.png",
+    "id": "DA_Artifact_TheIndomitable",
+    "name_key": "item.da_artifact_theindomitable.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_titanichydra.description",
+    "display_order": 500,
+    "icon": "assets/items/da_artifact_titanichydra.png",
+    "id": "DA_Artifact_TitanicHydra",
+    "name_key": "item.da_artifact_titanichydra.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_voidgauntlet.description",
+    "display_order": 510,
+    "icon": "assets/items/da_artifact_voidgauntlet.png",
+    "id": "DA_Artifact_VoidGauntlet",
+    "name_key": "item.da_artifact_voidgauntlet.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_witsend.description",
+    "display_order": 520,
+    "icon": "assets/items/da_artifact_witsend.png",
+    "id": "DA_Artifact_WitsEnd",
+    "name_key": "item.da_artifact_witsend.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_artifact_zhonyasparadox.description",
+    "display_order": 530,
+    "icon": "assets/items/da_artifact_zhonyasparadox.png",
+    "id": "DA_Artifact_ZhonyasParadox",
+    "name_key": "item.da_artifact_zhonyasparadox.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_BFSword",
+      "DA_Component_NegatronCloak"
+    ],
+    "description_key": "item.da_bloodthirster.description",
+    "display_order": 540,
+    "icon": "assets/items/da_bloodthirster.png",
+    "id": "DA_Bloodthirster",
+    "name_key": "item.da_bloodthirster.name",
+    "tags": [
+      "7ea41d13",
+      "abilitypower",
+      "attackdamage"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_bloodthirsterradiant.description",
+    "display_order": 550,
+    "icon": "assets/items/da_bloodthirsterradiant.png",
+    "id": "DA_BloodthirsterRadiant",
+    "name_key": "item.da_bloodthirsterradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_TearOfTheGoddess",
+      "DA_Component_TearOfTheGoddess"
+    ],
+    "description_key": "item.da_bluebuff.description",
+    "display_order": 560,
+    "icon": "assets/items/da_bluebuff.png",
+    "id": "DA_BlueBuff",
+    "name_key": "item.da_bluebuff.name",
+    "tags": [
+      "7ea41d13",
+      "mana"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_bluebuffradiant.description",
+    "display_order": 570,
+    "icon": "assets/items/da_bluebuffradiant.png",
+    "id": "DA_BlueBuffRadiant",
+    "name_key": "item.da_bluebuffradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "mana"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_ChainVest",
+      "DA_Component_ChainVest"
+    ],
+    "description_key": "item.da_bramblevest.description",
+    "display_order": 580,
+    "icon": "assets/items/da_bramblevest.png",
+    "id": "DA_BrambleVest",
+    "name_key": "item.da_bramblevest.name",
+    "tags": [
+      "7ea41d13",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_bramblevestradiant.description",
+    "display_order": 590,
+    "icon": "assets/items/da_bramblevestradiant.png",
+    "id": "DA_BrambleVestRadiant",
+    "name_key": "item.da_bramblevestradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_bfsword.description",
+    "display_order": 600,
+    "icon": "assets/items/da_component_bfsword.png",
+    "id": "DA_Component_BFSword",
+    "name_key": "item.da_component_bfsword.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_chainvest.description",
+    "display_order": 610,
+    "icon": "assets/items/da_component_chainvest.png",
+    "id": "DA_Component_ChainVest",
+    "name_key": "item.da_component_chainvest.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_fryingpan.description",
+    "display_order": 620,
+    "icon": "assets/items/da_component_fryingpan.png",
+    "id": "DA_Component_FryingPan",
+    "name_key": "item.da_component_fryingpan.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_giantsbelt.description",
+    "display_order": 630,
+    "icon": "assets/items/da_component_giantsbelt.png",
+    "id": "DA_Component_GiantsBelt",
+    "name_key": "item.da_component_giantsbelt.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_needlesslylargerod.description",
+    "display_order": 640,
+    "icon": "assets/items/da_component_needlesslylargerod.png",
+    "id": "DA_Component_NeedlesslyLargeRod",
+    "name_key": "item.da_component_needlesslylargerod.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_negatroncloak.description",
+    "display_order": 650,
+    "icon": "assets/items/da_component_negatroncloak.png",
+    "id": "DA_Component_NegatronCloak",
+    "name_key": "item.da_component_negatroncloak.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_recurvebow.description",
+    "display_order": 660,
+    "icon": "assets/items/da_component_recurvebow.png",
+    "id": "DA_Component_RecurveBow",
+    "name_key": "item.da_component_recurvebow.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_sparringgloves.description",
+    "display_order": 670,
+    "icon": "assets/items/da_component_sparringgloves.png",
+    "id": "DA_Component_SparringGloves",
+    "name_key": "item.da_component_sparringgloves.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_spatula.description",
+    "display_order": 680,
+    "icon": "assets/items/da_component_spatula.png",
+    "id": "DA_Component_Spatula",
+    "name_key": "item.da_component_spatula.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "COMPONENT",
+    "composition": [],
+    "description_key": "item.da_component_tearofthegoddess.description",
+    "display_order": 690,
+    "icon": "assets/items/da_component_tearofthegoddess.png",
+    "id": "DA_Component_TearOfTheGoddess",
+    "name_key": "item.da_component_tearofthegoddess.name",
+    "tags": [
+      "component"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_NeedlesslyLargeRod",
+      "DA_Component_ChainVest"
+    ],
+    "description_key": "item.da_crownguard.description",
+    "display_order": 700,
+    "icon": "assets/items/da_crownguard.png",
+    "id": "DA_Crownguard",
+    "name_key": "item.da_crownguard.name",
+    "tags": [
+      "7ea41d13",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_crownguardradiant.description",
+    "display_order": 710,
+    "icon": "assets/items/da_crownguardradiant.png",
+    "id": "DA_CrownguardRadiant",
+    "name_key": "item.da_crownguardradiant.name",
+    "tags": [
+      "6ef5c598",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_BFSword",
+      "DA_Component_BFSword"
+    ],
+    "description_key": "item.da_deathblade.description",
+    "display_order": 720,
+    "icon": "assets/items/da_deathblade.png",
+    "id": "DA_Deathblade",
+    "name_key": "item.da_deathblade.name",
+    "tags": [
+      "7ea41d13",
+      "attackdamage"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_deathbladeradiant.description",
+    "display_order": 730,
+    "icon": "assets/items/da_deathbladeradiant.png",
+    "id": "DA_DeathbladeRadiant",
+    "name_key": "item.da_deathbladeradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "attackdamage"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_NegatronCloak",
+      "DA_Component_NegatronCloak"
+    ],
+    "description_key": "item.da_dragonsclaw.description",
+    "display_order": 740,
+    "icon": "assets/items/da_dragonsclaw.png",
+    "id": "DA_DragonsClaw",
+    "name_key": "item.da_dragonsclaw.name",
+    "tags": [
+      "7ea41d13",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_dragonsclawradiant.description",
+    "display_order": 750,
+    "icon": "assets/items/da_dragonsclawradiant.png",
+    "id": "DA_DragonsClawRadiant",
+    "name_key": "item.da_dragonsclawradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_BFSword",
+      "DA_Component_ChainVest"
+    ],
+    "description_key": "item.da_edgeofnight.description",
+    "display_order": 760,
+    "icon": "assets/items/da_edgeofnight.png",
+    "id": "DA_EdgeOfNight",
+    "name_key": "item.da_edgeofnight.name",
+    "tags": [
+      "7ea41d13",
+      "attackspeed",
+      "attackdamage"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_edgeofnightradiant.description",
+    "display_order": 770,
+    "icon": "assets/items/da_edgeofnightradiant.png",
+    "id": "DA_EdgeOfNightRadiant",
+    "name_key": "item.da_edgeofnightradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_NegatronCloak",
+      "DA_Component_GiantsBelt"
+    ],
+    "description_key": "item.da_evenshroud.description",
+    "display_order": 780,
+    "icon": "assets/items/da_evenshroud.png",
+    "id": "DA_Evenshroud",
+    "name_key": "item.da_evenshroud.name",
+    "tags": [
+      "7ea41d13",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_evenshroudradiant.description",
+    "display_order": 790,
+    "icon": "assets/items/da_evenshroudradiant.png",
+    "id": "DA_EvenshroudRadiant",
+    "name_key": "item.da_evenshroudradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_ChainVest",
+      "DA_Component_NegatronCloak"
+    ],
+    "description_key": "item.da_gargoylestoneplate.description",
+    "display_order": 800,
+    "icon": "assets/items/da_gargoylestoneplate.png",
+    "id": "DA_GargoyleStoneplate",
+    "name_key": "item.da_gargoylestoneplate.name",
+    "tags": [
+      "7ea41d13",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_gargoylestoneplate_radiant.description",
+    "display_order": 810,
+    "icon": "assets/items/da_gargoylestoneplate_radiant.png",
+    "id": "DA_GargoyleStoneplate_Radiant",
+    "name_key": "item.da_gargoylestoneplate_radiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_RecurveBow",
+      "DA_Component_BFSword"
+    ],
+    "description_key": "item.da_giantslayer.description",
+    "display_order": 820,
+    "icon": "assets/items/da_giantslayer.png",
+    "id": "DA_GiantSlayer",
+    "name_key": "item.da_giantslayer.name",
+    "tags": [
+      "7ea41d13"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_giantslayer_radiant.description",
+    "display_order": 830,
+    "icon": "assets/items/da_giantslayer_radiant.png",
+    "id": "DA_GiantSlayer_Radiant",
+    "name_key": "item.da_giantslayer_radiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_RecurveBow",
+      "DA_Component_NeedlesslyLargeRod"
+    ],
+    "description_key": "item.da_guinsoosrageblade.description",
+    "display_order": 840,
+    "icon": "assets/items/da_guinsoosrageblade.png",
+    "id": "DA_GuinsoosRageblade",
+    "name_key": "item.da_guinsoosrageblade.name",
+    "tags": [
+      "7ea41d13",
+      "attackspeed"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_guinsoosragebladeradiant.description",
+    "display_order": 850,
+    "icon": "assets/items/da_guinsoosragebladeradiant.png",
+    "id": "DA_GuinsoosRagebladeRadiant",
+    "name_key": "item.da_guinsoosragebladeradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "attackspeed"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_TearOfTheGoddess",
+      "DA_Component_SparringGloves"
+    ],
+    "description_key": "item.da_handofjustice.description",
+    "display_order": 860,
+    "icon": "assets/items/da_handofjustice.png",
+    "id": "DA_HandOfJustice",
+    "name_key": "item.da_handofjustice.name",
+    "tags": [
+      "7ea41d13",
+      "critchance"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_handofjusticeradiant.description",
+    "display_order": 870,
+    "icon": "assets/items/da_handofjusticeradiant.png",
+    "id": "DA_HandOfJusticeRadiant",
+    "name_key": "item.da_handofjusticeradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "critchance"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_BFSword",
+      "DA_Component_NeedlesslyLargeRod"
+    ],
+    "description_key": "item.da_hextechgunblade.description",
+    "display_order": 880,
+    "icon": "assets/items/da_hextechgunblade.png",
+    "id": "DA_HextechGunblade",
+    "name_key": "item.da_hextechgunblade.name",
+    "tags": [
+      "7ea41d13",
+      "abilitypower",
+      "attackdamage",
+      "heal"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_hextechgunbladeradiant.description",
+    "display_order": 890,
+    "icon": "assets/items/da_hextechgunbladeradiant.png",
+    "id": "DA_HextechGunbladeRadiant",
+    "name_key": "item.da_hextechgunbladeradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_BFSword",
+      "DA_Component_SparringGloves"
+    ],
+    "description_key": "item.da_infinityedge.description",
+    "display_order": 900,
+    "icon": "assets/items/da_infinityedge.png",
+    "id": "DA_InfinityEdge",
+    "name_key": "item.da_infinityedge.name",
+    "tags": [
+      "7ea41d13",
+      "critchance"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_infinityedgeradiant.description",
+    "display_order": 910,
+    "icon": "assets/items/da_infinityedgeradiant.png",
+    "id": "DA_InfinityEdgeRadiant",
+    "name_key": "item.da_infinityedgeradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_NeedlesslyLargeRod",
+      "DA_Component_NegatronCloak"
+    ],
+    "description_key": "item.da_ionicspark.description",
+    "display_order": 920,
+    "icon": "assets/items/da_ionicspark.png",
+    "id": "DA_IonicSpark",
+    "name_key": "item.da_ionicspark.name",
+    "tags": [
+      "7ea41d13"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_ionicsparkradiant.description",
+    "display_order": 930,
+    "icon": "assets/items/da_ionicsparkradiant.png",
+    "id": "DA_IonicSparkRadiant",
+    "name_key": "item.da_ionicsparkradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.da_item_artifact_talismanofascension.description",
+    "display_order": 940,
+    "icon": "assets/items/da_item_artifact_talismanofascension.png",
+    "id": "DA_Item_Artifact_TalismanOfAscension",
+    "name_key": "item.da_item_artifact_talismanofascension.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_SparringGloves",
+      "DA_Component_NeedlesslyLargeRod"
+    ],
+    "description_key": "item.da_jeweledgauntlet.description",
+    "display_order": 950,
+    "icon": "assets/items/da_jeweledgauntlet.png",
+    "id": "DA_JeweledGauntlet",
+    "name_key": "item.da_jeweledgauntlet.name",
+    "tags": [
+      "7ea41d13",
+      "critchance"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_jeweledgauntletradiant.description",
+    "display_order": 960,
+    "icon": "assets/items/da_jeweledgauntletradiant.png",
+    "id": "DA_JeweledGauntletRadiant",
+    "name_key": "item.da_jeweledgauntletradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "critchance"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_RecurveBow",
+      "DA_Component_NegatronCloak"
+    ],
+    "description_key": "item.da_krakensfury.description",
+    "display_order": 970,
+    "icon": "assets/items/da_krakensfury.png",
+    "id": "DA_KrakensFury",
+    "name_key": "item.da_krakensfury.name",
+    "tags": [
+      "7ea41d13",
+      "attackdamage"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_krakensfury_radiant.description",
+    "display_order": 980,
+    "icon": "assets/items/da_krakensfury_radiant.png",
+    "id": "DA_KrakensFury_Radiant",
+    "name_key": "item.da_krakensfury_radiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "attackdamage"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_RecurveBow",
+      "DA_Component_SparringGloves"
+    ],
+    "description_key": "item.da_lastwhisper.description",
+    "display_order": 990,
+    "icon": "assets/items/da_lastwhisper.png",
+    "id": "DA_LastWhisper",
+    "name_key": "item.da_lastwhisper.name",
+    "tags": [
+      "7ea41d13"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_lastwhisperradiant.description",
+    "display_order": 1000,
+    "icon": "assets/items/da_lastwhisperradiant.png",
+    "id": "DA_LastWhisperRadiant",
+    "name_key": "item.da_lastwhisperradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_GiantsBelt",
+      "DA_Component_NeedlesslyLargeRod"
+    ],
+    "description_key": "item.da_morellonomicon.description",
+    "display_order": 1010,
+    "icon": "assets/items/da_morellonomicon.png",
+    "id": "DA_Morellonomicon",
+    "name_key": "item.da_morellonomicon.name",
+    "tags": [
+      "7ea41d13",
+      "attackspeed",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_morellonomiconradiant.description",
+    "display_order": 1020,
+    "icon": "assets/items/da_morellonomiconradiant.png",
+    "id": "DA_MorellonomiconRadiant",
+    "name_key": "item.da_morellonomiconradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "attackspeed",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_RecurveBow",
+      "DA_Component_GiantsBelt"
+    ],
+    "description_key": "item.da_nashorstooth.description",
+    "display_order": 1030,
+    "icon": "assets/items/da_nashorstooth.png",
+    "id": "DA_NashorsTooth",
+    "name_key": "item.da_nashorstooth.name",
+    "tags": [
+      "7ea41d13",
+      "attackspeed",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_nashorstoothradiant.description",
+    "display_order": 1040,
+    "icon": "assets/items/da_nashorstoothradiant.png",
+    "id": "DA_NashorsToothRadiant",
+    "name_key": "item.da_nashorstoothradiant.name",
+    "tags": [
+      "6ef5c598",
+      "attackspeed",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_ChainVest",
+      "DA_Component_TearOfTheGoddess"
+    ],
+    "description_key": "item.da_protectorsvow.description",
+    "display_order": 1050,
+    "icon": "assets/items/da_protectorsvow.png",
+    "id": "DA_ProtectorsVow",
+    "name_key": "item.da_protectorsvow.name",
+    "tags": [
+      "7ea41d13",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_protectorsvowradiant.description",
+    "display_order": 1060,
+    "icon": "assets/items/da_protectorsvowradiant.png",
+    "id": "DA_ProtectorsVowRadiant",
+    "name_key": "item.da_protectorsvowradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "15b72700"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_NegatronCloak",
+      "DA_Component_SparringGloves"
+    ],
+    "description_key": "item.da_quicksilver.description",
+    "display_order": 1070,
+    "icon": "assets/items/da_quicksilver.png",
+    "id": "DA_Quicksilver",
+    "name_key": "item.da_quicksilver.name",
+    "tags": [
+      "7ea41d13",
+      "attackspeed"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_quicksilverradiant.description",
+    "display_order": 1080,
+    "icon": "assets/items/da_quicksilverradiant.png",
+    "id": "DA_QuicksilverRadiant",
+    "name_key": "item.da_quicksilverradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "attackspeed"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_NeedlesslyLargeRod",
+      "DA_Component_NeedlesslyLargeRod"
+    ],
+    "description_key": "item.da_rabadonsdeathcap.description",
+    "display_order": 1090,
+    "icon": "assets/items/da_rabadonsdeathcap.png",
+    "id": "DA_RabadonsDeathcap",
+    "name_key": "item.da_rabadonsdeathcap.name",
+    "tags": [
+      "7ea41d13",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_rabadonsdeathcap_radiant.description",
+    "display_order": 1100,
+    "icon": "assets/items/da_rabadonsdeathcap_radiant.png",
+    "id": "DA_RabadonsDeathcap_Radiant",
+    "name_key": "item.da_rabadonsdeathcap_radiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_RecurveBow",
+      "DA_Component_RecurveBow"
+    ],
+    "description_key": "item.da_redbuff.description",
+    "display_order": 1110,
+    "icon": "assets/items/da_redbuff.png",
+    "id": "DA_RedBuff",
+    "name_key": "item.da_redbuff.name",
+    "tags": [
+      "7ea41d13",
+      "attackspeed"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_redbuffradiant.description",
+    "display_order": 1120,
+    "icon": "assets/items/da_redbuffradiant.png",
+    "id": "DA_RedBuffRadiant",
+    "name_key": "item.da_redbuffradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "attackspeed"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_TearOfTheGoddess",
+      "DA_Component_BFSword"
+    ],
+    "description_key": "item.da_spearofshojin.description",
+    "display_order": 1130,
+    "icon": "assets/items/da_spearofshojin.png",
+    "id": "DA_SpearOfShojin",
+    "name_key": "item.da_spearofshojin.name",
+    "tags": [
+      "7ea41d13",
+      "mana"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_spearofshojinradiant.description",
+    "display_order": 1140,
+    "icon": "assets/items/da_spearofshojinradiant.png",
+    "id": "DA_SpearOfShojinRadiant",
+    "name_key": "item.da_spearofshojinradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "mana"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_GiantsBelt",
+      "DA_Component_TearOfTheGoddess"
+    ],
+    "description_key": "item.da_spiritvisage.description",
+    "display_order": 1150,
+    "icon": "assets/items/da_spiritvisage.png",
+    "id": "DA_SpiritVisage",
+    "name_key": "item.da_spiritvisage.name",
+    "tags": [
+      "7ea41d13",
+      "heal"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_spiritvisage_radiant.description",
+    "display_order": 1160,
+    "icon": "assets/items/da_spiritvisage_radiant.png",
+    "id": "DA_SpiritVisage_Radiant",
+    "name_key": "item.da_spiritvisage_radiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "heal"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_ChainVest",
+      "DA_Component_SparringGloves"
+    ],
+    "description_key": "item.da_steadfastheart.description",
+    "display_order": 1170,
+    "icon": "assets/items/da_steadfastheart.png",
+    "id": "DA_SteadfastHeart",
+    "name_key": "item.da_steadfastheart.name",
+    "tags": [
+      "7ea41d13"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_steadfastheartradiant.description",
+    "display_order": 1180,
+    "icon": "assets/items/da_steadfastheartradiant.png",
+    "id": "DA_SteadfastHeartRadiant",
+    "name_key": "item.da_steadfastheartradiant.name",
+    "tags": [
+      "6ef5c598"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_BFSword",
+      "DA_Component_GiantsBelt"
+    ],
+    "description_key": "item.da_steraksgage.description",
+    "display_order": 1190,
+    "icon": "assets/items/da_steraksgage.png",
+    "id": "DA_SteraksGage",
+    "name_key": "item.da_steraksgage.name",
+    "tags": [
+      "7ea41d13",
+      "attackdamage"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_steraksgageradiant.description",
+    "display_order": 1200,
+    "icon": "assets/items/da_steraksgageradiant.png",
+    "id": "DA_SteraksGageRadiant",
+    "name_key": "item.da_steraksgageradiant.name",
+    "tags": [
+      "6ef5c598",
+      "attackdamage"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_GiantsBelt",
+      "DA_Component_SparringGloves"
+    ],
+    "description_key": "item.da_strikersflail.description",
+    "display_order": 1210,
+    "icon": "assets/items/da_strikersflail.png",
+    "id": "DA_StrikersFlail",
+    "name_key": "item.da_strikersflail.name",
+    "tags": [
+      "7ea41d13",
+      "critchance"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_strikersflailradiant.description",
+    "display_order": 1220,
+    "icon": "assets/items/da_strikersflailradiant.png",
+    "id": "DA_StrikersFlailRadiant",
+    "name_key": "item.da_strikersflailradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "critchance"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_ChainVest",
+      "DA_Component_GiantsBelt"
+    ],
+    "description_key": "item.da_sunfirecape.description",
+    "display_order": 1230,
+    "icon": "assets/items/da_sunfirecape.png",
+    "id": "DA_SunfireCape",
+    "name_key": "item.da_sunfirecape.name",
+    "tags": [
+      "7ea41d13",
+      "health"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_sunfirecape_radiant.description",
+    "display_order": 1240,
+    "icon": "assets/items/da_sunfirecape_radiant.png",
+    "id": "DA_SunfireCape_Radiant",
+    "name_key": "item.da_sunfirecape_radiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_FryingPan"
+    ],
+    "description_key": "item.da_tacticianscape.description",
+    "display_order": 1250,
+    "icon": "assets/items/da_tacticianscape.png",
+    "id": "DA_TacticiansCape",
+    "name_key": "item.da_tacticianscape.name",
+    "tags": [
+      "ec243f6b",
+      "d304f83b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_Spatula",
+      "DA_Component_Spatula"
+    ],
+    "description_key": "item.da_tacticianscrown.description",
+    "display_order": 1260,
+    "icon": "assets/items/da_tacticianscrown.png",
+    "id": "DA_TacticiansCrown",
+    "name_key": "item.da_tacticianscrown.name",
+    "tags": [
+      "ec243f6b",
+      "d304f83b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_FryingPan",
+      "DA_Component_FryingPan"
+    ],
+    "description_key": "item.da_tacticiansshield.description",
+    "display_order": 1270,
+    "icon": "assets/items/da_tacticiansshield.png",
+    "id": "DA_TacticiansShield",
+    "name_key": "item.da_tacticiansshield.name",
+    "tags": [
+      "ec243f6b",
+      "d304f83b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_SparringGloves",
+      "DA_Component_SparringGloves"
+    ],
+    "description_key": "item.da_thiefsgloves.description",
+    "display_order": 1280,
+    "icon": "assets/items/da_thiefsgloves.png",
+    "id": "DA_ThiefsGloves",
+    "name_key": "item.da_thiefsgloves.name",
+    "tags": [
+      "7ea41d13",
+      "2905e581",
+      "218b53a5"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_thiefsglovesradiant.description",
+    "display_order": 1290,
+    "icon": "assets/items/da_thiefsglovesradiant.png",
+    "id": "DA_ThiefsGlovesRadiant",
+    "name_key": "item.da_thiefsglovesradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "2905e581",
+      "218b53a5"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_RecurveBow",
+      "DA_Component_ChainVest"
+    ],
+    "description_key": "item.da_titansresolve.description",
+    "display_order": 1300,
+    "icon": "assets/items/da_titansresolve.png",
+    "id": "DA_TitansResolve",
+    "name_key": "item.da_titansresolve.name",
+    "tags": [
+      "7ea41d13",
+      "15b72700",
+      "attackdamage",
+      "abilitypower"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_titansresolve_radiant.description",
+    "display_order": 1310,
+    "icon": "assets/items/da_titansresolve_radiant.png",
+    "id": "DA_TitansResolve_Radiant",
+    "name_key": "item.da_titansresolve_radiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_RecurveBow",
+      "DA_Component_TearOfTheGoddess"
+    ],
+    "description_key": "item.da_voidstaff.description",
+    "display_order": 1320,
+    "icon": "assets/items/da_voidstaff.png",
+    "id": "DA_VoidStaff",
+    "name_key": "item.da_voidstaff.name",
+    "tags": [
+      "7ea41d13"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_voidstaffradiant.description",
+    "display_order": 1330,
+    "icon": "assets/items/da_voidstaffradiant.png",
+    "id": "DA_VoidStaffRadiant",
+    "name_key": "item.da_voidstaffradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "CRAFTABLE",
+    "composition": [
+      "DA_Component_GiantsBelt",
+      "DA_Component_GiantsBelt"
+    ],
+    "description_key": "item.da_warmogsarmor.description",
+    "display_order": 1340,
+    "icon": "assets/items/da_warmogsarmor.png",
+    "id": "DA_WarmogsArmor",
+    "name_key": "item.da_warmogsarmor.name",
+    "tags": [
+      "7ea41d13",
+      "health"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "RADIANT",
+    "composition": [],
+    "description_key": "item.da_warmogsarmorradiant.description",
+    "display_order": 1350,
+    "icon": "assets/items/da_warmogsarmorradiant.png",
+    "id": "DA_WarmogsArmorRadiant",
+    "name_key": "item.da_warmogsarmorradiant.name",
+    "tags": [
+      "6ef5c598",
+      "ec243f6b",
+      "health"
+    ]
+  },
+  {
+    "associated_traits": [],
+    "category": "ARTIFACT",
+    "composition": [],
+    "description_key": "item.tft4_item_ornndeathsdefiance.description",
+    "display_order": 1360,
+    "icon": "assets/items/tft4_item_ornndeathsdefiance.png",
+    "id": "TFT4_Item_OrnnDeathsDefiance",
+    "name_key": "item.tft4_item_ornndeathsdefiance.name",
+    "tags": [
+      "44ace175",
+      "ec243f6b"
+    ]
+  }
+]

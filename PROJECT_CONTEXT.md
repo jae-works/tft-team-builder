@@ -17,7 +17,7 @@ This is the first document another developer or AI instance should read before c
 11. `BLOCK_04_PLAN.md` for the implemented initial GUI behavior contract
 12. `BLOCK_05_PLAN.md` for the implemented desktop interaction behavior contract
 13. `BLOCK_06_PLAN.md` for the implemented Team-library behavior contract
-14. `BLOCK_07_PLAN.md` and `BLOCK_07_DATA_COMPLETION_PLAN.md` for the active real-Set-data work
+14. `BLOCK_07_PLAN.md`, `BLOCK_07_DATA_COMPLETION_PLAN.md` and `BLOCK_07_POST_DATA_HARDENING_PLAN.md` for the active real-Set-data work
 15. `src/assets/sets/README.md`
 16. `set_sources/README.md`
 
@@ -27,7 +27,7 @@ This is the first document another developer or AI instance should read before c
 - Current version: 0.7.0.
 - Blocks 1, 2 and 3 are implemented. The user Windows-verified the 0.3.0 Block 3 runtime behavior: 529 tests at 100 percent statement/branch coverage, Set and database smoke tests, Builder smoke and Flet startup all passed.
 - That Windows run found only two Ruff lint findings in `tests/test_trait_engine.py` after Ruff formatted four files. Version 0.3.1 applies both exact lint corrections and expands the semantic/integration audit to 537 tests while retaining the 100 percent production coverage gate.
-- Block 7 data-completion Part 3 acquisition code is verified on Set schema v5: the pinned Set 18 roster remains 91 raw Champion records -> 65 logical Champions, the reviewed Item boundary remains 136 references, and Trait summaries/breakpoint effects are localized plain text with Patch 18.3 overrides. All runtime icons now come from 12 pinned Riot Data Dragon sprite sheets; the complete 246-asset package shape validates in an offline synthetic-source harness. Only the official networked sprite/source-lock run remains before Part 4.
+- Block 7 post-data hardening Part 1 now includes the audit corrections and is ready for Windows verification: production acquisition uses individual Data Dragon `image.full` assets for ordinary records plus generic CommunityDragon `squareIcon` assets for distinct dynamic variants; board usage sums Set-declared `board_slots`; Lux is PER_CHAMPION; new/refreshed source locks publish only after a successful package build. The local suite is 679 tests at 100 percent statement/branch coverage.
 - Blocks 4, 5 and 6 are implemented. Version 0.7.0 is the post-Windows Block 6 correction: the v0.6.1 Windows run passed 623 normal tests at 100 percent coverage but exposed three Ruff F401 findings, formatter/EOF drift, and a packaged Flet/Flutter exit-code-79 failure. The correction removes those source hygiene findings, validates Sets once at startup, caches immutable `LoadedSet` ID maps, improves real-data Library naming/result-density behavior, and closes Flet 1.0.1 RemoteTester writers in the integration-test compatibility shim before upstream cleanup drops them. The normal local suite is 627 tests at 100 percent statement/branch coverage. Exact Ruff 0.16.9 and packaged Windows Flet verification of v0.7.0 remain release gates.
 
 ## Source of truth
@@ -48,7 +48,7 @@ This is the first document another developer or AI instance should read before c
 - `BLOCK_05_REPORT.md` records Block 5 implementation/test evidence.
 - `BLOCK_06_PLAN.md` is the implemented Team-library behavior contract.
 - `BLOCK_06_REPORT.md` records Block 6 implementation/test evidence.
-- `BLOCK_07_PLAN.md` is the prepared real-Set-data pipeline contract for the next block.
+- `BLOCK_07_PLAN.md` defines the original real-Set-data pipeline contract; `BLOCK_07_POST_DATA_HARDENING_PLAN.md` is the active correction plan after the first official Windows acquisition audit.
 
 These files are part of the project. They are not chat-only notes.
 
@@ -166,7 +166,7 @@ Version 0.4.0 introduced the first functional Builder GUI; version 0.4.1 polishe
 
 Version 0.5.0 added Champion/Trait search, Trait-click filtering, native Flet drag/drop translation, dynamic Trait editing and desktop keyboard shortcuts while keeping all mutations in TeamEditor. Version 0.5.1 is the post-Windows correction/audit: the packaged entry module now starts Flet when imported by device-mode tests, the two real Ruff E731 findings are removed, repeated Set lookup dictionaries are cached once per BuilderView, and one unused catalog helper was removed. `move_champion_to_end()` remains the dense trailing-drop primitive, `set_champion_trait_selection()` is the PER_CHAMPION dynamic edit primitive, and `validate_dynamic_selection()` is the shared rule validator.
 
-Block 6 is implemented and audited. Library search/ranking remains Flet-independent, Library aggregate reads are bounded/cached, and Block 7 is the next implementation target described in `BLOCK_07_PLAN.md`.
+Block 6 is implemented and audited. Library search/ranking remains Flet-independent and Library aggregate reads are bounded/cached. Block 7 is implemented through the data-completion handoff, and the active post-data corrections are tracked in `BLOCK_07_POST_DATA_HARDENING_PLAN.md`.
 
 ## Block 7 corrected Set 18 semantics
 
@@ -175,8 +175,17 @@ The Set 18 pipeline uses schema v5. Elder Dragon consumes 2 board slots and cont
 
 ## Block 7 data-completion handoff
 
-Part 1 reconciles the pinned Set 18 payload before live asset acquisition. The importer expects 91 raw Champion records, normalizes them to 65 logical Champions, and explicitly excludes 17 helper/encounter/pseudo-unit records. Lux is one logical Champion backed by ten upstream records (base plus nine origins); `dynamic_traits.choice_images` maps each origin Trait to its reviewed Set-owned portrait. Kha'Zix stays one logical Champion with four optional evolution Traits and base-portrait fallback. Repeated Item recipe components are valid and preserved. Part 2 fixes the 136-reference Item boundary and localized breakpoint text. Part 3 now indexes Data Dragon by stable record ID and acquires visible assets from 12 shared pinned Riot sprite sheets; the full package shape has been transactionally built and validated with synthetic sprite bytes because this sandbox cannot reach the asset CDN directly. See `BLOCK_07_DATA_COMPLETION_PLAN.md`.
+Part 1 reconciles the pinned Set 18 payload before live asset acquisition. The importer expects 91 raw Champion records, normalizes them to 65 logical Champions, and explicitly excludes 17 helper/encounter/pseudo-unit records. Lux is one logical Champion backed by ten upstream records (base plus nine origins); `dynamic_traits.choice_images` maps each origin Trait to its reviewed Set-owned portrait. Kha'Zix stays one logical Champion with four optional evolution Traits and base-portrait fallback. Repeated Item recipe components are valid and preserved. Part 2 fixes the 136-reference Item boundary and localized breakpoint text. Release acquisition now uses individual Riot Data Dragon images for ordinary assets and configured CommunityDragon variant portraits rather than untrusted TFT sprite coordinates. See `BLOCK_07_DATA_COMPLETION_PLAN.md`.
 
 ## Current Set-data handoff
 
-Block 7 data-completion Parts 1-4 are implemented. The reviewed Set-18 shape and GUI edge assumptions are frozen in `SET_18_ENCHANTED_WILDS_CHECKLIST.md` and `SET_18_GUI_HCI_HANDOFF.md`. The final networked verification must acquire the 12 official Riot Data Dragon sprite sheets, generate the real `enchanted_wilds` package/source lock, run `verify_enchanted_wilds.py`, and then proceed to the separate general Ruff/build/Flet correction pass.
+Block 7 data-completion Parts 1-4 are implemented and the corrected Windows acquisition has generated the real `enchanted_wilds` package plus source lock. The reviewed Set-18 shape and GUI edge assumptions are frozen in `SET_18_ENCHANTED_WILDS_CHECKLIST.md` and `SET_18_GUI_HCI_HANDOFF.md`. Generic package validation and the Set-18 reviewed verifier pass on the official-byte package.
+
+
+## Block 7 post-data hardening audit
+
+The first networked Windows acquisition proved that the synthetic atlas harness was insufficient: the run stopped at `DA_CrimsonRaptor18` before a runtime package existed. The corrected acquisition uses individual Riot TFT `image.full` assets for ordinary records and source-record CommunityDragon `squareIcon` paths for distinct dynamic variant portraits; atlas rectangles are no longer a production dependency. The subsequent official-byte Windows acquisition completed successfully and produced the current real package plus source lock.
+
+Special-rule audit: Elder Dragon data correctly declares 2 board slots and +2 Riftbeast, and the Builder calculates board usage generically by summing `board_slots`; one Champion card remains one logical instance. Kha'Zix PER_CHAMPION evolution, Rival exact-one base activation and Eclipse 3 Solar + 3 Lunar derivation remain sound. Lux remains one logical Avatar with a +2 chosen origin and now uses PER_CHAMPION scope so duplicate copies in one List cannot disagree.
+
+`load_set_directory()` remains the generic package validator. `tft_builder.source_verification` now adds reusable complete provenance/source-lock comparison for future Sets, and `verify_enchanted_wilds.py` reuses that comparison while adding only Set-18-specific semantic facts. See `BLOCK_07_POST_DATA_HARDENING_PLAN.md`.

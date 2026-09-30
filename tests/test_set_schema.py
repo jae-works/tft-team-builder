@@ -331,8 +331,6 @@ def test_source_manifest_rejects_invalid_sha256() -> None:
         )
 
 
-
-
 def test_source_manifest_rejects_duplicate_source_ids() -> None:
     source = {
         "id": "source",
@@ -351,6 +349,7 @@ def test_source_manifest_rejects_duplicate_source_ids() -> None:
             asset_sha256={},
             sources=[source, source],
         )
+
 
 def test_champion_cost_rejects_numeric_string_coercion() -> None:
     with pytest.raises(ValidationError):

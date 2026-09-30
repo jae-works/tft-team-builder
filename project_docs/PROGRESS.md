@@ -1,8 +1,8 @@
 # TFT Team Builder - Progress
 
 Current version: 0.7.0
-Current status: Block 7 post-data hardening Part 1 corrections are implemented and locally verified; the next gate is the user Windows run. Release acquisition now uses individual Riot Data Dragon `image.full` assets for ordinary visible records and each variant source record's CommunityDragon `squareIcon` for dynamic portraits. Elder Dragon board usage is data-driven from `board_slots`, Lux uses one PER_CHAMPION origin per List, and a new/refreshed source lock is published only after a successful package build.
-Next planned work: the user Windows Part-1 verification closes any remaining concrete correction bugs. Parts 3-4 then generalize provenance verification, expand mutation/contract tests and run deterministic Windows/Flet/HCI gates.
+Current status: Block 7 Parts 2-3 remain Windows-verified for normal tests/data/provenance. The second clean packaged Windows rerun still fails before Flet startup because `_pydantic_core` is absent after packaging; this handoff disables package cleanup only on Windows and adds staging plus final-bundle diagnostics.
+Next planned work: verify this targeted Windows packaging correction from a clean `build/` directory. Only after packaged startup is green should the remaining Part 4 reproducibility, image-sanity and real-GUI/HCI confidence checks continue.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
 
@@ -464,3 +464,31 @@ Part 3 provenance/test hardening:
 - [x] Add mutation coverage for reviewed special semantics, Team Planner mappings, Item/source counts, locale markup, asset inventory and provenance drift.
 - [x] Local normal suite passes 689 tests with 3,024 production statements and 922 branches at 100 percent statement/branch coverage.
 - [ ] Part 4 remains: exact Windows Ruff rerun, clean/warm-cache reproducibility, lightweight image sanity, Flet/GUI/HCI smoke and Block 8 preparation.
+
+### Packaged runtime correction after Parts 2-3 Windows gate
+
+- [x] User Windows gate passed 689 normal tests at 100 percent statement/branch coverage, generic provenance verification and Set-18 review verification.
+- [x] `ruff check` passed; the sole remaining Ruff formatter finding in `tests/test_set_schema.py` is corrected in this handoff.
+- [x] Identified the packaged Flet failure from the built app traceback: Pydantic loads, but `pydantic_core._pydantic_core` is missing from the embedded Windows runtime.
+- [x] Declare `pydantic-core==2.46.5` directly as a runtime dependency instead of rewriting schema validation or patching generated build files.
+- [x] Add a small Windows bundle verifier for the Serious Python `site-packages` + `DLLs/_pydantic_core*.pyd` contract.
+- [x] Local normal suite passes 692 tests with 3,041 production statements and 930 branches at 100 percent statement/branch coverage.
+- [x] Second clean Windows rerun confirmed the direct dependency alone is insufficient: normal uv installs `pydantic-core==2.46.5`, but the packaged app still imports `pydantic_core/__init__.py` without `_pydantic_core`.
+- [x] The same run passed 692 normal tests at 100 percent statement/branch coverage and `ruff check`; it also exposed three Ruff-format-only files and four mirrored-document EOF whitespace findings.
+- [x] Disable Flet package cleanup only for Windows, preserve the native wheel through staging, and add separate staging/final native-extension diagnostics.
+- [x] Make the CI Windows packaging diagnostic run even after packaged Flet failure so the failed stage is observable.
+- [x] Apply the exact three formatter changes and remove the four reported EOF blank-line findings.
+- [ ] Re-run the packaged Flet Windows integration from a clean `build/` directory and confirm both staging and final-bundle checks pass.
+- [ ] Finish the remaining Part 4 reproducibility/image/HCI confidence gates only after packaged startup is green.
+
+## Block 7 post-data hardening Part 4 implementation
+
+- [x] Windows evidence now distinguishes the packaged-test harness from the application: the clean packaged run staged `_pydantic_core.cp313-win_amd64.pyd`, reached the real Library with no startup-error control, and the normal `flet run` path loaded both real Sets successfully.
+- [x] Packaged Flet tests rebuild disposable Serious Python staging on every session so a prior packaging pass cannot poison a rerun.
+- [x] The staging checker now validates the startup-critical native `.pyd` artifact instead of pure-Python markers that packaging may consume after the temporary app is assembled.
+- [x] The Flet 1.0.1 end-to-end smoke uses visible text/tooltips for readiness/navigation while unit tests retain detailed key-based UI coverage.
+- [x] Set-18 verifier adds PNG structure/dimension inventory and exact duplicate-group sanity; only the source-confirmed Spirit Visage/Radiant pair is accepted as byte-identical.
+- [x] Added a generic validated Set-package comparison CLI for the final clean-cache/warm-cache reproducibility run.
+- [x] Cross-platform direction is now explicit: Windows is the primary blocking target; macOS, Linux, Android, iOS and Web are long-term targets that require dedicated platform gates.
+- [x] Prepared `BLOCK_08_PLAN.md` for Team Planner and native import/export work.
+- [ ] User-run final Part-4 Windows gate: repeat packaged Flet test, real `flet build windows`/bundle check, clean/warm acquisition comparison and manual Set-18 HCI smoke.

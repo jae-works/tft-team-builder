@@ -12,6 +12,7 @@ dependencies = [
     "flet==1.0.1",
     "platformdirs==4.11.15",
     "pydantic==2.13.5",
+    "pydantic-core==2.46.5",
 ]
 
 [tool.uv]
@@ -43,6 +44,12 @@ product = "TFT Team Builder"
 [tool.flet.app]
 path = "src"
 module = "main"
+
+# The verified Windows failure loses pydantic-core's native extension during packaging.
+# Preserve installed package files on Windows so the native wheel can reach Serious Python's
+# relocation step; staging and final-bundle gates verify the result explicitly.
+[tool.flet.windows.cleanup]
+packages = false
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

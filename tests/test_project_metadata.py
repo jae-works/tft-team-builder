@@ -11,10 +11,7 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
     with (project_root / "pyproject.toml").open("rb") as handle:
         project_version = tomllib.load(handle)["project"]["version"]
     assert payload["version"] == project_version
-    assert (
-        payload["current_state"]
-        == "block_7_post_data_hardening_part_3_local_verified_pending_windows_verification"
-    )
+    assert payload["current_state"] == "block_7_part_4_implementation_complete_pending_windows_gate"
     assert payload["current_block"] == 7
     assert payload["next_block"] == 7
 
@@ -48,6 +45,7 @@ def test_manifest_includes_current_block_plans_and_report(project_root: Path) ->
         "BLOCK_06_REPORT.md",
         "BLOCK_07_PLAN.md",
         "BLOCK_07_DATA_COMPLETION_PLAN.md",
+        "BLOCK_08_PLAN.md",
     ):
         assert filename in payload["required_project_documents"]
         assert filename in payload["mirrored_project_documents"]
@@ -84,11 +82,11 @@ def test_manifest_records_required_engineering_language_policy(project_root: Pat
 def test_manifest_records_current_verification(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     verification = payload["verification"]
-    assert verification["pytest_passed"] == 689
+    assert verification["pytest_passed"] == 698
     assert verification["statement_coverage_percent"] == 100.0
     assert verification["branch_coverage_percent"] == 100.0
-    assert verification["production_statements"] == 3024
-    assert verification["production_branches"] == 922
+    assert verification["production_statements"] == 3053
+    assert verification["production_branches"] == 934
     assert verification["compileall_passed"] is True
     assert verification["ascii_policy_passed"] is True
     assert verification["sample_set_regenerated"] is True
@@ -253,14 +251,25 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_7_post_data_part_3_complete_set18_fixture_verified"] is True
     assert verification["block_7_post_data_part_3_mutation_tests_verified"] is True
     assert verification["block_7_post_data_part_3_local_pytest_passed"] == 689
+    assert verification["block_7_packaged_runtime_fix_local_pytest_passed"] == 692
+    assert verification["block_7_packaged_runtime_fix_pending_windows"] is True
+    assert verification["block_7_packaged_runtime_direct_dependency_windows_failed"] is True
+    assert verification["block_7_packaged_runtime_windows_cleanup_disabled"] is True
+    assert verification["block_7_packaged_runtime_staging_verifier_added"] is True
+    assert verification["block_7_post_data_part_4_implementation_complete"] is True
+    assert verification["windows_0_7_0_packaged_runtime_pytest_passed"] == 692
+    assert verification["windows_0_7_0_packaged_runtime_flet_exit_code"] == 79
+    assert verification["windows_0_7_0_packaged_runtime_ruff_format_drift_files"] == 3
+    assert verification["windows_0_7_0_packaged_runtime_git_diff_check_passed"] is False
 
 
-def test_manifest_records_deferred_cross_platform_direction(project_root: Path) -> None:
+def test_manifest_records_windows_first_cross_platform_direction(project_root: Path) -> None:
     payload = json.loads((project_root / "PROJECT_MANIFEST.json").read_text(encoding="utf-8"))
     platform = payload["platform_strategy"]
-    assert platform["required_first_target"] == "Windows desktop"
-    assert platform["browser"] == "deferred possible target"
-    assert platform["mobile_tablet"] == "deferred possible target"
+    assert platform["primary_blocking_target"] == "Windows desktop"
+    assert platform["secondary_targets"] == ["macOS", "Linux", "Android", "iOS", "Web"]
+    assert platform["secondary_targets_currently_non_blocking"] is True
+    assert platform["support_requires_platform_verification"] is True
     assert platform["core_must_remain_ui_independent"] is True
 
 

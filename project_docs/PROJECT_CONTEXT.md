@@ -96,12 +96,7 @@ See `DECISIONS.md` before changing this baseline.
 
 ## Current product scope
 
-The target is a Windows desktop TFT Team Builder and local Team library.
-
-Deferred platform targets, not current implementation scope:
-
-- browser deployment;
-- mobile/tablet deployment;
+The current blocking target is the Windows desktop TFT Team Builder and local Team library. The long-term product target also includes macOS, Linux, Android, iOS and Web once each target passes its own packaging/runtime verification. Non-Windows work is currently secondary and non-blocking.
 
 Explicitly out of scope unless Requirements are changed later:
 - hex board view;
@@ -118,7 +113,7 @@ Explicitly out of scope unless Requirements are changed later:
 
 ## Platform direction
 
-Windows desktop is the mandatory first release target. Browser and mobile/tablet builds remain possible future targets. They are not current deliverables. Keep core logic, persistence services and Set handling independent from Flet controls so platform work can be revisited without rewriting the domain layer.
+Windows desktop is the mandatory first release target and primary development gate. macOS, Linux, Android, iOS and Web are explicit later targets, but they are not current blocking deliverables. Keep core logic, persistence services and Set handling independent from Flet controls so platform work can be revisited without rewriting the domain layer.
 
 Flet remains the selected UI framework after Block 1 review because it supports Windows today and has official web, Android and iOS build paths. Future browser work should evaluate dynamic web before static Pyodide deployment when persistence or native Python packages are involved. Pydantic uses the native `pydantic-core` package, so exact Flet mobile wheel compatibility must be rechecked before Android/iOS support is declared.
 
@@ -189,3 +184,7 @@ The first networked Windows acquisition proved that the synthetic atlas harness 
 Special-rule audit: Elder Dragon data correctly declares 2 board slots and +2 Riftbeast, and the Builder calculates board usage generically by summing `board_slots`; one Champion card remains one logical instance. Kha'Zix PER_CHAMPION evolution, Rival exact-one base activation and Eclipse 3 Solar + 3 Lunar derivation remain sound. Lux remains one logical Avatar with a +2 chosen origin and now uses PER_CHAMPION scope so duplicate copies in one List cannot disagree.
 
 `load_set_directory()` remains the generic package validator. `tft_builder.source_verification` now adds reusable complete provenance/source-lock comparison for future Sets, and `verify_enchanted_wilds.py` reuses that comparison while adding only Set-18-specific semantic facts. See `BLOCK_07_POST_DATA_HARDENING_PLAN.md`.
+
+## Current Block 7 packaged-runtime gate
+
+The real Enchanted Wilds dataset, source lock, generic provenance verifier and Set-18 verifier are committed and Windows-verified. Two clean packaged Flet runs now isolate the remaining release blocker: embedded Pydantic reaches `pydantic_core/__init__.py` from `build/site-packages`, but `_pydantic_core` is missing before application startup. Making `pydantic-core==2.46.5` a direct dependency did not change that packaging outcome. The clean Windows rerun proved `_pydantic_core.cp313-win_amd64.pyd` is staged, and the packaged process reached the real Library without the application startup error. Repeat runs exposed two test-harness issues rather than a Set/runtime defect: Serious Python staging is disposable after packaging, and Flet 1.0.1 packaged tests do not reliably expose the expected Python TextField key. Part 4 now rebuilds staging per Flet test session, uses visible user-facing semantics for the packaged smoke, retains a separate final Windows `DLLs` bundle gate, and adds image/reproducibility checks. The latest Windows normal suite passed 694 tests at 100 percent statement/branch coverage; the final external Windows packaged/release gate remains pending.

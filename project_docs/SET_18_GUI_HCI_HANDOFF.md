@@ -63,3 +63,7 @@ The final GUI verification should explicitly cover:
 Elder Dragon should render as one Champion card/instance. Its special rule affects board-capacity usage, not visual/list identity: board usage must sum each placed Champion definition's `board_slots` value, so Elder Dragon contributes 2 while ordinary units contribute 1. Do not represent this by inserting a duplicate hidden/visible Slot.
 
 Lux duplicate-origin behavior is under final Part 2 review. The UI must follow the eventual Set-level selection scope and must never allow two duplicate Lux instances to display conflicting origins if the reviewed mechanic requires one shared Avatar origin.
+
+## Part-4 real GUI smoke
+
+Before leaving Block 7, verify the real Enchanted Wilds package on Windows with these data-driven cases: Lux changes portrait and contributes two points to one selected origin; duplicate Lux copies share the PER_CHAMPION selection; Kha'Zix can remain unevolved or show one of four evolution Traits while keeping the base portrait; Elder Dragon remains one visual Champion while board usage increases by two and Riftbeast increases by exactly two; Rival activates only at the reviewed exact-one base state; Eclipse appears only after the derived 3 Lunar plus 3 Solar condition. Repeat the check with the German locale stress labels and a dense five-breakpoint Trait. These are smoke cases, not Champion-name branches to add to the UI.

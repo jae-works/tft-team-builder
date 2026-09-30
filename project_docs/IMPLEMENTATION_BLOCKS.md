@@ -184,9 +184,9 @@ User-test goal:
 - Lists can be exchanged with TFT's Team Planner where supported.
 - Complete Teams can be exported and re-imported exactly.
 
-## Deferred platform work after desktop v1.0
+## Cross-platform expansion after the Windows-first release gate
 
-Browser and mobile/tablet support are not part of the current nine-block desktop release plan, but they remain valid future directions. Any future platform block must re-evaluate persistence, filesystem behavior, UI layout, packaging, dependency compatibility, security and licensing for that target. Flet is retained partly because it provides official web, Android and iOS build paths.
+Windows is the current blocking target, but the long-term product goal includes macOS, Linux, Android, iOS and Web. These targets remain non-blocking until dedicated platform work begins. Each platform must re-evaluate persistence, filesystem behavior, UI layout, packaging, native dependency compatibility, security and licensing before support is declared. Flet is retained partly because it provides official desktop, mobile and web build paths.
 
 ## Block 9 - Hardening, recovery, performance, Windows packaging and v1.0 release candidate
 

@@ -855,6 +855,7 @@ dependencies = [
     { name = "flet" },
     { name = "platformdirs" },
     { name = "pydantic" },
+    { name = "pydantic-core" },
 ]
 
 [package.dev-dependencies]
@@ -877,6 +878,7 @@ requires-dist = [
     { name = "flet", specifier = "==1.0.1" },
     { name = "platformdirs", specifier = "==4.11.15" },
     { name = "pydantic", specifier = "==2.13.5" },
+    { name = "pydantic-core", specifier = "==2.46.5" },
 ]
 
 [package.metadata.requires-dev]

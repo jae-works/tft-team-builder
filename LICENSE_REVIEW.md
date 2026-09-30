@@ -18,6 +18,7 @@ Current reviewed direct runtime dependencies:
 
 - Flet 1.0.1: Apache-2.0.
 - Pydantic 2.13.5: MIT.
+- pydantic-core 2.46.5: MIT.
 - platformdirs 4.11.15: MIT.
 
 These licenses are permissive and do not currently block the planned Windows desktop distribution model.

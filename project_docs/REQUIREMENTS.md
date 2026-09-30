@@ -12,8 +12,9 @@ Legend:
 ## Core
 - [x] Python desktop application for Windows.
 - [x] Flet GUI.
-- [x] Windows desktop is the required first release target.
-- [x] Browser and mobile/tablet support are deferred future targets, not removed from the long-term project direction.
+- [x] Windows desktop is the required first release target and the primary development/verification platform.
+- [x] The long-term product target is cross-platform: Windows, macOS, Linux, Android, iOS and Web where the pinned Flet/Serious Python stack and direct dependencies support the target.
+- [x] Non-Windows targets are currently secondary and non-blocking; support is declared per platform only after a dedicated build/runtime/data-path test on that platform.
 - [x] Core game/build logic, Set logic and persistence boundaries must remain independent from Flet widgets so future platform/UI changes do not require a core rewrite.
 - [x] Core builder and Trait logic are independent from GUI code without unnecessary abstraction layers.
 - [x] Local-first; no account or cloud required.
@@ -59,8 +60,9 @@ Legend:
 - [x] `platformdirs` is used only as a platform-native writable-path fallback; Flet-provided storage paths take priority inside packaged Flet applications.
 - [x] `pathlib` is used for filesystem path construction and operations; `os.environ` is used only for the separate job of reading environment variables.
 - [x] Static browser deployment is not assumed to be compatible with future persistence dependencies; any future browser target must be evaluated separately.
-- [ ] If browser deployment is implemented, evaluate Flet dynamic web first because it preserves normal server-side Python package compatibility.
-- [ ] If mobile deployment is implemented, re-run dependency, filesystem, persistence, packaging and license compatibility tests for Android/iOS before declaring support.
+- [ ] Before declaring Web support, verify the chosen Flet web mode, persistence/filesystem behavior and the availability of every required Python dependency for that mode.
+- [ ] Before declaring Android/iOS support, re-run dependency, filesystem, persistence, packaging and license compatibility tests on each target.
+- [ ] Before declaring macOS/Linux support, perform native packaging, writable-path, SQLite, asset and startup tests on each target.
 
 ## Licensing and public distribution
 - [x] `LICENSE_REVIEW.md` records the current direct dependency license review and release gates.
@@ -355,11 +357,12 @@ Legend:
 - [x] Detailed core undo/redo tests.
 - [ ] Import/export round-trip tests.
 - [x] Persistence and migration tests.
-- [x] Startup/developer smokes cover core blocks and Block 4 includes a packaged Flet integration smoke suite with stable control keys; packaged Flet driver coverage is disabled separately because application coverage is enforced by the normal suite.
+- [x] Startup/developer smokes cover core blocks and Block 4 includes a packaged Flet integration smoke suite; the Flet 1.0.1 packaged smoke uses visible text/tooltips for end-to-end readiness because Python-side control keys are not a reliable device-mode contract in the verified Windows runner.
 - [x] A regression test verifies that the configured Flet entry file starts the app when imported with a non-`__main__` module name, matching packaged device-mode execution.
 
 ## Packaging
 - [ ] Windows executable/package.
+- [x] Native runtime dependencies required during application startup are declared directly in `[project].dependencies`; the Windows packaged test rebuilds Serious Python staging on every run and verifies the staged pydantic-core native extension, while a real Windows release build is validated separately for the final Serious Python `DLLs` relocation.
 - [ ] Complete data folder behavior verified.
 - [x] Delivered ZIP always contains the complete current project.
 - [x] Development handoffs use clean project replacement while preserving the existing `.git` directory.
@@ -370,8 +373,7 @@ Legend:
 - [ ] Release candidate is tested from a clean extracted copy.
 
 ## Explicitly out of scope for the current implementation blocks
-- Browser deployment is deferred.
-- Mobile/tablet deployment is deferred.
+- Declaring non-Windows platforms release-ready before their dedicated platform verification. Cross-platform compatibility remains a design requirement and later release goal.
 - Hex board view.
 - Item equipping/editing in the Builder UI (Set packages may still carry complete Item reference data).
 - Trait-item/emblem equipping in the Builder UI.
@@ -411,4 +413,5 @@ Legend:
 - [x] Lux duplicate copies cannot silently represent impossible conflicting Avatar origins; the final selection scope is source-reviewed and regression-tested.
 - [x] Rival count 2 remains unavailable as ordinary base-Set activation unless the application explicitly models the Unrivaled Augment state.
 - [x] Official asset acquisition tests validate the documented Data Dragon individual-image URL contract rather than only mocking successful sprite crops.
-- [ ] A clean-cache and warm-cache acquisition of identical pinned inputs produce equivalent validated runtime package/provenance content.
+- [ ] A clean-cache and warm-cache acquisition of identical pinned inputs produce equivalent validated runtime package/provenance content; Part 4 includes a reusable package-comparison gate and the final networked Windows rerun remains external verification.
+- [x] The reviewed Set-18 verifier checks PNG structure/dimension inventory and rejects unexpected byte-identical runtime image groups; the source-confirmed Spirit Visage/Radiant pair is the only allowed duplicate group.

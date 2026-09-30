@@ -72,7 +72,7 @@ The code should remain practical, modern and human-readable.
 
 Block 1 selected and pinned the current baseline after compatibility research:
 
-- Flet 1.0.1 for the Windows-first GUI, while preserving official Flet web/mobile options for possible later work. Deferred web tooling is isolated in its own dependency group so normal desktop development does not install it unnecessarily.
+- Flet 1.0.1 for the Windows-first GUI while preserving the long-term Windows/macOS/Linux/Android/iOS/Web target. Windows remains the blocking development gate; target-specific tooling stays optional until that platform is actively verified.
 - Pydantic 2.13.5 for strict external Set/manifest/schema validation.
 - `platformdirs` 4.11.15 for writable platform-specific application paths when Flet-specific storage paths are not available.
 - Persistence uses Python 3.13 `sqlite3` directly with explicit migrations. SQLAlchemy/Alembic remain unnecessary unless a later concrete requirement makes the direct layer materially worse.

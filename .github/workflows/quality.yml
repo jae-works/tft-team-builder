@@ -52,3 +52,6 @@ jobs:
       - name: Run packaged Flet integration test
         if: runner.os == 'Windows'
         run: uv run pytest tests_flet --no-cov -vv -s
+      - name: Verify packaged Windows dependency staging
+        if: always() && runner.os == 'Windows'
+        run: uv run python tools/check_windows_staging.py build/site-packages

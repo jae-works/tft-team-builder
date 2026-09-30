@@ -58,10 +58,13 @@ Status: implemented and locally verified.
 
 ## Part 4 - Final confidence and next-block preparation
 
-Status: planned.
+Status: implementation complete; final Windows packaged-Flet and clean/warm network verification remain user-run gates.
 
-- Compare one clean-cache official acquisition with one warm-cache rerun for deterministic package/provenance output.
-- Add lightweight image sanity checks for missing, blank or obviously duplicated required icons without pretending to perform semantic computer vision.
-- Run the complete Windows gate: exact Ruff 0.16.9, compileall, normal tests, generic provenance verifier, Set-18 verifier, database/builder smokes, normal Flet startup and packaged Flet integration.
-- Exercise Lux choice portraits, Kha'Zix evolution text/base portrait, Elder Dragon board usage, Rival, Eclipse and long localized labels in the real GUI.
-- Close Block 7 hardening and prepare roadmap Block 8 Team Planner import/export.
+- Windows packaged integration now rebuilds the consumed Serious Python `build/site-packages` staging for every test session instead of reusing a directory mutated by a prior packaging pass.
+- Post-run staging verification checks the startup-critical `_pydantic_core*.pyd` artifact rather than pure-Python markers that the packaging pass may consume after creating its temporary app. Final deployable Windows bundles still use the separate `DLLs` relocation check.
+- The packaged Flet smoke uses visible user-facing text/tooltips for device-mode readiness and navigation. Flet 1.0.1 Python control keys remain unit-tested, but they are not treated as a reliable packaged-runner contract.
+- Set-18 verification now checks PNG signatures, the exact reviewed dimension inventory and unexpected byte-identical image groups. The only accepted duplicate is the source-confirmed normal/Radiant Spirit Visage pair.
+- `tools/set_import/compare_set_packages.py` validates two runtime packages and compares their complete deterministic directory hashes. Use it for the final clean-cache versus warm-cache acquisition gate.
+- Windows remains the primary/blocking platform. The long-term target is Windows, macOS, Linux, Android, iOS and Web; other platforms are secondary until dedicated platform builds verify packaging, writable paths, persistence and native dependencies.
+- The remaining user-run Windows gate exercises the packaged Flet smoke, real release build/native bundle layout, clean/warm Set acquisition comparison and manual Lux/Kha'Zix/Elder Dragon/Rival/Eclipse/long-localization GUI checks.
+- Roadmap Block 8 is prepared in `BLOCK_08_PLAN.md`; implementation does not begin until this Part-4 Windows gate is accepted.

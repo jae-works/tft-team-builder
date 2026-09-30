@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import re
-from collections import Counter
+import struct
+from collections import Counter, defaultdict
 from pathlib import Path
 
 from tft_builder.set_loader import LoadedSet, load_set_directory
@@ -44,11 +46,62 @@ _KHA_CHOICES = {
     "DA_18_Spellweaver",
 }
 _MARKUP_PATTERN = re.compile(r"@[^@]+@|<[^>]+>|%i:[^%]+%")
+_PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+_EXPECTED_PNG_DIMENSIONS = {
+    (32, 32): 36,
+    (64, 64): 4,
+    (128, 128): 129,
+    (256, 256): 12,
+    (1024, 512): 65,
+}
+_EXPECTED_DUPLICATE_ASSET_GROUPS = {
+    frozenset(
+        {
+            "assets/items/da_spiritvisage.png",
+            "assets/items/da_spiritvisage_radiant.png",
+        }
+    )
+}
 
 
 def _add_if(issues: list[str], condition: bool, message: str) -> None:
     if condition:
         issues.append(message)
+
+
+def _runtime_png_issues(loaded: LoadedSet) -> list[str]:
+    """Return lightweight structural and duplicate-image issues for the reviewed package."""
+
+    asset_root = loaded.root / loaded.manifest.assets_dir
+    dimensions: Counter[tuple[int, int]] = Counter()
+    paths_by_hash: defaultdict[str, list[str]] = defaultdict(list)
+    issues: list[str] = []
+
+    for path in sorted(asset_root.rglob("*.png")):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(loaded.root).as_posix()
+        payload = path.read_bytes()
+        if len(payload) < 24 or payload[:8] != _PNG_SIGNATURE:
+            issues.append(f"runtime asset is not a structurally valid PNG: {relative}")
+            continue
+        width, height = struct.unpack(">II", payload[16:24])
+        if width <= 0 or height <= 0:
+            issues.append(f"runtime PNG has invalid dimensions: {relative}")
+            continue
+        dimensions[(width, height)] += 1
+        paths_by_hash[hashlib.sha256(payload).hexdigest()].append(relative)
+
+    if dict(dimensions) != _EXPECTED_PNG_DIMENSIONS:
+        issues.append("runtime PNG dimension inventory drifted")
+
+    duplicate_groups = {
+        frozenset(paths) for paths in paths_by_hash.values() if len(paths) > 1
+    }
+    if duplicate_groups != _EXPECTED_DUPLICATE_ASSET_GROUPS:
+        issues.append("runtime PNG duplicate groups drifted")
+
+    return issues
 
 
 def verify_loaded_set(loaded: LoadedSet) -> list[str]:
@@ -184,6 +237,7 @@ def verify_loaded_set(loaded: LoadedSet) -> list[str]:
         len(loaded.source_manifest.sources) != 255,
         "expected 255 pinned provenance sources",
     )
+    issues.extend(_runtime_png_issues(loaded))
 
     for locale, catalog in loaded.locales.items():
         bad_keys = sorted(key for key, value in catalog.items() if _MARKUP_PATTERN.search(value))

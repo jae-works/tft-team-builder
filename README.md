@@ -1,22 +1,23 @@
 # TFT Team Builder
 
 Current version: 0.7.0
-Current milestone: Block 6 Team Library is implemented and corrected in v0.7.0. Startup Set validation is single-pass, validated Set lookup maps are cached once, Library Set names are user-facing/localized, similarity selection wraps cleanly, and capped results explain how to narrow them. The v0.6.1 Windows run passed the normal suite but exposed Ruff hygiene drift and a packaged Flet/Flutter integration failure; exact v0.7.0 Windows Ruff/Flet verification remains pending.
+Current milestone: Block 7 Part 4 implementation is complete and awaiting the final Windows packaged/release verification. The official Enchanted Wilds package, provenance gate, image sanity gate and reproducibility tooling are in place; Windows remains the primary blocking platform while macOS, Linux, Android, iOS and Web remain explicit later targets.
 
-TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform. Browser and mobile/tablet targets are deliberately deferred, not removed from the long-term project direction.
+TFT Team Builder is a local-first Team builder and personal Team library for Teamfight Tactics. Windows desktop is the required first platform and current priority. The long-term product goal is Windows, macOS, Linux, Android, iOS and Web; non-Windows targets stay optional/non-blocking until each has a dedicated packaging/runtime verification.
 
 ## Platform strategy
 
 Immediate target:
 - Windows desktop: required.
 
-Deferred targets:
-- Browser: possible later, with Flet dynamic web as the most practical first web option if this becomes a real requirement.
-- Android/iOS: possible later if the desktop product proves useful enough to justify mobile UI and packaging work.
+Secondary targets:
+- macOS/Linux: planned after the Windows release gate, with native packaging and writable-path verification.
+- Android/iOS: planned later with target-specific native dependency, filesystem and touch-layout verification.
+- Web: planned later after selecting and verifying the appropriate Flet web deployment mode and persistence strategy.
 
 The core models, Set validation, search, persistence boundaries, and future game logic must not depend on Flet widgets. This keeps the project portable and leaves an escape route if the UI framework ever needs to change.
 
-Flet 1.0.1 remains the selected UI framework after a Block 1 re-evaluation. It supports Windows, web, Android, and iOS from one Python-oriented UI stack, uses a permissive Apache-2.0 license, and is a better strategic fit here than a desktop-only choice. Desktop remains the only committed release target today.
+Flet 1.0.1 remains the selected UI framework after a Block 1 re-evaluation. It supports Windows, web, Android, and iOS from one Python-oriented UI stack, uses a permissive Apache-2.0 license, and is a better strategic fit here than a desktop-only choice. Windows remains the only blocking release target today; portability must not be unnecessarily broken while the other targets await dedicated verification.
 
 ## Project language and character policy
 
@@ -31,6 +32,7 @@ The current development line is CPython 3.13.
 Pinned direct runtime dependencies:
 - Flet 1.0.1
 - Pydantic 2.13.5
+- pydantic-core 2.46.5 (explicit native runtime dependency for packaged Windows builds)
 - platformdirs 4.11.15
 
 Pinned development dependencies:
@@ -83,6 +85,8 @@ uv run flet run
 
 
 Windows note: packaged Flet desktop integration tests build a Flutter Windows host. Windows Developer Mode must be enabled so Flutter can create plugin symlinks. The packaged Flet app runs in a separate process, so this integration-driver test intentionally disables pytest-cov with `--no-cov`; the normal `uv run pytest` suite remains the mandatory 100 percent statement/branch coverage gate.
+
+The Windows packaged runtime declares `pydantic-core==2.46.5` directly and disables Flet package cleanup only for Windows so the native wheel survives dependency staging. Pydantic imports its compiled core at startup. The packaged integration test runs against `build/site-packages`, so diagnose that stage with `uv run python tools/check_windows_staging.py build/site-packages`; it must retain `pydantic_core/_pydantic_core*.pyd`. A real `flet build windows` release is checked separately with `uv run python tools/check_windows_bundle.py <release-bundle-dir>`, where Serious Python is expected to relocate native extensions into `DLLs`.
 
 ## Persistence development command
 

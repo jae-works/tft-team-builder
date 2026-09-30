@@ -37,6 +37,7 @@ def test_runtime_dependencies_are_minimal_and_pinned(project_root: Path) -> None
         "flet==1.0.1",
         "platformdirs==4.11.15",
         "pydantic==2.13.5",
+        "pydantic-core==2.46.5",
     }
     assert not any("desktop" in dependency or "web" in dependency for dependency in dependencies)
 
@@ -72,6 +73,7 @@ def test_flet_uses_src_app_path_and_current_entry_module(project_root: Path) -> 
     assert "desktop_flavor" not in flet
     assert flet["app"]["path"] == "src"
     assert flet["app"]["module"] == "main"
+    assert flet["windows"]["cleanup"]["packages"] is False
     assert "company" not in flet
     assert "org" not in flet
     assert "bundle_id" not in flet
@@ -160,6 +162,9 @@ def test_quality_workflow_runs_on_windows_and_linux_with_python_313(project_root
     assert "uv run tft-builder-dev database-smoke .runtime-smoke" in workflow
     assert "uv run tft-builder-dev builder-smoke src/assets/sets/sample_set" in workflow
     assert "uv run pytest tests_flet --no-cov" in workflow
+    assert "uv run python tools/check_windows_staging.py build/site-packages" in workflow
+    assert "check_windows_bundle.py" not in workflow
+    assert "always() && runner.os == 'Windows'" in workflow
     assert "flet test --tests-dir tests_flet -- --no-cov" not in workflow
     assert "if: runner.os == 'Windows'" in workflow
     assert "uv run flet --version" in workflow

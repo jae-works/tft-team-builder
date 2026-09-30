@@ -684,3 +684,62 @@ Reasoning:
 
 Revisit when:
 - the acquisition-lock format gains a deliberate versioned schema or a second independent acquisition system requires materially different provenance semantics.
+
+## D039 - Native Pydantic core is an explicit packaged runtime dependency
+
+Status: implemented during Block 7 post-data hardening packaged-runtime correction.
+
+Decision:
+- Keep Pydantic as the Set-schema implementation; do not rewrite the validated schema layer only to avoid a packaging defect.
+- Declare `pydantic-core==2.46.5` directly beside `pydantic==2.13.5` in runtime dependencies.
+- Treat `_pydantic_core*.pyd` in the final Windows bundle `DLLs` directory as a release invariant and provide a small verifier for it.
+- Do not vendor a Windows `.pyd`, copy files manually into generated build output, or switch packaging systems before the supported Flet/Serious Python path is re-tested.
+
+Reasoning:
+- The packaged app reached Pydantic's Python package but failed before Flet startup because its compiled `pydantic_core` extension was absent.
+- Serious Python documents Windows native extensions as files in `<exe-dir>/DLLs`; the application should verify that supported layout instead of patching generated output.
+- Pydantic provides useful strict validation throughout the Set pipeline, and replacing it would be a much larger, riskier change than making its required native runtime component explicit.
+
+Revisit when:
+- the pinned Flet/Serious Python toolchain still omits the extension after a clean Windows build with the direct dependency, or Pydantic is otherwise removed from runtime Set loading.
+
+## D040 - Disable package cleanup only for the Windows Flet build and verify both packaging stages
+
+Status: implemented after the second clean packaged-runtime Windows failure.
+
+Decision:
+- Keep Pydantic and the explicit `pydantic-core==2.46.5` runtime dependency.
+- Disable Flet package cleanup only for Windows with `[tool.flet.windows.cleanup] packages = false`; do not disable app cleanup or change other target platforms.
+- Verify `build/site-packages` after Serious Python dependency staging for the packaged integration test. Verify a real `flet build windows` release bundle separately; do not treat the integration-test Debug runner as if it were the deployable bundle.
+- Make the CI packaging diagnostic run with `always()` after the packaged Flet test so a failed app startup still leaves actionable staging/final evidence.
+- Do not upgrade Flet in the same correction. Flet 1.0.2/Serious Python 5.0.0 is a separate candidate upgrade and should not be mixed into diagnosis of the pinned 1.0.1 failure.
+
+Reasoning:
+- The second Windows run proved that making `pydantic-core` direct was not sufficient: it was installed in the normal uv environment, while the packaged app still reached `pydantic_core/__init__.py` without its compiled `_pydantic_core` module.
+- Flet documents package cleanup as enabled by default, and historical Flet Windows evidence shows cleanup removing `pydantic_core/_pydantic_core*.pyd` together with other native extension files. Preserving package files is therefore the smallest supported configuration change that directly targets the observed loss.
+- The packaged integration traceback proves its embedded Python process imports dependencies directly from project `build/site-packages`. Serious Python documents `DLLs` for deployable Windows native extensions, but that final layout belongs to a real Windows release build. Separate checks prevent a false failure caused by inspecting the integration-test Debug runner as a release bundle.
+- Changing the packaging toolchain and cleanup behavior simultaneously would make a successful rerun ambiguous and would add unnecessary migration risk.
+
+Revisit when:
+- a clean Windows rerun still lacks the staged `_pydantic_core*.pyd`; then inspect the exact verbose pip/Serious Python install command and consider the separately tested Flet 1.0.2 upgrade.
+- staging contains the native extension but the final bundle does not; then the defect is in Serious Python's Windows relocation/copy stage rather than dependency cleanup.
+
+
+## D041 - Treat Flet packaged-test staging as disposable and keep cross-platform support explicit
+
+Status: accepted in Block 7 Part 4.
+
+Decision:
+- Rebuild Serious Python dependency staging before every packaged Flet test session; do not rely on `build/site-packages` surviving a previous packaging pass unchanged.
+- Use visible text/tooltips for the Flet 1.0.1 packaged smoke. Python control keys remain useful unit-test hooks but are not a release-readiness contract for that device-mode runner.
+- Keep the final Windows bundle `DLLs` verification separate from the temporary integration-test staging check.
+- Keep Windows as the current blocking release platform while treating macOS, Linux, Android, iOS and Web as explicit long-term targets that must each earn support through a dedicated platform gate.
+
+Reasoning:
+- The clean Windows test staged `_pydantic_core.cp313-win_amd64.pyd` successfully, while a repeat packaged test reused a staging tree that had already been consumed and regressed to the Flet error surface.
+- The same clean run reached the real Library without the Python startup error but did not expose the expected Python-side TextField key through the Flet 1.0.1 packaged tester. Visible user-facing semantics are the correct end-to-end contract at this pinned version.
+- Flet and Serious Python provide target-specific desktop/mobile/web packaging layouts, so portability should be preserved by design without making unverified platforms block the Windows-first milestone.
+
+Revisit when:
+- Flet is upgraded to a release with a verified semantics identifier contract for packaged tests; then migrate the smoke from visible text/tooltips to native semantics identifiers where useful.
+- a non-Windows platform becomes an active release target; add its platform-specific package/runtime gate before declaring support.

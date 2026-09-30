@@ -62,3 +62,21 @@ Part 4 remains before closing Block 7 hardening:
 - lightweight image sanity checks;
 - complete Windows/Flet and real GUI/HCI smoke;
 - Block 8 Team Planner import/export preparation.
+
+## Packaged Windows runtime correction
+
+The Parts 2-3 Windows gate verified 689 normal tests at 100 percent statement/branch coverage and the real Set/provenance gates. The packaged Flet integration still failed before application startup: the Flutter client connected, but embedded Python exited before registering its handler. Manual launch of the built app exposed the concrete root exception: `ModuleNotFoundError: No module named 'pydantic_core._pydantic_core'`.
+
+The correction keeps the schema architecture unchanged and makes the required native component explicit: `pydantic-core==2.46.5` is now a direct runtime dependency. `tft_builder.package_verification.windows_bundle_issues()` plus `tools/check_windows_bundle.py` validate the documented Serious Python Windows layout and require exactly one `_pydantic_core*.pyd` in the bundle `DLLs` directory alongside the Python packages. Generated build output is never patched manually.
+
+The one remaining Ruff 0.16.9 formatter finding in `tests/test_set_schema.py` is also applied. Local verification after this correction passes 692 normal tests with 3,041 production statements and 930 branches at 100 percent statement/branch coverage. A clean Windows Flet build/integration rerun is required before Part 4 can be closed.
+
+## Post-data hardening Part 4 implementation
+
+- The clean Windows packaged test proved `_pydantic_core.cp313-win_amd64.pyd` reaches Serious Python staging and the app can reach the real Team Library without the project startup-error surface.
+- Packaged Flet sessions now rebuild disposable Python staging before every run; repeat tests no longer rely on a directory mutated by an earlier packaging pass.
+- Flet 1.0.1 packaged smoke readiness/navigation uses visible text and tooltips instead of treating Python control keys as a device-mode release contract.
+- The Set-18 verifier now checks PNG signatures, the reviewed dimension inventory and exact duplicate-image groups. The normal/Radiant Spirit Visage files are the only source-confirmed byte-identical pair.
+- `compare_set_packages.py` provides the deterministic clean-cache/warm-cache comparison gate for the final networked Windows verification.
+- Cross-platform direction is explicit: Windows is the current blocking release target; macOS, Linux, Android, iOS and Web are later targets requiring their own packaging/runtime verification.
+- `BLOCK_08_PLAN.md` prepares Team Planner and lossless native import/export without beginning Block 8 implementation.

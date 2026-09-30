@@ -1,4 +1,4 @@
-"""Isolate packaged Flet integration tests from normal user application data."""
+"""Isolate packaged Flet integration tests from user data and stale build staging."""
 
 from __future__ import annotations
 
@@ -11,6 +11,15 @@ import flet.testing.flet_test_app as flet_test_app_module
 from flet.testing.remote_tester import RemoteTester
 
 _RUNTIME = Path(__file__).resolve().parent / ".runtime"
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+# Serious Python can consume parts of build/site-packages while assembling the temporary
+# packaged app. Re-running `pytest tests_flet` against that mutated staging directory can
+# therefore fail before application startup. Keep the reusable Flutter host, but rebuild
+# Python dependency staging for every integration-test session.
+for stale_path in (_PROJECT_ROOT / "build/site-packages", _PROJECT_ROOT / "build/app"):
+    shutil.rmtree(stale_path, ignore_errors=True)
+
 shutil.rmtree(_RUNTIME, ignore_errors=True)
 _RUNTIME.mkdir(parents=True)
 os.environ["TFT_BUILDER_DATA_DIR"] = str(_RUNTIME)

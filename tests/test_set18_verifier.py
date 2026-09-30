@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import shutil
 from dataclasses import replace
 from pathlib import Path
 
@@ -180,3 +181,33 @@ def test_set18_verifier_catches_item_source_locale_and_asset_drift(
     assert "source manifest must hash all 246 runtime assets" in issues
     assert "expected 255 pinned provenance sources" in issues
     assert any(issue.startswith("locale en_US still contains Riot markup in:") for issue in issues)
+
+
+def test_set18_verifier_catches_unexpected_duplicate_runtime_image(
+    verifier, set18, tmp_path: Path
+) -> None:
+    root = tmp_path / "enchanted_wilds"
+    shutil.copytree(set18.root, root)
+    changed = replace(set18, root=root)
+    assets = root / set18.manifest.assets_dir / "items"
+    (assets / "da_adaptivehelm.png").write_bytes((assets / "da_bloodthirster.png").read_bytes())
+
+    issues = verifier.verify_loaded_set(changed)
+
+    assert "runtime PNG duplicate groups drifted" in issues
+
+
+def test_set18_verifier_catches_structurally_invalid_runtime_png(
+    verifier, set18, tmp_path: Path
+) -> None:
+    root = tmp_path / "enchanted_wilds"
+    shutil.copytree(set18.root, root)
+    changed = replace(set18, root=root)
+    broken = root / set18.manifest.assets_dir / "items" / "da_adaptivehelm.png"
+    broken.write_bytes(b"not-a-png")
+
+    issues = verifier.verify_loaded_set(changed)
+
+    relative = broken.relative_to(root).as_posix()
+    assert f"runtime asset is not a structurally valid PNG: {relative}" in issues
+    assert "runtime PNG dimension inventory drifted" in issues

@@ -727,3 +727,80 @@ def test_trait_breakpoint_accepts_optional_description_key() -> None:
 def test_trait_breakpoint_rejects_invalid_description_key() -> None:
     with pytest.raises(ValidationError):
         TraitBreakpoint(count=2, style="bronze", description_key="invalid key")
+
+
+def valid_review_policy_payload() -> dict[str, object]:
+    return {
+        "expected_set_id": "sample_set",
+        "expected_revision": "1.0.0",
+        "champion_count": 1,
+        "trait_count": 1,
+        "item_count": 0,
+        "dynamic_trait_count": 0,
+        "png_count": 2,
+        "source_manifest_asset_count": 2,
+        "provenance_source_count": 0,
+    }
+
+
+@pytest.mark.parametrize(
+    ("update", "message"),
+    [
+        ({"choices": ["trait_a", "trait_a"]}, "must not contain duplicates"),
+        ({"choice_points": {"trait_b": 1}}, "choice_points keys"),
+        (
+            {"selection_rule": "EXACTLY_N", "exact_count": None},
+            "EXACTLY_N review expectation requires exact_count",
+        ),
+        ({"selection_rule": "ANY_NUMBER", "exact_count": 1}, "only valid with EXACTLY_N"),
+    ],
+)
+def test_review_dynamic_expectation_rejects_inconsistent_rules(
+    update: dict[str, object], message: str
+) -> None:
+    from tft_builder.set_schema import ReviewDynamicTraitExpectation
+
+    payload = {
+        "champion_id": "champion_a",
+        "selection_rule": "ANY_NUMBER",
+        "selection_scope": "PER_CHAMPION",
+        "choices": ["trait_a"],
+    }
+    payload.update(update)
+
+    with pytest.raises(ValidationError, match=message):
+        ReviewDynamicTraitExpectation.model_validate(payload)
+
+
+def test_review_dynamic_expectation_accepts_exact_count_for_exactly_n() -> None:
+    from tft_builder.set_schema import ReviewDynamicTraitExpectation
+
+    expectation = ReviewDynamicTraitExpectation.model_validate(
+        {
+            "champion_id": "champion_a",
+            "selection_rule": "EXACTLY_N",
+            "selection_scope": "PER_CHAMPION",
+            "choices": ["trait_a", "trait_b"],
+            "exact_count": 2,
+        }
+    )
+    assert expectation.exact_count == 2
+
+
+def test_review_policy_rejects_invalid_duplicate_asset_group() -> None:
+    from tft_builder.set_schema import SetReviewPolicy
+
+    payload = valid_review_policy_payload()
+    payload["allowed_duplicate_asset_groups"] = [
+        ["assets/items/a.png", "assets/items/a.png"]
+    ]
+    with pytest.raises(ValidationError, match="at least two unique paths"):
+        SetReviewPolicy.model_validate(payload)
+
+
+def test_local_set_spec_requires_review_data_when_manifest_declares_review_file() -> None:
+    payload = valid_local_spec_payload()
+    payload["manifest"]["review_file"] = "data/review.json"
+
+    with pytest.raises(ValidationError, match="review_file and review data"):
+        LocalSetSpec.model_validate(payload)

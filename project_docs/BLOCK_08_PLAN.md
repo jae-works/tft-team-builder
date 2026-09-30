@@ -2,6 +2,10 @@
 
 Block 8 adds exchange formats without weakening the existing local Team model. Riot Team Planner codes are a constrained external representation; the native project format remains the lossless round-trip format.
 
+## Entry condition from the final Block 7 correction
+
+Block 8 starts only after the deferred Block 7 code/build-warning pass is green on the exact Windows toolchain. The import/export model must treat dynamic Trait selections as an ordered persisted set of IDs and must not assume single-choice semantics: Enchanted Wilds Kha'Zix can validly carry zero through four selected evolution Traits.
+
 ## Part 1 - Codec contract and fixtures
 
 - Freeze reviewed Team Planner codec fixtures against the Set-owned `team_planner.json` mapping.

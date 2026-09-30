@@ -1,0 +1,201 @@
+{
+  "allowed_duplicate_asset_groups": [
+    [
+      "assets/items/da_spiritvisage.png",
+      "assets/items/da_spiritvisage_radiant.png"
+    ]
+  ],
+  "champion_cost_counts": [
+    {
+      "cost": 1,
+      "count": 14
+    },
+    {
+      "cost": 2,
+      "count": 13
+    },
+    {
+      "cost": 3,
+      "count": 14
+    },
+    {
+      "cost": 4,
+      "count": 14
+    },
+    {
+      "cost": 5,
+      "count": 10
+    }
+  ],
+  "champion_count": 65,
+  "champion_expectations": [
+    {
+      "board_slots": 2,
+      "champion_id": "DA_18_ElderDragon",
+      "trait_points": {
+        "DA_Riftbeast18": 2
+      }
+    }
+  ],
+  "dynamic_trait_count": 2,
+  "dynamic_trait_expectations": [
+    {
+      "champion_id": "DA_Lux18_Base",
+      "choice_images": "ALL",
+      "choice_points": {
+        "DA_18_Blackthorn": 2,
+        "DA_18_Blossom": 2,
+        "DA_18_Coven": 2,
+        "DA_18_Elderwood": 2,
+        "DA_18_Fae": 2,
+        "DA_18_Inferno": 2,
+        "DA_18_Lunar": 2,
+        "DA_18_Solar": 2,
+        "DA_Primal18": 2
+      },
+      "choices": [
+        "DA_18_Blackthorn",
+        "DA_18_Blossom",
+        "DA_18_Coven",
+        "DA_18_Elderwood",
+        "DA_18_Fae",
+        "DA_18_Inferno",
+        "DA_18_Lunar",
+        "DA_18_Solar",
+        "DA_Primal18"
+      ],
+      "exact_count": null,
+      "selection_rule": "EXACTLY_ONE",
+      "selection_scope": "PER_CHAMPION"
+    },
+    {
+      "champion_id": "DA_18_KhaZix",
+      "choice_images": "NONE",
+      "choice_points": {
+        "DA_18_Executioner": 1,
+        "DA_18_Rapidfire": 1,
+        "DA_18_Slayer": 1,
+        "DA_18_Spellweaver": 1
+      },
+      "choices": [
+        "DA_18_Executioner",
+        "DA_18_Rapidfire",
+        "DA_18_Slayer",
+        "DA_18_Spellweaver"
+      ],
+      "exact_count": null,
+      "selection_rule": "ANY_NUMBER",
+      "selection_scope": "PER_CHAMPION"
+    }
+  ],
+  "expected_revision": "18.3b",
+  "expected_set_id": "enchanted_wilds",
+  "item_category_counts": [
+    {
+      "category": "COMPONENT",
+      "count": 10
+    },
+    {
+      "category": "CRAFTABLE",
+      "count": 39
+    },
+    {
+      "category": "EMBLEM",
+      "count": 20
+    },
+    {
+      "category": "ARTIFACT",
+      "count": 31
+    },
+    {
+      "category": "RADIANT",
+      "count": 36
+    }
+  ],
+  "item_count": 136,
+  "locale_expectations": [
+    {
+      "key": "trait.da_18_maokai_uniquetrait.name",
+      "locale": "de_DE",
+      "value": "Wachstum der Urahnen"
+    }
+  ],
+  "minimum_max_champion_traits": 3,
+  "minimum_max_trait_breakpoints": 5,
+  "png_count": 246,
+  "png_dimensions": [
+    {
+      "count": 36,
+      "height": 32,
+      "width": 32
+    },
+    {
+      "count": 4,
+      "height": 64,
+      "width": 64
+    },
+    {
+      "count": 129,
+      "height": 128,
+      "width": 128
+    },
+    {
+      "count": 12,
+      "height": 256,
+      "width": 256
+    },
+    {
+      "count": 65,
+      "height": 512,
+      "width": 1024
+    }
+  ],
+  "provenance_source_count": 255,
+  "reject_locale_markup": true,
+  "source_candidate_counts": [
+    {
+      "count": 74,
+      "kind": "CHAMPION",
+      "status": "INCLUDED"
+    },
+    {
+      "count": 17,
+      "kind": "CHAMPION",
+      "status": "EXCLUDED"
+    },
+    {
+      "count": 36,
+      "kind": "TRAIT",
+      "status": "INCLUDED"
+    },
+    {
+      "count": 136,
+      "kind": "ITEM",
+      "status": "INCLUDED"
+    },
+    {
+      "count": 634,
+      "kind": "ITEM",
+      "status": "EXCLUDED"
+    }
+  ],
+  "source_manifest_asset_count": 246,
+  "team_planner_champion_count": 65,
+  "team_planner_codec": "riot_v2_12bit",
+  "trait_count": 36,
+  "trait_expectations": [
+    {
+      "activation_mode": "EXACT",
+      "derived_requirements": {},
+      "trait_id": "DA_18_Rival"
+    },
+    {
+      "activation_mode": "AT_LEAST",
+      "derived_requirements": {
+        "DA_18_Lunar": 3,
+        "DA_18_Solar": 3
+      },
+      "trait_id": "DA_18_Eclipse"
+    }
+  ]
+}

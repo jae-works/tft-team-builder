@@ -172,7 +172,7 @@ def _trait_display_texts(
     rows = re.findall(r"<row>(.*?)</row>", description, flags=re.IGNORECASE | re.DOTALL)
     effects = trait.get("effects") or []
 
-    # Preamble variables are invariant across breakpoints in Riot's Set 18 data. Resolve each
+    # Preamble variables can be invariant across breakpoints. Resolve each
     # from the first source effect that carries it so summaries stay compact and non-repetitive.
     summary_template = description.split("<row>", 1)[0] if rows else description
     summary_effect: dict = {"variables": {}}
@@ -848,7 +848,7 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
                 "kind": "ITEM",
                 "source_id": source_id,
                 "status": "EXCLUDED",
-                "reason": "outside reviewed user-facing Set 18 item reference boundary",
+                "reason": "outside reviewed user-facing item reference boundary",
             }
         )
 
@@ -1022,6 +1022,8 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
             "source_inventory_file": "reports/source_inventory.json",
             "overview_file": "SET_OVERVIEW.md",
             "source_manifest_file": "source_manifest.json",
+            "review_file": "data/review.json" if config.get("review") is not None else None,
+            "review_report_file": "SET_REVIEW.md",
             "locales_dir": "locales",
             "assets_dir": "assets",
             "team_planner_supported": len(planner_ids) == len(champion_rows),
@@ -1035,6 +1037,7 @@ def _build_spec(config: dict, cache_dir: Path, spec_dir: Path) -> None:
             "champion_ids": planner_ids,
         },
         "source_inventory": inventory,
+        "review": config.get("review"),
         "sources": sources,
         "locales": locale_catalogs,
         "assets": assets,

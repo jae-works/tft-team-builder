@@ -11,7 +11,10 @@ def test_project_manifest_is_valid_json(project_root: Path) -> None:
     with (project_root / "pyproject.toml").open("rb") as handle:
         project_version = tomllib.load(handle)["project"]["version"]
     assert payload["version"] == project_version
-    assert payload["current_state"] == "block_7_part_4_implementation_complete_pending_windows_gate"
+    assert (
+        payload["current_state"]
+        == "block_7_dataset_review_correction_complete_pending_code_build_audit"
+    )
     assert payload["current_block"] == 7
     assert payload["next_block"] == 7
 
@@ -257,6 +260,12 @@ def test_manifest_records_current_verification(project_root: Path) -> None:
     assert verification["block_7_packaged_runtime_windows_cleanup_disabled"] is True
     assert verification["block_7_packaged_runtime_staging_verifier_added"] is True
     assert verification["block_7_post_data_part_4_implementation_complete"] is True
+    assert verification["block_7_review_policy_data_driven"] is True
+    assert verification["block_7_review_report_generated"] is True
+    assert verification["block_7_set18_khazix_any_number"] is True
+    assert verification["block_7_dataset_targeted_tests_passed"] == 320
+    assert verification["block_7_dataset_exact_uv_check_pending_due_tool_version"] is True
+    assert verification["block_8_plan_prepared"] is True
     assert verification["windows_0_7_0_packaged_runtime_pytest_passed"] == 692
     assert verification["windows_0_7_0_packaged_runtime_flet_exit_code"] == 79
     assert verification["windows_0_7_0_packaged_runtime_ruff_format_drift_files"] == 3

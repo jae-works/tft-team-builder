@@ -10,7 +10,7 @@ Status: complete.
 
 - Set 18 remains 91 raw Champion records -> 65 logical Champions, 36 logical Traits and 136 retained Item references.
 - Elder Dragon declares exactly 2 board slots and exactly +2 Riftbeast in Set data.
-- Kha'Zix remains one logical Champion with a ZERO_OR_ONE, PER_CHAMPION evolution choice and base-portrait fallback.
+- Kha'Zix remains one logical Champion with ANY_NUMBER, PER_CHAMPION evolution choices and base-portrait fallback.
 - Lux remains one logical Champion, the chosen Avatar origin contributes 2 Trait points, and Set 18 uses PER_CHAMPION scope so duplicate Lux copies in one List cannot disagree.
 - Rival's ordinary base-Set state is exact at one Rival; the two-Rival state is Augment-gated and is not a normal base breakpoint.
 - Eclipse remains a derived state requiring at least 3 Solar and 3 Lunar.
@@ -50,7 +50,7 @@ Status: implemented and locally verified.
 - Malformed JSON, malformed source records, duplicate lock IDs, missing IDs and unexpected IDs are reported explicitly.
 - `SourceManifest` now rejects duplicate packaged provenance IDs during normal Set validation.
 - `tools/set_import/verify_source_lock.py` exposes the generic comparison as a small developer CLI for future Sets.
-- `verify_enchanted_wilds.py` reuses the generic source-lock verifier and keeps only Set-18-specific semantic expectations.
+- `verify_set_review.py` reuses the generic source-lock verifier; all Set-specific semantic expectations now live in `data/review.json`.
 - The real official Set-18 package is the positive complete verifier fixture.
 - Mutation tests cover Elder Dragon, Lux, Kha'Zix, Rival, Eclipse, Team Planner mapping, Item category drift, source accounting, locale markup, runtime asset inventory and complete provenance-field drift.
 - Official individual-image URL construction, CommunityDragon variant-image acquisition and failed-build lock atomicity remain explicitly tested.
@@ -63,7 +63,8 @@ Status: implementation complete; final Windows packaged-Flet and clean/warm netw
 - Windows packaged integration now rebuilds the consumed Serious Python `build/site-packages` staging for every test session instead of reusing a directory mutated by a prior packaging pass.
 - Post-run staging verification checks the startup-critical `_pydantic_core*.pyd` artifact rather than pure-Python markers that the packaging pass may consume after creating its temporary app. Final deployable Windows bundles still use the separate `DLLs` relocation check.
 - The packaged Flet smoke uses visible user-facing text/tooltips for device-mode readiness and navigation. Flet 1.0.1 Python control keys remain unit-tested, but they are not treated as a reliable packaged-runner contract.
-- Set-18 verification now checks PNG signatures, the exact reviewed dimension inventory and unexpected byte-identical image groups. The only accepted duplicate is the source-confirmed normal/Radiant Spirit Visage pair.
+- Reviewed-Set verification now checks PNG signatures, the exact Set-declared dimension inventory and unexpected byte-identical image groups. Enchanted Wilds declares the source-confirmed normal/Radiant Spirit Visage pair as its only allowed duplicate.
+- The checker regenerates `SET_REVIEW.md` from validated runtime data so manual Set review does not depend on Python constants or hand-maintained report text.
 - `tools/set_import/compare_set_packages.py` validates two runtime packages and compares their complete deterministic directory hashes. Use it for the final clean-cache versus warm-cache acquisition gate.
 - Windows remains the primary/blocking platform. The long-term target is Windows, macOS, Linux, Android, iOS and Web; other platforms are secondary until dedicated platform builds verify packaging, writable paths, persistence and native dependencies.
 - The remaining user-run Windows gate exercises the packaged Flet smoke, real release build/native bundle layout, clean/warm Set acquisition comparison and manual Lux/Kha'Zix/Elder Dragon/Rival/Eclipse/long-localization GUI checks.

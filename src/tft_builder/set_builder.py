@@ -19,6 +19,7 @@ from .file_integrity import sha256_bytes, sha256_file
 from .filesystem import is_link_like
 from .json_utils import canonical_json_bytes, loads_json
 from .set_loader import load_set_directory
+from .set_review import write_set_review_report
 from .set_schema import LocalSetSpec
 
 
@@ -219,6 +220,11 @@ def _populate_staging_directory(spec_dir: Path, staging_dir: Path) -> None:
         staging_dir / spec.manifest.source_inventory_file,
         [value.model_dump(mode="json") for value in spec.source_inventory],
     )
+    if spec.manifest.review_file is not None and spec.review is not None:
+        _write_json(
+            staging_dir / spec.manifest.review_file,
+            spec.review.model_dump(mode="json"),
+        )
     overview_path = staging_dir / spec.manifest.overview_file
     overview_path.parent.mkdir(parents=True, exist_ok=True)
     overview_path.write_text(_render_set_overview(spec), encoding="utf-8", newline="\n")
@@ -243,6 +249,7 @@ def _populate_staging_directory(spec_dir: Path, staging_dir: Path) -> None:
         spec.manifest.team_planner_file,
         spec.manifest.source_inventory_file,
         spec.manifest.overview_file,
+        *((spec.manifest.review_file,) if spec.manifest.review_file is not None else ()),
         *(
             f"{spec.manifest.locales_dir}/{locale}.json"
             for locale in spec.manifest.supported_locales
@@ -334,6 +341,10 @@ def build_set_from_local_spec(
     try:
         _populate_staging_directory(spec_dir, staging_dir)
         _promote_staging_directory(staging_dir, output_dir)
+        # The review document is derived from runtime data and intentionally stays outside
+        # source-manifest hashing so the checker can recreate a missing report at any time.
+        write_set_review_report(load_set_directory(output_dir))
+        load_set_directory(output_dir)
     except BaseException:
         shutil.rmtree(staging_dir, ignore_errors=True)
         raise

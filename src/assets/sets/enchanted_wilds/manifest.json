@@ -7,6 +7,8 @@
   "items_file": "data/items.json",
   "locales_dir": "locales",
   "overview_file": "SET_OVERVIEW.md",
+  "review_file": "data/review.json",
+  "review_report_file": "SET_REVIEW.md",
   "revision": "18.3b",
   "schema_version": 5,
   "set_id": "enchanted_wilds",

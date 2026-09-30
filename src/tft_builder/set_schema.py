@@ -140,6 +140,8 @@ class SetManifest(StrictModel):
     source_inventory_file: str = "reports/source_inventory.json"
     overview_file: str = "SET_OVERVIEW.md"
     source_manifest_file: str = "source_manifest.json"
+    review_file: str | None = None
+    review_report_file: str = "SET_REVIEW.md"
     locales_dir: str = "locales"
     assets_dir: str = "assets"
     team_planner_supported: Annotated[bool, Field(strict=True)] = False
@@ -154,6 +156,10 @@ class SetManifest(StrictModel):
     )
     _validate_overview_file = field_validator("overview_file")(validate_relative_path)
     _validate_source_manifest_file = field_validator("source_manifest_file")(validate_relative_path)
+    _validate_review_file = field_validator("review_file")(
+        lambda value: None if value is None else validate_relative_path(value)
+    )
+    _validate_review_report_file = field_validator("review_report_file")(validate_relative_path)
     _validate_locales_dir = field_validator("locales_dir")(validate_relative_path)
     _validate_assets_dir = field_validator("assets_dir")(validate_relative_path)
 
@@ -174,6 +180,8 @@ class SetManifest(StrictModel):
             self.source_inventory_file,
             self.overview_file,
             self.source_manifest_file,
+            *((self.review_file,) if self.review_file is not None else ()),
+            self.review_report_file,
         )
         for index, first in enumerate(metadata_files):
             for second in metadata_files[index + 1 :]:
@@ -311,7 +319,8 @@ class DynamicTraitDefinition(StrictModel):
                 or self.choice_images
             ):
                 raise ValueError(
-                    "NONE selection must not define choices, exact_count, choice_points or choice_images"
+                    "NONE selection must not define choices, exact_count, choice_points "
+                    "or choice_images"
                 )
             return self
 
@@ -327,6 +336,113 @@ class DynamicTraitDefinition(StrictModel):
             raise ValueError("exact_count is only valid with EXACTLY_N")
 
         return self
+
+
+class ReviewCostCount(StrictModel):
+    cost: Annotated[int, Field(ge=0, strict=True)]
+    count: Annotated[int, Field(ge=0, strict=True)]
+
+
+class ReviewItemCategoryCount(StrictModel):
+    category: ItemCategory
+    count: Annotated[int, Field(ge=0, strict=True)]
+
+
+class ReviewSourceCandidateCount(StrictModel):
+    kind: CandidateKind
+    status: CandidateStatus
+    count: Annotated[int, Field(ge=0, strict=True)]
+
+
+class ReviewPngDimensionCount(StrictModel):
+    width: Annotated[int, Field(ge=1, strict=True)]
+    height: Annotated[int, Field(ge=1, strict=True)]
+    count: Annotated[int, Field(ge=0, strict=True)]
+
+
+class ReviewChampionExpectation(StrictModel):
+    champion_id: Identifier
+    board_slots: Annotated[int, Field(ge=1, strict=True)] | None = None
+    trait_points: dict[Identifier, Annotated[int, Field(ge=1, strict=True)]] = Field(
+        default_factory=dict
+    )
+
+
+class ReviewTraitExpectation(StrictModel):
+    trait_id: Identifier
+    activation_mode: TraitActivationMode | None = None
+    derived_requirements: dict[Identifier, Annotated[int, Field(ge=1, strict=True)]] = Field(
+        default_factory=dict
+    )
+
+
+class ReviewDynamicTraitExpectation(StrictModel):
+    champion_id: Identifier
+    selection_rule: DynamicSelectionRule
+    selection_scope: DynamicSelectionScope
+    choices: list[Identifier]
+    exact_count: Annotated[int, Field(ge=1, strict=True)] | None = None
+    choice_points: dict[Identifier, Annotated[int, Field(ge=1, strict=True)]] = Field(
+        default_factory=dict
+    )
+    choice_images: Literal["ANY", "NONE", "ALL"] = "ANY"
+
+    @model_validator(mode="after")
+    def validate_expectation(self) -> ReviewDynamicTraitExpectation:
+        if len(self.choices) != len(set(self.choices)):
+            raise ValueError("review dynamic choices must not contain duplicates")
+        if set(self.choice_points) - set(self.choices):
+            raise ValueError("review choice_points keys must also be present in choices")
+        if self.selection_rule is DynamicSelectionRule.EXACTLY_N:
+            if self.exact_count is None:
+                raise ValueError("EXACTLY_N review expectation requires exact_count")
+        elif self.exact_count is not None:
+            raise ValueError("review exact_count is only valid with EXACTLY_N")
+        return self
+
+
+class ReviewLocaleExpectation(StrictModel):
+    locale: LocaleCode
+    key: Identifier
+    value: NonEmptyText
+
+
+class SetReviewPolicy(StrictModel):
+    """Set-owned reviewed invariants used by the generic package checker."""
+
+    expected_set_id: Identifier
+    expected_revision: NonEmptyText
+    champion_count: Annotated[int, Field(ge=0, strict=True)]
+    trait_count: Annotated[int, Field(ge=0, strict=True)]
+    item_count: Annotated[int, Field(ge=0, strict=True)]
+    dynamic_trait_count: Annotated[int, Field(ge=0, strict=True)]
+    champion_cost_counts: list[ReviewCostCount] = Field(default_factory=list)
+    item_category_counts: list[ReviewItemCategoryCount] = Field(default_factory=list)
+    champion_expectations: list[ReviewChampionExpectation] = Field(default_factory=list)
+    trait_expectations: list[ReviewTraitExpectation] = Field(default_factory=list)
+    dynamic_trait_expectations: list[ReviewDynamicTraitExpectation] = Field(default_factory=list)
+    team_planner_codec: Identifier | None = None
+    team_planner_champion_count: Annotated[int, Field(ge=0, strict=True)] | None = None
+    source_candidate_counts: list[ReviewSourceCandidateCount] = Field(default_factory=list)
+    png_count: Annotated[int, Field(ge=0, strict=True)]
+    source_manifest_asset_count: Annotated[int, Field(ge=0, strict=True)]
+    provenance_source_count: Annotated[int, Field(ge=0, strict=True)]
+    png_dimensions: list[ReviewPngDimensionCount] = Field(default_factory=list)
+    allowed_duplicate_asset_groups: list[list[str]] = Field(default_factory=list)
+    reject_locale_markup: Annotated[bool, Field(strict=True)] = True
+    locale_expectations: list[ReviewLocaleExpectation] = Field(default_factory=list)
+    minimum_max_champion_traits: Annotated[int, Field(ge=0, strict=True)] = 0
+    minimum_max_trait_breakpoints: Annotated[int, Field(ge=0, strict=True)] = 0
+
+    @field_validator("allowed_duplicate_asset_groups")
+    @classmethod
+    def validate_duplicate_groups(cls, value: list[list[str]]) -> list[list[str]]:
+        for group in value:
+            if len(group) < 2 or len(group) != len(set(group)):
+                raise ValueError("duplicate asset groups must contain at least two unique paths")
+            for path in group:
+                validate_relative_path(path)
+        return value
 
 
 class TeamPlannerData(StrictModel):
@@ -403,6 +519,7 @@ class LocalSetSpec(StrictModel):
     dynamic_traits: list[DynamicTraitDefinition] = Field(default_factory=list)
     team_planner: TeamPlannerData = Field(default_factory=TeamPlannerData)
     source_inventory: list[SourceCandidate] = Field(default_factory=list)
+    review: SetReviewPolicy | None = None
     sources: list[SourceRecord] = Field(default_factory=list)
     locales: dict[LocaleCode, dict[Identifier, NonEmptyText]]
     assets: dict[str, str]
@@ -417,6 +534,11 @@ class LocalSetSpec(StrictModel):
 
     @model_validator(mode="after")
     def validate_package_inventory(self) -> LocalSetSpec:
+        if (self.manifest.review_file is None) != (self.review is None):
+            raise ValueError(
+                "manifest.review_file and review data must either both be set or both be absent"
+            )
+
         expected_locales = set(self.manifest.supported_locales)
         actual_locales = set(self.locales)
         if actual_locales != expected_locales:

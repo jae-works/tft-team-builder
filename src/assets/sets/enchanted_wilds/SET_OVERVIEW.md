@@ -80,10 +80,10 @@ Generated from the validated Set source specification. Images use local package 
 
 | Champion | Rule | Scope | Choice | Points | Choice image |
 | --- | --- | --- | --- | ---: | --- |
-| Kha'Zix | ZERO_OR_ONE | PER_CHAMPION | Executioner | 1 | - |
-| Kha'Zix | ZERO_OR_ONE | PER_CHAMPION | Rapidfire | 1 | - |
-| Kha'Zix | ZERO_OR_ONE | PER_CHAMPION | Ravager | 1 | - |
-| Kha'Zix | ZERO_OR_ONE | PER_CHAMPION | Spellweaver | 1 | - |
+| Kha'Zix | ANY_NUMBER | PER_CHAMPION | Executioner | 1 | - |
+| Kha'Zix | ANY_NUMBER | PER_CHAMPION | Rapidfire | 1 | - |
+| Kha'Zix | ANY_NUMBER | PER_CHAMPION | Ravager | 1 | - |
+| Kha'Zix | ANY_NUMBER | PER_CHAMPION | Spellweaver | 1 | - |
 | Lux | EXACTLY_ONE | PER_CHAMPION | Blackthorn | 2 | ![Blackthorn](assets/champions/variants/da_lux18_base--da_18_blackthorn.png) |
 | Lux | EXACTLY_ONE | PER_CHAMPION | Blossom | 2 | ![Blossom](assets/champions/variants/da_lux18_base--da_18_blossom.png) |
 | Lux | EXACTLY_ONE | PER_CHAMPION | Coven | 2 | ![Coven](assets/champions/variants/da_lux18_base--da_18_coven.png) |

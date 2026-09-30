@@ -139,6 +139,11 @@ def test_source_manifest_contains_spec_hash_and_all_asset_hashes(
     assert "Sample Flex | EXACTLY_ONE | PER_INSTANCE | Sample Arcane | 1" in overview
     assert "assets/champions/variants/sample_flex_arcane.png" in overview
 
+    review = (output / "SET_REVIEW.md").read_text(encoding="utf-8")
+    assert "## Traits and breakpoints" in review
+    assert "## Component recipe matrix" in review
+    assert "SET_REVIEW.md" not in payload["generated_file_sha256"]
+
 
 def test_generated_json_files_end_with_newline(project_root: Path, tmp_path: Path) -> None:
     output = tmp_path / "built"
@@ -464,3 +469,30 @@ def test_overview_includes_localized_breakpoint_descriptions(
     overview = (output / "SET_OVERVIEW.md").read_text(encoding="utf-8")
     assert "2 (bronze): Gain a basic defensive bonus." in overview
     assert "4 (silver): Gain an improved defensive bonus." in overview
+
+
+def test_builder_writes_optional_review_policy(project_root: Path, tmp_path: Path) -> None:
+    source = project_root / "set_sources/specs/sample_set"
+    spec = tmp_path / "spec"
+    shutil.copytree(source, spec)
+    path = spec / "set_spec.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["manifest"]["review_file"] = "data/review.json"
+    payload["review"] = {
+        "expected_set_id": "sample_set",
+        "expected_revision": "1.0.0",
+        "champion_count": 3,
+        "trait_count": 3,
+        "item_count": 1,
+        "dynamic_trait_count": 1,
+        "png_count": len(payload["assets"]),
+        "source_manifest_asset_count": len(payload["assets"]),
+        "provenance_source_count": 0,
+    }
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    output = tmp_path / "built"
+    build_set_from_local_spec(spec, output)
+
+    assert (output / "data/review.json").is_file()
+    assert load_set_directory(output).review is not None

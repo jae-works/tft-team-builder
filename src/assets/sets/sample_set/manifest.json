@@ -7,6 +7,8 @@
   "items_file": "data/items.json",
   "locales_dir": "locales",
   "overview_file": "SET_OVERVIEW.md",
+  "review_file": null,
+  "review_report_file": "SET_REVIEW.md",
   "revision": "0.1.0",
   "schema_version": 5,
   "set_id": "sample_set",

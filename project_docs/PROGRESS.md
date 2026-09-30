@@ -1,8 +1,8 @@
 # TFT Team Builder - Progress
 
 Current version: 0.7.0
-Current status: Block 7 Parts 2-3 remain Windows-verified for normal tests/data/provenance. The second clean packaged Windows rerun still fails before Flet startup because `_pydantic_core` is absent after packaging; this handoff disables package cleanup only on Windows and adds staging plus final-bundle diagnostics.
-Next planned work: verify this targeted Windows packaging correction from a clean `build/` directory. Only after packaged startup is green should the remaining Part 4 reproducibility, image-sanity and real-GUI/HCI confidence checks continue.
+Current status: Block 7 dataset correction is implemented locally. Reviewed invariants now live in each Set package instead of the Python checker, Kha'Zix supports zero through all four evolution Traits, and `SET_REVIEW.md` is generated from validated Set data. The previously reported packaged-Flet/build warnings are intentionally deferred to the next correction pass.
+Next planned work: run the dedicated code/build-warning correction and full quality audit from the user's Windows `uv 0.12.19` environment. After that gate is green, proceed to Block 8; the later Block 9 hardening pass remains the place for the final broad GUI/HCI/accessibility audit.
 
 This file records implemented work. Detailed Block 1 evidence is in `BLOCK_01_REPORT.md`.
 
@@ -492,3 +492,16 @@ Part 3 provenance/test hardening:
 - [x] Cross-platform direction is now explicit: Windows is the primary blocking target; macOS, Linux, Android, iOS and Web are long-term targets that require dedicated platform gates.
 - [x] Prepared `BLOCK_08_PLAN.md` for Team Planner and native import/export work.
 - [ ] User-run final Part-4 Windows gate: repeat packaged Flet test, real `flet build windows`/bundle check, clean/warm acquisition comparison and manual Set-18 HCI smoke.
+
+## Block 7 dataset review correction - current handoff
+
+- [x] Removed Set-18/Champion-specific constants from the reviewed package checker.
+- [x] Added optional Set-owned `data/review.json` expectations for counts, exceptional semantics, Team Planner coverage, source accounting, PNG dimensions and reviewed duplicate-image groups.
+- [x] Replaced the Set-specific verifier entry point with generic `tools/set_import/verify_set_review.py`.
+- [x] The checker always regenerates `SET_REVIEW.md` from validated runtime data.
+- [x] The generated report includes all Traits/breakpoints/effects, Champion portraits and Trait contributions, the complete component recipe matrix, non-recipe non-Radiant Items, a Radiant matrix and provenance totals.
+- [x] Enchanted Wilds Kha'Zix uses `ANY_NUMBER` + `PER_CHAMPION`; all four evolution Traits can be selected simultaneously.
+- [x] The reviewed Spirit Visage/Radiant duplicate-image exception moved from Python into Enchanted Wilds `review.json`.
+- [x] Bundled sample data is regenerated under the new optional review-report manifest contract.
+- [x] Dataset-focused regression suite: 320 passed. The four directly affected production modules (`set_builder`, `set_loader`, `set_review`, `set_schema`) reached 100 percent statement and branch coverage in that focused suite.
+- [ ] Exact `uv`-driven full suite/coverage/Ruff/Windows packaged verification remains for the next pass; the implementation container has `uv 0.10.0`, below the project-required `>=0.12.18,<0.13`.

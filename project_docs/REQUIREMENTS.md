@@ -103,7 +103,7 @@ Legend:
 ## Set data acquisition and generation
 - [x] Board usage is calculated generically from Set-declared `board_slots`; Champion-specific board-slot values stay in Set data.
 - [x] New/refreshed source locks are atomically published only after the generated package has built and validated successfully.
-- [x] Set 18 Lux uses PER_CHAMPION origin scope; Kha'Zix remains ZERO_OR_ONE + PER_CHAMPION.
+- [x] Set 18 Lux uses PER_CHAMPION origin scope; Kha'Zix uses ANY_NUMBER + PER_CHAMPION so zero through all four reviewed evolution Traits are representable.
 
 - [x] Runtime Set packages are generated local data; the normal app has no network dependency on Riot Data Dragon or CommunityDragon.
 - [x] Riot Data Dragon is the preferred official source for supported localized TFT data and shipped visible assets.
@@ -116,6 +116,8 @@ Legend:
 - [x] Raw downloaded source payloads are cached outside Git and are not required at runtime.
 - [x] Generated Set packages contain local champion/Trait assets; runtime UI does not hotlink these assets.
 - [x] Set generation produces a source inventory/completeness report.
+- [x] Reviewed release Sets may carry a Set-owned `review.json` with expected counts, exceptional semantics, asset-shape checks and reviewed duplicate-image exceptions; the checker contains no Set/Champion-specific constants.
+- [x] The generic reviewed-Set checker regenerates `SET_REVIEW.md` on every run from runtime data. The report includes all Traits/breakpoints/effects, Champion portraits plus Trait contributions and key extras, a complete component recipe matrix, non-recipe non-Radiant Items, a Radiant Item matrix and provenance totals.
 - [x] Every source candidate is either included, explicitly excluded with a reason, or causes validation to fail.
 - [x] Completeness checks account for debug/summoned/alternate/legacy source records rather than assuming every raw record is a player-selectable champion.
 - [x] Pinned real-Set configs may declare reviewed expected raw Champion, logical Champion, Trait and retained Item-category counts; importer drift from those counts fails explicitly instead of silently changing the package.
@@ -408,10 +410,10 @@ Legend:
 
 - [x] A failed Set acquisition/build leaves no partial runtime Set and does not create or refresh the accepted `source_lock.json`.
 - [x] Generic package verification reuses the existing Set loader and can compare a reviewed source lock against complete packaged provenance without a second schema/framework.
-- [x] Set-18-specific verification has a positive complete-package fixture plus mutation tests for every reviewed exceptional semantic and provenance field.
+- [x] Generic reviewed-Set verification has a positive complete-package fixture plus mutation tests for Set-owned exceptional semantics, counts, asset inventory and provenance fields.
 - [x] Elder Dragon remains one logical/visual Champion instance while board usage is computed from `board_slots`; the Builder must not fake multi-slot units by duplicating Champion instances.
 - [x] Lux duplicate copies cannot silently represent impossible conflicting Avatar origins; the final selection scope is source-reviewed and regression-tested.
 - [x] Rival count 2 remains unavailable as ordinary base-Set activation unless the application explicitly models the Unrivaled Augment state.
 - [x] Official asset acquisition tests validate the documented Data Dragon individual-image URL contract rather than only mocking successful sprite crops.
 - [ ] A clean-cache and warm-cache acquisition of identical pinned inputs produce equivalent validated runtime package/provenance content; Part 4 includes a reusable package-comparison gate and the final networked Windows rerun remains external verification.
-- [x] The reviewed Set-18 verifier checks PNG structure/dimension inventory and rejects unexpected byte-identical runtime image groups; the source-confirmed Spirit Visage/Radiant pair is the only allowed duplicate group.
+- [x] The generic reviewed-Set checker validates PNG structure/dimension inventory and rejects unexpected byte-identical runtime image groups; allowed duplicate groups are declared in each Set review policy. Enchanted Wilds declares only the source-confirmed Spirit Visage/Radiant pair.

@@ -14,4 +14,4 @@ uv run tft-builder-dev inspect-set src/assets/sets/<set_id>
 uv run tft-builder-dev build-set set_sources/specs/sample_set src/assets/sets/sample_set --overwrite
 ```
 
-Do not hand-edit generated runtime Set files. Regenerate them from the corresponding source input and review `SET_OVERVIEW.md` plus `reports/source_inventory.json`.
+Do not hand-edit generated runtime Set files. Regenerate them from the corresponding source input. For reviewed Sets, inspect `SET_REVIEW.md` first; `SET_OVERVIEW.md`, `data/review.json` and `reports/source_inventory.json` provide the lower-level generated details.

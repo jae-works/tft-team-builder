@@ -37,7 +37,7 @@ Exact breakpoint values, display ordering, localized names/descriptions and icon
 ## Builder-relevant exceptional semantics
 
 - Lux: one logical unit. Avatar plus exactly one of nine origin choices; the selected origin contributes 2 Trait points. The choices are Blossom, Coven, Elderwood, Blackthorn, Fae, Inferno, Lunar, Primal and Solar. Each choice has its own source-backed portrait path.
-- Kha'Zix: Rival evolution may permanently grant zero or one of Executioner, Rapidfire, Ravager or Spellweaver. This is a PER_CHAMPION selection so duplicate copies cannot disagree. The pinned source has one Kha'Zix Champion portrait record, so all four choices intentionally fall back to that base portrait unless a reviewed source is added later.
+- Kha'Zix: Rival evolution may permanently grant any combination of Executioner, Rapidfire, Ravager and Spellweaver, including all four. This is a PER_CHAMPION selection so duplicate copies cannot disagree. The pinned source has one Kha'Zix Champion portrait record, so all four choices intentionally fall back to that base portrait unless a reviewed source is added later.
 - Elder Dragon: occupies 2 board slots and contributes 2 Riftbeast points. It must not be modeled as three Riftbeasts.
 - Rival: normal activation is exact at 1 Rival. Two Rivals must not be treated as the normal active one-Rival tier merely because the count is above one; exceptional Augment behavior is outside the base Set package.
 - Eclipse: derived from fielding at least 3 Solar and 3 Lunar. It is not a normal Champion-granted Trait and must not be manually selectable as a dynamic Trait.
@@ -56,7 +56,7 @@ Required families are:
 - RADIANT - Radiant variants.
 Support, consumable/temporary, Wisp/mechanic and uncategorized engine records are intentionally outside this reviewed reference boundary. They can be added later only for a concrete feature with its own source review.
 
-The generated `SET_OVERVIEW.md` is the authoritative human-readable Item-name list for the pinned import. Maintaining another hand-written list of every Item name here would create a second source of truth and would drift when Riot changes the current Set inventory.
+The generated `SET_REVIEW.md` is the primary human-readable inspection document for the pinned import. It includes the full Trait/breakpoint view, Champion portraits and Trait metadata, the component recipe matrix, non-recipe Items and the Radiant matrix. `SET_OVERVIEW.md` remains a compact generated data overview. Maintaining another hand-written list of every Item name here would create a second source of truth.
 
 ## Asset completeness contract
 
@@ -64,9 +64,9 @@ A complete generated package contains one current TFT PNG for every logical Cham
 
 ## Human review gate
 
-The corrected official-byte Windows acquisition completed successfully using individual Riot TFT image files plus the nine configured CommunityDragon Lux variant portraits. The generated package contains 65 Champions, 36 Traits, 136 Items, 2 dynamic rules, 246 runtime PNGs, 65 Team Planner mappings and 255 pinned provenance sources. Generic Set validation and the Set-18 reviewed verifier both pass against the generated package and `source_lock.json`.
+The corrected official-byte Windows acquisition completed successfully using individual Riot TFT image files plus the nine configured CommunityDragon Lux variant portraits. The generated package contains 65 Champions, 36 Traits, 136 Items, 2 dynamic rules, 246 runtime PNGs, 65 Team Planner mappings and 255 pinned provenance sources. Generic Set validation and the generic reviewed-Set checker both pass against the generated package and `source_lock.json`; Enchanted Wilds expectations live in `data/review.json`.
 
-The current package should still be manually reviewed through `src/assets/sets/enchanted_wilds/SET_OVERVIEW.md` and the GUI in Part 4. Verify at minimum:
+The current package should still be manually reviewed through `src/assets/sets/enchanted_wilds/SET_REVIEW.md` and the GUI in Part 4. Verify at minimum:
 
 1. all 65 logical Champions and their Trait memberships;
 2. all 36 logical Trait definitions, especially Rival and derived Eclipse;
@@ -78,13 +78,13 @@ The current package should still be manually reviewed through `src/assets/sets/e
 
 ## Part 4 post-acquisition verification
 
-The real image acquisition and Set-specific verifier now pass. Part 4 repeats the gate from clean/warm caches, runs the generic `verify_source_lock.py` comparison, adds lightweight image sanity checks and performs the real GUI/HCI smoke. GUI-specific stress cases and interaction expectations remain in `SET_18_GUI_HCI_HANDOFF.md` so the dataset checklist does not become a second UI specification.
+The real image acquisition and generic Set-owned review-policy checker now pass. Part 4 repeats the gate from clean/warm caches, runs the generic `verify_source_lock.py` comparison, adds lightweight image sanity checks and performs the real GUI/HCI smoke. GUI-specific stress cases and interaction expectations remain in `SET_18_GUI_HCI_HANDOFF.md` so the dataset checklist does not become a second UI specification.
 
 
 ## Post-data special-rule audit
 
 - Elder Dragon's 2-slot/+2 Riftbeast data is correct and runtime board usage is calculated generically from `board_slots`; one Elder Dragon remains one Champion instance/card.
-- Kha'Zix zero-or-one PER_CHAMPION evolution remains accepted.
+- Kha'Zix ANY_NUMBER + PER_CHAMPION evolution accepts zero through all four reviewed evolution Traits.
 - Rival exact-one is the ordinary base-Set state. The two-Rival effect is tied to the Unrivaled Augment and is intentionally not normal base activation.
 - Eclipse remains a derived 3 Solar + 3 Lunar state and must not be direct Champion membership.
 - Lux remains one logical Avatar with a chosen origin worth 2 Trait points. Set 18 uses PER_CHAMPION scope so duplicate Lux copies within one List cannot represent conflicting origins.

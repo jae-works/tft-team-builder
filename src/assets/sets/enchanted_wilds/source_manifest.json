@@ -248,19 +248,20 @@
     "assets/traits/da_riftbeast18.png": "33a52667b7e7e0064966fd90913ec3bb71f83fb94fca0dbe756a7a6979287eee"
   },
   "generated_file_sha256": {
-    "SET_OVERVIEW.md": "f356fe55131dbf05b1f01f7d4ca61e116f56c4672c7ec26495d39a05d600e6f1",
+    "SET_OVERVIEW.md": "90cd25a835be98d4d66bd22f575464000e93ded48e17f74652b5921598ddee18",
     "data/champions.json": "8236bab0ad2dd12bb6897fc05efcce8e6d5616122c7669d70a5e47ffc22afdcc",
-    "data/dynamic_traits.json": "de49da08a57f94249695f108255e0448c913ecd55f23b36687fddc5100f62908",
+    "data/dynamic_traits.json": "85114431b613f34228fb1eaa632753c5477e067dd90abb8934a6543a5640fe60",
     "data/items.json": "a71d3df4bac8d6571cd269277af0ac794e21ba4e373e57cb61eba2ec2958efbd",
+    "data/review.json": "283493c5416069604c560fa765074e157500321f569910b27e78f99a95ae6103",
     "data/team_planner.json": "896210e97c35796242e467c69b8a31762d94edf23e631d2bae68162fdf681256",
     "data/traits.json": "5be36190543fbc3dfab249d649b7413bf3fb55cdb526a9921f7001a2d9734cef",
     "locales/de_DE.json": "d062b14176999ef50d3b5f1b864cd6cf422e39e035fa74a96b8be3a471905946",
     "locales/en_US.json": "e30822ea6c3445fc26b843b343716cb8228cc3dbc5709a6357149896c121a6d2",
-    "manifest.json": "3fa70eb1d26d1a2e9ae483316fe097219e30dc02b45db6d01c4443be49e3df9f",
+    "manifest.json": "bae7f044c13de558165b3a38923771aab1c80e98a89dedb8556978ba7ae78d74",
     "reports/source_inventory.json": "c11c8ec9b0a40962a0711451256f29e7a112952679df71aa9678d038f51c47d3"
   },
   "schema_version": 2,
-  "source_sha256": "62373d175534fd7b26a2ac7ed6771a18e90396d8eeb24587bc9ba4271f828388",
+  "source_sha256": "9ad6c6905e9ab070da44310546c2c1d9f8939f05ccc74e6c7ea7272aa7a0717b",
   "source_type": "local_spec",
   "sources": [
     {

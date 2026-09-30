@@ -191,7 +191,7 @@ The normal application reads only generated Set packages from `src/assets/sets/`
 
 ## Set 18 post-acquisition gate
 
-The Set-18 workflow has one intentionally set-specific final verifier: `tools/set_import/verify_enchanted_wilds.py`. It runs after normal package validation and checks the human-reviewed roster/category/source counts and exceptional semantics that a generic schema validator cannot know. It may also compare `source_lock.json` hashes with the provenance embedded in the generated package. This is a small explicit review gate, not a generic validation framework.
+Reviewed release Sets carry an optional `data/review.json` file. `tools/set_import/verify_set_review.py` is generic: it loads the Set-owned review policy, checks the reviewed roster/category/source counts and exceptional semantics, refreshes `SET_REVIEW.md`, and can compare `source_lock.json` with packaged provenance. Set IDs, Champion IDs, dynamic-choice rules, image-duplicate exceptions and expected inventories therefore live with the Set data rather than in Python constants.
 
 
 ## Post-data acquisition hardening
@@ -218,4 +218,4 @@ Use the generic developer command for future Sets:
 uv run python tools/set_import/verify_source_lock.py src/assets/sets/<set_id> set_sources/sets/<set_id>/source_lock.json
 ```
 
-A Set-specific reviewed verifier may add semantic expectations, but it should call the generic provenance comparison instead of implementing a second lock parser. Enchanted Wilds follows this pattern in `verify_enchanted_wilds.py`.
+Semantic expectations are declared in the Set-owned review policy and interpreted by `verify_set_review.py`. Enchanted Wilds therefore uses the same checker implementation as future reviewed Sets; only its `review.json` contents differ.

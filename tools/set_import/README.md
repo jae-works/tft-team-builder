@@ -21,7 +21,7 @@ The generic verifier compares Set ID/revision, complete provenance-ID inventory,
 Enchanted Wilds also has one intentionally Set-specific reviewed gate:
 
 ```text
-uv run python tools/set_import/verify_enchanted_wilds.py src/assets/sets/enchanted_wilds --source-lock set_sources/sets/enchanted_wilds/source_lock.json
+uv run python tools/set_import/verify_set_review.py src/assets/sets/enchanted_wilds --source-lock set_sources/sets/enchanted_wilds/source_lock.json
 ```
 
 This adds the reviewed Set-18 roster, category/source counts and exceptional semantics such as Elder Dragon, Lux, Kha'Zix, Rival and Eclipse. It reuses the generic provenance verifier rather than duplicating lock logic.

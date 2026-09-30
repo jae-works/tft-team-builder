@@ -8,7 +8,7 @@ Version: 0.7.0
 - Runtime Set discovery remains folder-based; no activation registry was added.
 - The Trait engine supports weighted native/dynamic contributions, exact-count activation and derived states such as Eclipse.
 - Builder-relevant Champion exceptions are represented only by executable declarative fields; there are no Elder Dragon, Lux or Kha'Zix name branches in the runtime engine.
-- Elder Dragon is 2 board slots and +2 Riftbeast in Set data. Lux is one logical Champion with nine PER_CHAMPION origin choices worth 2 Trait points each. Kha'Zix is one logical Champion with four ZERO_OR_ONE, PER_CHAMPION evolution choices.
+- Elder Dragon is 2 board slots and +2 Riftbeast in Set data. Lux is one logical Champion with nine PER_CHAMPION origin choices worth 2 Trait points each. Kha'Zix is one logical Champion with four ANY_NUMBER, PER_CHAMPION evolution choices, so all four can be active together.
 - Rival uses exact-one normal activation and Eclipse is derived from at least 3 Solar plus 3 Lunar.
 - The reviewed Set-18 source roster normalizes 91 raw Champion records to 65 logical units with 17 explicit exclusions and normalizes ten Lux source records to one logical Lux.
 - The reviewed Item boundary retains 136 canonical references: 10 components, 39 craftables, 20 emblems, 31 artifacts and 36 radiant Items. The other 634 broad source records remain explicit exclusions.
@@ -34,7 +34,7 @@ The generated package contains:
 - 65 Team Planner mappings;
 - 255 pinned provenance sources.
 
-Generic package validation and inspection passed. `verify_enchanted_wilds.py` also passed against the real package and source lock.
+Generic package validation and inspection passed. The generic reviewed-Set checker also passes against the real package and source lock.
 
 The earlier sprite-atlas attempt is retained only as historical evidence: its first official run failed at `DA_CrimsonRaptor18`, proving the synthetic atlas harness could not establish release asset correctness. D037 supersedes the sprite acquisition decision for release builds.
 
@@ -49,11 +49,11 @@ The reported formatting/import changes are applied. Startup integration tests no
 
 Part 3 adds generic provenance verification in `tft_builder.source_verification` plus `tools/set_import/verify_source_lock.py`. It compares Set ID/revision, complete provenance-ID inventory and every source record's URL, source revision, locale, SHA-256 and byte length. Malformed records, duplicate IDs, missing IDs and unexpected IDs are explicit failures. `SourceManifest` now also rejects duplicate packaged provenance IDs.
 
-`verify_enchanted_wilds.py` reuses this generic lock comparison and retains only Set-18-specific semantic checks. The official package is the positive complete fixture. Mutation tests cover Elder Dragon, Lux, Kha'Zix, Rival, Eclipse, Team Planner mapping, Item category counts, source accounting, locale markup, runtime asset inventory and all provenance fields.
+`verify_set_review.py` reuses this generic lock comparison and reads all Set-specific semantic expectations from the runtime package `data/review.json`. The official package is the positive complete fixture. Mutation tests cover Elder Dragon, Lux, Kha'Zix, Rival, Eclipse, Team Planner mapping, Item category counts, source accounting, locale markup, runtime asset inventory and all provenance fields.
 
 ## Verification status
 
-Local verification after Parts 2-3 passes 689 tests with 3,024 production statements and 922 branches at 100 percent statement and branch coverage. The generic provenance verifier and Set-18 verifier both pass against the official package and lock in the current project tree.
+Local verification after Parts 2-3 passes 689 tests with 3,024 production statements and 922 branches at 100 percent statement and branch coverage. The generic provenance verifier and reviewed-Set policy checker both pass against the official package and lock in the current project tree.
 
 Part 4 remains before closing Block 7 hardening:
 
@@ -76,7 +76,8 @@ The one remaining Ruff 0.16.9 formatter finding in `tests/test_set_schema.py` is
 - The clean Windows packaged test proved `_pydantic_core.cp313-win_amd64.pyd` reaches Serious Python staging and the app can reach the real Team Library without the project startup-error surface.
 - Packaged Flet sessions now rebuild disposable Python staging before every run; repeat tests no longer rely on a directory mutated by an earlier packaging pass.
 - Flet 1.0.1 packaged smoke readiness/navigation uses visible text and tooltips instead of treating Python control keys as a device-mode release contract.
-- The Set-18 verifier now checks PNG signatures, the reviewed dimension inventory and exact duplicate-image groups. The normal/Radiant Spirit Visage files are the only source-confirmed byte-identical pair.
+- The generic reviewed-Set checker checks PNG signatures, the reviewed dimension inventory and exact duplicate-image groups declared by Set data. Enchanted Wilds declares the normal/Radiant Spirit Visage files as its only source-confirmed byte-identical pair.
+- The checker also regenerates `SET_REVIEW.md`, which exposes all Trait breakpoint effects, Champion portraits/Traits, the complete 10-component recipe matrix, non-recipe Items and a Radiant matrix for manual inspection.
 - `compare_set_packages.py` provides the deterministic clean-cache/warm-cache comparison gate for the final networked Windows verification.
 - Cross-platform direction is explicit: Windows is the current blocking release target; macOS, Linux, Android, iOS and Web are later targets requiring their own packaging/runtime verification.
 - `BLOCK_08_PLAN.md` prepares Team Planner and lossless native import/export without beginning Block 8 implementation.

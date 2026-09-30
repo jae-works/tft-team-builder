@@ -1,6 +1,6 @@
 {
   "current_block": 7,
-  "current_state": "block_7_part_4_implementation_complete_pending_windows_gate",
+  "current_state": "block_7_dataset_review_correction_complete_pending_code_build_audit",
   "delivery_rules": {
     "complete_project_zip": true,
     "provide_git_command_block": true,
@@ -230,6 +230,8 @@
     "block_7_data_completion_part_2b_verified": true,
     "block_7_data_completion_part_3_acquisition_path_verified": true,
     "block_7_data_completion_part_4_verified": true,
+    "block_7_dataset_exact_uv_check_pending_due_tool_version": true,
+    "block_7_dataset_targeted_tests_passed": 320,
     "block_7_individual_asset_acquisition_harness_verified": true,
     "block_7_packaged_runtime_cleanup_fix_pending_windows": true,
     "block_7_packaged_runtime_direct_dependency_windows_failed": true,
@@ -257,7 +259,10 @@
     "block_7_post_data_part_4_implementation_complete": true,
     "block_7_post_data_part_4_pending": false,
     "block_7_post_data_part_4_windows_final_gate_pending": true,
+    "block_7_review_policy_data_driven": true,
+    "block_7_review_report_generated": true,
     "block_7_set18_image_sanity_added": true,
+    "block_7_set18_khazix_any_number": true,
     "block_7_source_lock_post_build_commit_verified": true,
     "block_7_windows_clean_staging_native_core_observed": true,
     "block_7_windows_packaged_library_reached_without_startup_error": true,

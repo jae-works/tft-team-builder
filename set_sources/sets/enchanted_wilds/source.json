@@ -73,7 +73,7 @@
   "dynamic_traits": [
     {
       "champion_id": "DA_18_KhaZix",
-      "selection_rule": "ZERO_OR_ONE",
+      "selection_rule": "ANY_NUMBER",
       "selection_scope": "PER_CHAMPION",
       "choice_trait_names": [
         "Executioner",
@@ -232,5 +232,206 @@
   "localized_display_names": {
     "en_US": "Enchanted Wilds",
     "de_DE": "Verzauberte Wildnis"
+  },
+  "review": {
+    "expected_set_id": "enchanted_wilds",
+    "expected_revision": "18.3b",
+    "champion_count": 65,
+    "trait_count": 36,
+    "item_count": 136,
+    "dynamic_trait_count": 2,
+    "champion_cost_counts": [
+      {
+        "cost": 1,
+        "count": 14
+      },
+      {
+        "cost": 2,
+        "count": 13
+      },
+      {
+        "cost": 3,
+        "count": 14
+      },
+      {
+        "cost": 4,
+        "count": 14
+      },
+      {
+        "cost": 5,
+        "count": 10
+      }
+    ],
+    "item_category_counts": [
+      {
+        "category": "COMPONENT",
+        "count": 10
+      },
+      {
+        "category": "CRAFTABLE",
+        "count": 39
+      },
+      {
+        "category": "EMBLEM",
+        "count": 20
+      },
+      {
+        "category": "ARTIFACT",
+        "count": 31
+      },
+      {
+        "category": "RADIANT",
+        "count": 36
+      }
+    ],
+    "champion_expectations": [
+      {
+        "champion_id": "DA_18_ElderDragon",
+        "board_slots": 2,
+        "trait_points": {
+          "DA_Riftbeast18": 2
+        }
+      }
+    ],
+    "trait_expectations": [
+      {
+        "trait_id": "DA_18_Rival",
+        "activation_mode": "EXACT",
+        "derived_requirements": {}
+      },
+      {
+        "trait_id": "DA_18_Eclipse",
+        "activation_mode": "AT_LEAST",
+        "derived_requirements": {
+          "DA_18_Lunar": 3,
+          "DA_18_Solar": 3
+        }
+      }
+    ],
+    "dynamic_trait_expectations": [
+      {
+        "champion_id": "DA_Lux18_Base",
+        "selection_rule": "EXACTLY_ONE",
+        "selection_scope": "PER_CHAMPION",
+        "choices": [
+          "DA_18_Blackthorn",
+          "DA_18_Blossom",
+          "DA_18_Coven",
+          "DA_18_Elderwood",
+          "DA_18_Fae",
+          "DA_18_Inferno",
+          "DA_18_Lunar",
+          "DA_18_Solar",
+          "DA_Primal18"
+        ],
+        "exact_count": null,
+        "choice_points": {
+          "DA_18_Blackthorn": 2,
+          "DA_18_Blossom": 2,
+          "DA_18_Coven": 2,
+          "DA_18_Elderwood": 2,
+          "DA_18_Fae": 2,
+          "DA_18_Inferno": 2,
+          "DA_18_Lunar": 2,
+          "DA_18_Solar": 2,
+          "DA_Primal18": 2
+        },
+        "choice_images": "ALL"
+      },
+      {
+        "champion_id": "DA_18_KhaZix",
+        "selection_rule": "ANY_NUMBER",
+        "selection_scope": "PER_CHAMPION",
+        "choices": [
+          "DA_18_Executioner",
+          "DA_18_Rapidfire",
+          "DA_18_Slayer",
+          "DA_18_Spellweaver"
+        ],
+        "exact_count": null,
+        "choice_points": {
+          "DA_18_Executioner": 1,
+          "DA_18_Rapidfire": 1,
+          "DA_18_Slayer": 1,
+          "DA_18_Spellweaver": 1
+        },
+        "choice_images": "NONE"
+      }
+    ],
+    "team_planner_codec": "riot_v2_12bit",
+    "team_planner_champion_count": 65,
+    "source_candidate_counts": [
+      {
+        "kind": "CHAMPION",
+        "status": "INCLUDED",
+        "count": 74
+      },
+      {
+        "kind": "CHAMPION",
+        "status": "EXCLUDED",
+        "count": 17
+      },
+      {
+        "kind": "TRAIT",
+        "status": "INCLUDED",
+        "count": 36
+      },
+      {
+        "kind": "ITEM",
+        "status": "INCLUDED",
+        "count": 136
+      },
+      {
+        "kind": "ITEM",
+        "status": "EXCLUDED",
+        "count": 634
+      }
+    ],
+    "png_count": 246,
+    "source_manifest_asset_count": 246,
+    "provenance_source_count": 255,
+    "png_dimensions": [
+      {
+        "width": 32,
+        "height": 32,
+        "count": 36
+      },
+      {
+        "width": 64,
+        "height": 64,
+        "count": 4
+      },
+      {
+        "width": 128,
+        "height": 128,
+        "count": 129
+      },
+      {
+        "width": 256,
+        "height": 256,
+        "count": 12
+      },
+      {
+        "width": 1024,
+        "height": 512,
+        "count": 65
+      }
+    ],
+    "allowed_duplicate_asset_groups": [
+      [
+        "assets/items/da_spiritvisage.png",
+        "assets/items/da_spiritvisage_radiant.png"
+      ]
+    ],
+    "reject_locale_markup": true,
+    "locale_expectations": [
+      {
+        "locale": "de_DE",
+        "key": "trait.da_18_maokai_uniquetrait.name",
+        "value": "Wachstum der Urahnen"
+      }
+    ],
+    "minimum_max_champion_traits": 3,
+    "minimum_max_trait_breakpoints": 5
   }
 }

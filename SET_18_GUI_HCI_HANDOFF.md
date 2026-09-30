@@ -55,7 +55,7 @@ The final GUI verification should explicitly cover:
 - keyboard-only open/select/apply/cancel for dynamic choices;
 - focus return after closing the dynamic editor and Trait details.
 
-`tools/set_import/verify_enchanted_wilds.py` is the final post-acquisition dataset gate. It verifies the reviewed counts, special semantics, source accounting, asset inventory and locale markup before the real Set package is accepted.
+`tools/set_import/verify_set_review.py` is the final post-acquisition dataset gate. It reads Enchanted Wilds expectations from `data/review.json`, verifies reviewed counts/special semantics/source accounting/asset inventory/locale markup, and regenerates `SET_REVIEW.md`.
 
 
 ## Post-data hardening clarification
@@ -66,4 +66,4 @@ Lux duplicate-origin behavior is under final Part 2 review. The UI must follow t
 
 ## Part-4 real GUI smoke
 
-Before leaving Block 7, verify the real Enchanted Wilds package on Windows with these data-driven cases: Lux changes portrait and contributes two points to one selected origin; duplicate Lux copies share the PER_CHAMPION selection; Kha'Zix can remain unevolved or show one of four evolution Traits while keeping the base portrait; Elder Dragon remains one visual Champion while board usage increases by two and Riftbeast increases by exactly two; Rival activates only at the reviewed exact-one base state; Eclipse appears only after the derived 3 Lunar plus 3 Solar condition. Repeat the check with the German locale stress labels and a dense five-breakpoint Trait. These are smoke cases, not Champion-name branches to add to the UI.
+Before leaving Block 7, verify the real Enchanted Wilds package on Windows with these data-driven cases: Lux changes portrait and contributes two points to one selected origin; duplicate Lux copies share the PER_CHAMPION selection; Kha'Zix can remain unevolved or select any combination up to all four evolution Traits while keeping the base portrait; Elder Dragon remains one visual Champion while board usage increases by two and Riftbeast increases by exactly two; Rival activates only at the reviewed exact-one base state; Eclipse appears only after the derived 3 Lunar plus 3 Solar condition. Repeat the check with the German locale stress labels and a dense five-breakpoint Trait. These are smoke cases, not Champion-name branches to add to the UI.

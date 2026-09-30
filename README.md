@@ -134,7 +134,7 @@ Verify its acquisition provenance with:
 
 ```text
 uv run python tools/set_import/verify_source_lock.py src/assets/sets/enchanted_wilds set_sources/sets/enchanted_wilds/source_lock.json
-uv run python tools/set_import/verify_enchanted_wilds.py src/assets/sets/enchanted_wilds --source-lock set_sources/sets/enchanted_wilds/source_lock.json
+uv run python tools/set_import/verify_set_review.py src/assets/sets/enchanted_wilds --source-lock set_sources/sets/enchanted_wilds/source_lock.json
 ```
 
 ## Important directories

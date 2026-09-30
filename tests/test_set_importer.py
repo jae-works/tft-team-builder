@@ -176,6 +176,13 @@ def test_enchanted_wilds_source_config_matches_reviewed_set18_ids(project_root) 
     assert "DA_Lux18_Blackthorn" in group["source_ids"]
     assert "DA_18_Lux_Moonbeam" in group["source_ids"]
     assert config["dynamic_traits"][0]["champion_id"] == "DA_18_KhaZix"
+    assert config["dynamic_traits"][0]["selection_rule"] == "ANY_NUMBER"
+    assert config["review"]["expected_set_id"] == "enchanted_wilds"
+    assert config["review"]["dynamic_trait_expectations"][1]["selection_rule"] == "ANY_NUMBER"
+    assert config["review"]["allowed_duplicate_asset_groups"] == [[
+        "assets/items/da_spiritvisage.png",
+        "assets/items/da_spiritvisage_radiant.png",
+    ]]
     assert "DA_18_ElderDragon" in config["champion_adjustments"]
 
 
